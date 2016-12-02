@@ -68,7 +68,7 @@
 <link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="nginx," />
 
 
 
@@ -86,25 +86,16 @@
 
 
 
-<meta name="description" content="平时的一些收集，不想转载的放到这里记录下来Markdown 语法说明 (简体中文版)http://wowubuntu.com/markdown/
-hexo主题next使用帮助http://theme-next.iissnan.com/getting-started.html
-很不错的hexo介绍文章http://ibruce.info/2013/11/22/hexo-your-blog/
-hexo">
+<meta name="description" content="应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。例如如果域名是aa.abc.com,就使用root路径为/data/public/aa bb.abc.com,就使用root路径为/data/public/bb cc.abc.com,就是用root路径为/data/public/cc">
 <meta property="og:type" content="article">
-<meta property="og:title" content="收藏链接">
-<meta property="og:url" content="https://plpcm.github.io/blog/2016/12/02/hotlink/index.html">
+<meta property="og:title" content="Nginx虚拟主机根据不同的域名使用不同的root路径">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/03/12/nginx_var_root/index.html">
 <meta property="og:site_name" content="曹淼的“git博客”">
-<meta property="og:description" content="平时的一些收集，不想转载的放到这里记录下来Markdown 语法说明 (简体中文版)http://wowubuntu.com/markdown/
-hexo主题next使用帮助http://theme-next.iissnan.com/getting-started.html
-很不错的hexo介绍文章http://ibruce.info/2013/11/22/hexo-your-blog/
-hexo">
-<meta property="og:updated_time" content="2016-12-02T07:14:27.000Z">
+<meta property="og:description" content="应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。例如如果域名是aa.abc.com,就使用root路径为/data/public/aa bb.abc.com,就使用root路径为/data/public/bb cc.abc.com,就是用root路径为/data/public/cc">
+<meta property="og:updated_time" content="2016-12-02T10:07:55.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="收藏链接">
-<meta name="twitter:description" content="平时的一些收集，不想转载的放到这里记录下来Markdown 语法说明 (简体中文版)http://wowubuntu.com/markdown/
-hexo主题next使用帮助http://theme-next.iissnan.com/getting-started.html
-很不错的hexo介绍文章http://ibruce.info/2013/11/22/hexo-your-blog/
-hexo">
+<meta name="twitter:title" content="Nginx虚拟主机根据不同的域名使用不同的root路径">
+<meta name="twitter:description" content="应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。例如如果域名是aa.abc.com,就使用root路径为/data/public/aa bb.abc.com,就使用root路径为/data/public/bb cc.abc.com,就是用root路径为/data/public/cc">
 
 
 
@@ -132,13 +123,13 @@ hexo">
 
 
 
-  <link rel="canonical" href="https://plpcm.github.io/blog/2016/12/02/hotlink/"/>
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/03/12/nginx_var_root/"/>
 
 
 
 
 
-  <title> 收藏链接 | 曹淼的“git博客” </title>
+  <title> Nginx虚拟主机根据不同的域名使用不同的root路径 | 曹淼的“git博客” </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -325,7 +316,7 @@ hexo">
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/12/02/hotlink/">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/03/12/nginx_var_root/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="曹淼">
@@ -349,7 +340,7 @@ hexo">
             
             
               
-                收藏链接
+                Nginx虚拟主机根据不同的域名使用不同的root路径
               
             
           </h1>
@@ -362,8 +353,8 @@ hexo">
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-02T15:14:27+08:00">
-                2016-12-02
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-03-12T15:33:16+08:00">
+                2016-03-12
               </time>
             
 
@@ -381,8 +372,8 @@ hexo">
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/Collection/" itemprop="url" rel="index">
-                    <span itemprop="name">Collection</span>
+                  <a href="/blog/categories/nginx/" itemprop="url" rel="index">
+                    <span itemprop="name">nginx</span>
                   </a>
                 </span>
 
@@ -404,6 +395,10 @@ hexo">
           
 
           
+              <div class="post-description">
+                  应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。例如如果域名是aa.abc.com,就使用root路径为/data/public/aa bb.abc.com,就使用root路径为/data/public/bb cc.abc.com,就是用root路径为/data/public/cc
+              </div>
+          
 
         </div>
       </header>
@@ -416,10 +411,32 @@ hexo">
       
 
       
-        <h2 id="平时的一些收集，不想转载的放到这里记录下来"><a href="#平时的一些收集，不想转载的放到这里记录下来" class="headerlink" title="平时的一些收集，不想转载的放到这里记录下来"></a>平时的一些收集，不想转载的放到这里记录下来</h2><h4 id="Markdown-语法说明-简体中文版"><a href="#Markdown-语法说明-简体中文版" class="headerlink" title="Markdown 语法说明 (简体中文版)"></a>Markdown 语法说明 (简体中文版)</h4><p><a href="http://wowubuntu.com/markdown/" target="_blank" rel="external">http://wowubuntu.com/markdown/</a></p>
-<h4 id="hexo主题next使用帮助"><a href="#hexo主题next使用帮助" class="headerlink" title="hexo主题next使用帮助"></a>hexo主题next使用帮助</h4><p><a href="http://theme-next.iissnan.com/getting-started.html" target="_blank" rel="external">http://theme-next.iissnan.com/getting-started.html</a></p>
-<h4 id="很不错的hexo介绍文章"><a href="#很不错的hexo介绍文章" class="headerlink" title="很不错的hexo介绍文章"></a>很不错的hexo介绍文章</h4><p><a href="http://ibruce.info/2013/11/22/hexo-your-blog/" target="_blank" rel="external">http://ibruce.info/2013/11/22/hexo-your-blog/</a></p>
-<h4 id="hexo原作者-Hexo-颯爽登場！"><a href="#hexo原作者-Hexo-颯爽登場！" class="headerlink" title="hexo原作者-Hexo 颯爽登場！"></a>hexo原作者-Hexo 颯爽登場！</h4><p><a href="https://zespia.tw/blog/2012/10/11/hexo-debut/" target="_blank" rel="external">https://zespia.tw/blog/2012/10/11/hexo-debut/</a></p>
+        <h2 id="一-应用场景描述"><a href="#一-应用场景描述" class="headerlink" title="一 应用场景描述"></a>一 应用场景描述</h2><p>应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。<br>例如如果域名是</p>
+<p>aa.abc.com,就使用root路径为/data/public/aa</p>
+<p>bb.abc.com,就使用root路径为/data/public/bb</p>
+<p>cc.abc.com,就是用root路径为/data/public/cc</p>
+<h2 id="二-解决方法"><a href="#二-解决方法" class="headerlink" title="二 解决方法"></a>二 解决方法</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">server</div><div class="line">&#123;</div><div class="line">        listen      <span class="number">80</span>;</div><div class="line">        server_name *.abc.com;</div><div class="line">        <span class="built_in">set</span> $path_name aa;</div><div class="line">        <span class="keyword">if</span> ($host ~ <span class="string">"bb"</span>)</div><div class="line">        &#123;</div><div class="line">          <span class="built_in">set</span> $path_name bb;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> ($host ~ <span class="string">"cc"</span>)</div><div class="line">        &#123;</div><div class="line">          <span class="built_in">set</span> $path_name cc;</div><div class="line">        &#125;</div><div class="line">        root        /data/<span class="keyword">public</span>/$path_name/;</div><div class="line">        location / &#123;</div><div class="line">            <span class="keyword">if</span> (!-e $request_filename)&#123;</div><div class="line">              rewrite /(.*) /index.php last;</div><div class="line">			&#125;</div><div class="line">            index index.php;</div><div class="line">        &#125;</div><div class="line">        location ~ .php$ &#123;</div><div class="line">            fastcgi_pass  <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9000</span>;</div><div class="line">            fastcgi_index  index.php;</div><div class="line">            fastcgi_param  SCRIPT_FILENAME  $document_root/$fastcgi_script_name;</div><div class="line">            include        fastcgi_params;</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里设置变量$path_name,然后在root路径中使用这个变量</p>
+<h2 id="三-相关Nginx指令介绍"><a href="#三-相关Nginx指令介绍" class="headerlink" title="三 相关Nginx指令介绍"></a>三 相关Nginx指令介绍</h2><ol>
+<li>set指令<br>用于定义一个变量，并为变量赋值<br>作用范围为if,location,server<br>如以上的<br>set $path_name aa;</li>
+<li>if指令<br>if(condition) {…}<br>作用范围为<br>如：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">if ($host ~ &quot;bb&quot;)</div><div class="line">&#123;</div><div class="line">set $path_name bb;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>if指令用于检查一个条件是否符合，如果条件符合，则执行大括号内的内容。if指令不支持嵌套，不支持多个&amp;&amp;或||<br>可以指定的条件为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">1）变量名</div><div class="line">2）变量比较可以使用 =（等于）和!=（不等于）</div><div class="line">3）正则表达式匹配可以使用 ~（区分大小写匹配）和 ~* （不区分大小写匹配）</div><div class="line">  !~ 和 !~* 则表示不匹配</div><div class="line">4）-f和!-f 用来判断文件是否存在</div><div class="line">5) -d和!-d 用来判断目录是否存在</div><div class="line">6) -e和!-e 用来判断文件或目录是否存在</div><div class="line">7）-x和!-x 用来判断文件是否可以执行</div></pre></td></tr></table></figure>
+<ol>
+<li>Nginx内置变量</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$host                            请求的主机名</div><div class="line">$request_filename                    请求的文件名</div></pre></td></tr></table></figure>
+<ol>
+<li>rewrite指令</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rewrite regex replacement flag;</div></pre></td></tr></table></figure>
+<p>用来重定向URL</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">if (!-e $request_filename)&#123;</div><div class="line">rewrite /(.*) /index.php last;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>rewrite最后一项为标记位，Nginx支持的标记为有：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">last          表示完成rewrite</div><div class="line">permanent      返回301永久重定向，浏览器地址栏会显示跳转后的URL</div><div class="line">break        本条规则匹配完成后，终止其他规则的匹配</div><div class="line">redirect        返回302临时重定向</div></pre></td></tr></table></figure>
+<p>last和break完成URL的重定向，浏览器上的地址不会变，但在服务器端上的位置发生了变化。permanent和redirect用来实现URL跳转，浏览器地址栏会显示跳转后的URL。<br>使用alias指令时必须使用last指令，使用proxy_pass指令时必须使用break指令</p>
 
       
     </div>
@@ -441,13 +458,19 @@ hexo">
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/blog/tags/nginx/" rel="tag"># nginx</a>
+          
+        </div>
+      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2016/03/12/nginx_var_root/" rel="next" title="Nginx虚拟主机根据不同的域名使用不同的root路径">
-                <i class="fa fa-chevron-left"></i> Nginx虚拟主机根据不同的域名使用不同的root路径
+              <a href="/blog/2016/03/02/openresty-cc/" rel="next" title="OpenResty实现防cc攻击">
+                <i class="fa fa-chevron-left"></i> OpenResty实现防cc攻击
               </a>
             
           </div>
@@ -455,6 +478,10 @@ hexo">
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/12/02/hotlink/" rel="prev" title="收藏链接">
+                收藏链接 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -630,7 +657,7 @@ hexo">
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#平时的一些收集，不想转载的放到这里记录下来"><span class="nav-number">1.</span> <span class="nav-text">平时的一些收集，不想转载的放到这里记录下来</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Markdown-语法说明-简体中文版"><span class="nav-number">1.0.1.</span> <span class="nav-text">Markdown 语法说明 (简体中文版)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hexo主题next使用帮助"><span class="nav-number">1.0.2.</span> <span class="nav-text">hexo主题next使用帮助</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#很不错的hexo介绍文章"><span class="nav-number">1.0.3.</span> <span class="nav-text">很不错的hexo介绍文章</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#hexo原作者-Hexo-颯爽登場！"><span class="nav-number">1.0.4.</span> <span class="nav-text">hexo原作者-Hexo 颯爽登場！</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一-应用场景描述"><span class="nav-number">1.</span> <span class="nav-text">一 应用场景描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二-解决方法"><span class="nav-number">2.</span> <span class="nav-text">二 解决方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三-相关Nginx指令介绍"><span class="nav-number">3.</span> <span class="nav-text">三 相关Nginx指令介绍</span></a></li></ol></div>
             
 
           </div>

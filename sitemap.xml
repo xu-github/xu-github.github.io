@@ -2,9 +2,44 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/03/02/openresty-cc/</loc>
+    
+    <lastmod>2016-12-02T10:28:47.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/03/02/nginx-limit-mod/</loc>
+    
+    <lastmod>2016-12-02T10:28:33.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/02/01/hexo-init/</loc>
+    
+    <lastmod>2016-12-02T10:14:12.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/02/21/git-remote-server/</loc>
+    
+    <lastmod>2016-12-02T10:11:48.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/03/12/nginx_var_root/</loc>
+    
+    <lastmod>2016-12-02T10:07:55.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://plpcm.github.io/blog/about/index.html</loc>
     
-    <lastmod>2016-12-02T08:19:57.000Z</lastmod>
+    <lastmod>2016-12-02T08:55:49.000Z</lastmod>
     
   </url>
   
@@ -33,20 +68,6 @@
     <loc>https://plpcm.github.io/blog/404.html</loc>
     
     <lastmod>2016-12-02T03:59:48.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/02/01/hexo-init/</loc>
-    
-    <lastmod>2016-12-01T09:03:26.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/02/21/git-remote-server/</loc>
-    
-    <lastmod>2016-12-01T02:49:06.000Z</lastmod>
     
   </url>
   
