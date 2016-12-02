@@ -1,0 +1,788 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="hexo,next," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="曹淼的“git博客”" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Hexo搭建个人博客">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo搭建个人博客">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/02/01/hexo-init/index.html">
+<meta property="og:site_name" content="曹淼的“git博客”">
+<meta property="og:description" content="Hexo搭建个人博客">
+<meta property="og:image" content="http://bruce.u.qiniudn.com/2013/11/27/reading/photos-0.jpg">
+<meta property="og:image" content="http://bruce.u.qiniudn.com/2013/11/27/reading/photos-1.jpg">
+<meta property="og:updated_time" content="2016-12-01T09:03:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hexo搭建个人博客">
+<meta name="twitter:description" content="Hexo搭建个人博客">
+<meta name="twitter:image" content="http://bruce.u.qiniudn.com/2013/11/27/reading/photos-0.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/02/01/hexo-init/"/>
+
+
+
+
+
+  <title> Hexo搭建个人博客 | 曹淼的“git博客” </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">曹淼的“git博客”</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">道法自然</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/blog/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/blog/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/02/01/hexo-init/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="曹淼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/blog/uploads/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="曹淼的“git博客”">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="曹淼的“git博客”" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Hexo搭建个人博客
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-02-01T00:00:00+08:00">
+                2016-02-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/hexo/" itemprop="url" rel="index">
+                    <span itemprop="name">hexo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+              <div class="post-description">
+                  Hexo搭建个人博客
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+        <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+          
+          
+            <div class="post-gallery-row">
+              <a class="post-gallery-img fancybox"
+                 href="http://bruce.u.qiniudn.com/2013/11/27/reading/photos-0.jpg" rel="gallery_ciw78zzke000dy8pz16jbhhpa"
+                 itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                <img src="http://bruce.u.qiniudn.com/2013/11/27/reading/photos-0.jpg" itemprop="contentUrl"/>
+              </a>
+            
+          
+            
+              <a class="post-gallery-img fancybox"
+                 href="http://bruce.u.qiniudn.com/2013/11/27/reading/photos-1.jpg" rel="gallery_ciw78zzke000dy8pz16jbhhpa"
+                 itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                <img src="http://bruce.u.qiniudn.com/2013/11/27/reading/photos-1.jpg" itemprop="contentUrl"/>
+              </a>
+            
+          
+
+          
+          </div>
+        </div>
+      
+
+      
+        <h3 id="安装Hexo"><a href="#安装Hexo" class="headerlink" title="安装Hexo"></a>安装Hexo</h3><ul>
+<li>安装</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">mkdir hexo  #创建一个文件夹</div><div class="line">cd hexo</div><div class="line">npm install -g hexo-cli</div><div class="line">npm install hexo --save</div></pre></td></tr></table></figure>
+<ul>
+<li>部署Hexo：在Git shell 中输入</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo init</div></pre></td></tr></table></figure>
+<ul>
+<li>安装Hexo 插件：自动生成sitemap,Rss，部署到git等，建议安装</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">npm install hexo-generator-index --save</div><div class="line">npm install hexo-generator-archive --save</div><div class="line">npm install hexo-generator-category --save</div><div class="line">npm install hexo-generator-tag --save</div><div class="line">npm install hexo-server --save</div><div class="line">npm install hexo-deployer-git --save</div><div class="line">npm install hexo-deployer-heroku --save</div><div class="line">npm install hexo-deployer-rsync --save</div><div class="line">npm install hexo-deployer-openshift --save</div><div class="line">npm install hexo-renderer-marked@0.2 --save</div><div class="line">npm install hexo-renderer-stylus@0.2 --save</div><div class="line">npm install hexo-generator-feed@1 --save</div><div class="line">npm install hexo-generator-sitemap@1 --save</div></pre></td></tr></table></figure>
+<h2 id="Hexo常用的几个命令"><a href="#Hexo常用的几个命令" class="headerlink" title="Hexo常用的几个命令"></a>Hexo常用的几个命令</h2><h3 id="创建新博文"><a href="#创建新博文" class="headerlink" title="创建新博文"></a>创建新博文</h3><p>执行new命令，生成指定名称的文章至hexo\source_posts\postName.md。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hexo new [layout] &quot;postName&quot; #新建文章</div></pre></td></tr></table></figure>
+<p>其中layout是可选参数，默认值为post。有哪些layout呢，请到scaffolds目录下查看，这些文件名称就是layout名称。当然你可以添加自己的layout，方法就是添加一个文件即可，同时你也可以编辑现有的layout，比如post的layout默认是hexo\scaffolds\post.md</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">title: &#123; &#123; title &#125; &#125;</div><div class="line">date: &#123; &#123; date &#125; &#125;</div><div class="line">tags:</div><div class="line">---</div></pre></td></tr></table></figure>
+<blockquote>
+<p>请注意，大括号与大括号之间我多加了个空格，否则会被转义，不能正常显示。</p>
+</blockquote>
+<p>我想添加categories，以免每次手工输入，只需要修改这个文件添加一行，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">title: &#123; &#123; title &#125; &#125;</div><div class="line">date: &#123; &#123; date &#125; &#125;</div><div class="line">categories: </div><div class="line">tags: </div><div class="line">---</div></pre></td></tr></table></figure>
+<p>更多信息参考: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
+<h3 id="运行服务器"><a href="#运行服务器" class="headerlink" title="运行服务器"></a>运行服务器</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
+<p>参考: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
+<h3 id="生成静态站点文件"><a href="#生成静态站点文件" class="headerlink" title="生成静态站点文件"></a>生成静态站点文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
+<p>参考: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
+<h3 id="部署到Git"><a href="#部署到Git" class="headerlink" title="部署到Git"></a>部署到Git</h3><p>部署到Github前需要配置_config.yml文件</p>
+<p>添加如下内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">deploy:</div><div class="line">	type: git</div><div class="line">	repository: git@github.com:EZLippi/EZLippi.github.io.git</div><div class="line">	branch: master</div></pre></td></tr></table></figure>
+<p>然后输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
+<p>参考: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+<h2 id="fancybox"><a href="#fancybox" class="headerlink" title="fancybox"></a>fancybox</h2><p>可能有人对这个Reading页面中图片的fancybox效果感兴趣，这个是怎么做的呢。<br>很简单，只需要在你的文章*.md文件的头上添加photos项即可，然后一行行添加你要展示的照片:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">title: Hexo建立个人博客</div><div class="line">photos:</div><div class="line">- http://bruce.u.qiniudn.com/2013/11/27/reading/photos-0.jpg</div><div class="line">- http://bruce.u.qiniudn.com/2013/11/27/reading/photos-1.jpg</div><div class="line">---</div></pre></td></tr></table></figure>
+<h2 id="主题设置"><a href="#主题设置" class="headerlink" title="主题设置"></a>主题设置</h2><p>本博客采用了iissnan的Next主题，他的博客有详细的安装教程，这里贴下链接<a href="http://theme-next.iissnan.com/" target="_blank" rel="external">next</a>，有需要的朋友直接参考他写的教程，一气呵成~</p>
+<h3 id="下载主题"><a href="#下载主题" class="headerlink" title="下载主题"></a>下载主题</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cd hexo目录</div><div class="line">$ git clone https://github.com/iissnan/hexo-theme-next themes/next</div></pre></td></tr></table></figure>
+<h3 id="应用Hexo主题"><a href="#应用Hexo主题" class="headerlink" title="应用Hexo主题"></a>应用Hexo主题</h3><p>在hexo目录下找到_config.yml配置文件，找到 theme 字段，并将其值更改为 next，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">theme: next</div></pre></td></tr></table></figure>
+<h3 id="设置RSS"><a href="#设置RSS" class="headerlink" title="设置RSS"></a>设置RSS</h3><p>在上面的步骤中已经安装了Rss插件，只要要在themes\next_config.yml配置文件中添加如下一行即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rss：</div></pre></td></tr></table></figure>
+<h3 id="添加标签tags页面"><a href="#添加标签tags页面" class="headerlink" title="添加标签tags页面"></a>添加标签tags页面</h3><p>定位到 Hexo 站点目录下，使用 hexo new page 新建一个页面，命名为 tags，布局格式为page：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cd hexo目录</div><div class="line">$ hexo new page tags</div></pre></td></tr></table></figure>
+<p>内容如下所示，如果要关闭tags页面的评论可以设置comments为false：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">title: 标签</div><div class="line">date: 2014-12-22 12:39:04</div><div class="line">type: &quot;tags&quot;</div><div class="line">comments: false</div><div class="line">---</div></pre></td></tr></table></figure>
+<p>这样以后tags页面在每次执行hexo generate后自动更新。</p>
+<h3 id="添加分类页面"><a href="#添加分类页面" class="headerlink" title="添加分类页面"></a>添加分类页面</h3><p>和上面的一样，在hexo目录下执行下面命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new page categories</div></pre></td></tr></table></figure>
+<p>内容为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">title: 分类</div><div class="line">date: 2014-12-22 12:39:04</div><div class="line">type: &quot;categories&quot;</div><div class="line">comments: false</div><div class="line">---</div></pre></td></tr></table></figure>
+<h3 id="添加404页面"><a href="#添加404页面" class="headerlink" title="添加404页面"></a>添加404页面</h3><p>新建一个404.html文件，放到themes\next\source目录下，内容你自己定。</p>
+<h3 id="代码高亮"><a href="#代码高亮" class="headerlink" title="代码高亮"></a>代码高亮</h3><p>以前jekyll代码高亮需要用到pygments插件，Hexo下更加简单，只需要按照下面的格式：<br><a href="http://www.ezlippi.com/images/highlight.png" target="_blank" rel="external"><img src="http://www.ezlippi.com/images/highlight.png" alt="img"></a><br>效果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">System.out.println(&quot;hello hexo!&quot;);</div></pre></td></tr></table></figure>
+<p>你也可以更改代码高亮的主题，一共有五种，可选的值有 normal，night， night blue， night bright， night eighties，修改themes\next_config.yml文件，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">highlight_theme: normal</div></pre></td></tr></table></figure>
+<h2 id="第三方服务"><a href="#第三方服务" class="headerlink" title="第三方服务"></a>第三方服务</h2><h3 id="多说评论"><a href="#多说评论" class="headerlink" title="多说评论"></a>多说评论</h3><p>登录多说官网，登录后点我要安装，然后填写站点相关信息，最主要的是duoshuo_shortname这个字段，设置后之后修改themes\next_config.yml文件，把duoshuo_shortname改成你的，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">duoshuo_shortname: ezlippi</div></pre></td></tr></table></figure>
+<h3 id="百度统计"><a href="#百度统计" class="headerlink" title="百度统计"></a>百度统计</h3><p>登录百度统计，转到获取代码截面，找到百度统计脚本id，然后把themes\next_config.yml文件下的baidu_analytics字段改成你的id，如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">baidu_analytics: 340874ba9357cbe81570aa4ac1185941</div></pre></td></tr></table></figure>
+<h3 id="站内搜索"><a href="#站内搜索" class="headerlink" title="站内搜索"></a>站内搜索</h3><p>next主题集成了swiftype搜索，你需要到swiftype配置一个搜索引擎， 而后编辑 站点配置文件， 新增 swiftype_key 字段，值为你的 swiftype 搜索引擎的 key。 详细的配置请参考：<a href="http://theme-next.iissnan.com/third-party-services.html#swfitype" target="_blank" rel="external">swfitype教程</a></p>
+<h3 id="其他设置"><a href="#其他设置" class="headerlink" title="其他设置"></a>其他设置</h3><p>其他设置比如侧边栏、友情链接、菜单栏等请参考<a href="http://theme-next.iissnan.com/theme-settings.html" target="_blank" rel="external">next主题配置教程</a></p>
+<p>最后附上我的站点配置文件，如果有不懂的可以给我留言或者发邮件。<br>_config.yml配置文件内容如下：</p>
+<p>站点配置文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line"># Hexo Configuration</div><div class="line">## Docs: http://hexo.io/docs/configuration.html</div><div class="line">## Source: https://github.com/hexojs/hexo/</div><div class="line"></div><div class="line"># Site</div><div class="line">title: Lippi-浮生志</div><div class="line">subtitle:</div><div class="line">description: Easy Lippi</div><div class="line">author: EZLippi </div><div class="line">language: zh-Hans</div><div class="line">timezone: Asia/Shanghai</div><div class="line"></div><div class="line"># URL</div><div class="line">## If your site is put in a subdirectory, set url as &apos;http://yoursite.com/child&apos; and root as &apos;/child/&apos;</div><div class="line">url: http://www.ezlippi.com</div><div class="line">root: /</div><div class="line">permalink: /blog/:year/:month/:title.html</div><div class="line">permalink_defaults:</div><div class="line"></div><div class="line"># Directory</div><div class="line">source_dir: source</div><div class="line">public_dir: public</div><div class="line">tag_dir: tags</div><div class="line">archive_dir: archives</div><div class="line">category_dir: categories</div><div class="line">code_dir: downloads/code</div><div class="line">i18n_dir: :lang</div><div class="line">skip_render:</div><div class="line"></div><div class="line"># Writing</div><div class="line">new_post_name: :year-:month-:day-:title.md # File name of new posts</div><div class="line">default_layout: post</div><div class="line">titlecase: false # Transform title into titlecase</div><div class="line">external_link: true # Open external links in new tab</div><div class="line">filename_case: 0</div><div class="line">render_drafts: false</div><div class="line">post_asset_folder: false</div><div class="line">relative_link: false</div><div class="line">future: true</div><div class="line">highlight:</div><div class="line">  enable: true</div><div class="line">  line_number: true</div><div class="line">  auto_detect: true</div><div class="line">  tab_replace:</div><div class="line"></div><div class="line"># Category &amp; Tag</div><div class="line">default_category: uncategorized</div><div class="line">category_map:</div><div class="line">tag_map:</div><div class="line"></div><div class="line"># Date / Time format</div><div class="line">## Hexo uses Moment.js to parse and display date</div><div class="line">## You can customize the date format as defined in</div><div class="line">## http://momentjs.com/docs/#/displaying/format/</div><div class="line">date_format: YYYY-MM-DD</div><div class="line">time_format: HH:mm:ss</div><div class="line"></div><div class="line"># Pagination</div><div class="line">## Set per_page to 0 to disable pagination</div><div class="line">per_page: 10</div><div class="line">pagination_dir: page</div><div class="line"></div><div class="line"># Extensions</div><div class="line">## Plugins: http://hexo.io/plugins/</div><div class="line">## Themes: http://hexo.io/themes/</div><div class="line">theme: next </div><div class="line">#since: 2014</div><div class="line"># Deployment</div><div class="line">## Docs: http://hexo.io/docs/deployment.html</div><div class="line">deploy:</div><div class="line">  type: git</div><div class="line">  repository: git@github.com:EZLippi/EZLippi.github.io.git </div><div class="line">  coding.net: git@git.coding.net:ezlippi/ezlippi.git,coding-pages</div></pre></td></tr></table></figure>
+<p>主题配置文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div></pre></td><td class="code"><pre><div class="line"># ---------------------------------------------------------------</div><div class="line"># Site Information Settings</div><div class="line"># ---------------------------------------------------------------</div><div class="line"></div><div class="line"># Place your favicon.ico to /source directory.</div><div class="line">favicon: /favicon.ico</div><div class="line"></div><div class="line"># Set default keywords (Use a comma to separate)</div><div class="line">keywords: &quot;Hexo, NexT&quot;</div><div class="line"></div><div class="line"># Set rss to false to disable feed link.</div><div class="line"># Leave rss as empty to use site&apos;s feed link.</div><div class="line"># Set rss to specific value if you have burned your feed already.</div><div class="line">rss:</div><div class="line"></div><div class="line"># Specify the date when the site was setup</div><div class="line">since: 2014</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"># ---------------------------------------------------------------</div><div class="line"># Menu Settings</div><div class="line"># ---------------------------------------------------------------</div><div class="line"></div><div class="line"># When running hexo in a subdirectory (e.g. domain.tld/blog)</div><div class="line"># Remove leading slashes ( &quot;/archives&quot; -&gt; &quot;archives&quot; )</div><div class="line">menu:</div><div class="line">  home: /</div><div class="line">  categories: /categories</div><div class="line">  archives: /archives</div><div class="line">  tags: /tags</div><div class="line">  about: /about</div><div class="line">#  commonweal: /404.html</div><div class="line"></div><div class="line"></div><div class="line"># Enable/Disable menu icons.</div><div class="line"># Icon Mapping:</div><div class="line">#   Map a menu item to a specific FontAwesome icon name.</div><div class="line">#   Key is the name of menu item and value is the name of FontAwsome icon.</div><div class="line">#   When an question mask icon presenting up means that the item has no mapping icon.</div><div class="line">menu_icons:</div><div class="line">  enable: true</div><div class="line">  # Icon Mapping.</div><div class="line">  home: home</div><div class="line">  about: user</div><div class="line">  categories: th</div><div class="line">  tags: tags</div><div class="line">  archives: archive</div><div class="line">  commonweal: heartbeat</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"># ---------------------------------------------------------------</div><div class="line"># Scheme Settings</div><div class="line"># ---------------------------------------------------------------</div><div class="line"></div><div class="line"># Schemes</div><div class="line">#scheme: Muse</div><div class="line">scheme: Mist</div><div class="line">#scheme: Pisces</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"># ---------------------------------------------------------------</div><div class="line"># Sidebar Settings</div><div class="line"># ---------------------------------------------------------------</div><div class="line"></div><div class="line"></div><div class="line"># Social links</div><div class="line">social:</div><div class="line">  GitHub: https://github.com/EZLippi</div><div class="line">  weibo: http://weibo.com/ouyanglip</div><div class="line">  zhihu: http://www.zhihu.com/people/lippi-ouyang</div><div class="line">  #Others:</div><div class="line"></div><div class="line">      </div><div class="line"># Social Icons</div><div class="line">social_icons:</div><div class="line">  enable: true</div><div class="line">  # Icon Mappings</div><div class="line">  GitHub: github</div><div class="line">  Twitter: twitter</div><div class="line">  weibo: weibo</div><div class="line">  zhihu: weibo </div><div class="line"></div><div class="line"></div><div class="line"># Sidebar Avatar</div><div class="line"># in theme directory(source/images): /images/avatar.jpg</div><div class="line"># in site  directory(source/uploads): /uploads/avatar.jpg</div><div class="line"># default : /images/default_avatar.jpg</div><div class="line">avatar: /images/avatar.jpg</div><div class="line"></div><div class="line"></div><div class="line"># TOC in the Sidebar</div><div class="line">toc:</div><div class="line">  enable: true</div><div class="line"></div><div class="line">  # Automatically add list number to toc.</div><div class="line">  number: true</div><div class="line"></div><div class="line"></div><div class="line"># Creative Commons 4.0 International License.</div><div class="line"># http://creativecommons.org/</div><div class="line"># Available: by | by-nc | by-nc-nd | by-nc-sa | by-nd | by-sa | zero</div><div class="line">#creative_commons: by-nc-sa</div><div class="line">#creative_commons:</div><div class="line"></div><div class="line">sidebar:</div><div class="line">  # Sidebar Position, available value: left | right</div><div class="line">  position: left</div><div class="line">  #position: right</div><div class="line"></div><div class="line">  # Sidebar Display, available value:</div><div class="line">  #  - post    expand on posts automatically. Default.</div><div class="line">  #  - always  expand for all pages automatically</div><div class="line">  #  - hide    expand only when click on the sidebar toggle icon.</div><div class="line">  #  - remove  Totally remove sidebar including sidebar toggle icon.</div><div class="line">  display: post</div><div class="line">  #display: always</div><div class="line">  #display: hide</div><div class="line">  #display: remove</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"># ---------------------------------------------------------------</div><div class="line"># Misc Theme Settings</div><div class="line"># ---------------------------------------------------------------</div><div class="line"></div><div class="line"># Custom Logo.</div><div class="line"># !!Only available for Default Scheme currently.</div><div class="line"># Options:</div><div class="line">#   enabled: [true/false] - Replace with specific image</div><div class="line">#   image: url-of-image   - Images&apos;s url</div><div class="line">custom_logo:</div><div class="line">  enabled: false</div><div class="line">  image:</div><div class="line"></div><div class="line"></div><div class="line"># Code Highlight theme</div><div class="line"># Available value:</div><div class="line">#    normal | night | night eighties | night blue | night bright</div><div class="line"># https://github.com/chriskempson/tomorrow-theme</div><div class="line">highlight_theme: night </div><div class="line"></div><div class="line"># Automatically scroll page to section which is under &lt;!-- more --&gt; mark.</div><div class="line">scroll_to_more: true</div><div class="line"></div><div class="line"># Automatically Excerpt</div><div class="line">auto_excerpt:</div><div class="line">  enable: false</div><div class="line">  length: 150</div><div class="line"></div><div class="line"># Use Lato font</div><div class="line">use_font_lato: true</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"># ---------------------------------------------------------------</div><div class="line"># Third Party Services Settings</div><div class="line"># ---------------------------------------------------------------</div><div class="line"></div><div class="line"># MathJax Support</div><div class="line">mathjax:</div><div class="line"></div><div class="line"></div><div class="line"># Swiftype Search API Key</div><div class="line">swiftype_key: fLM9qfxyerC6njvM7usy</div><div class="line"></div><div class="line"># Baidu Analytics ID</div><div class="line">baidu_analytics: 340874ba9357cbe81570aa4ac1185941</div><div class="line"></div><div class="line"></div><div class="line"># Duoshuo ShortName</div><div class="line">duoshuo_shortname: ezlippi </div><div class="line"></div><div class="line"># Disqus</div><div class="line">#disqus_shortname:</div><div class="line"></div><div class="line"># Share</div><div class="line">#jiathis:</div><div class="line">#add_this_id:</div><div class="line"></div><div class="line"># Share</div><div class="line">duoshuo_share: true</div><div class="line"># 多说热评文章 true 或者 false</div><div class="line">duoshuo_hotartical: true</div><div class="line"></div><div class="line"># Google Webmaster tools verification setting</div><div class="line"># See: https://www.google.com/webmasters/</div><div class="line">#google_site_verification:</div><div class="line"></div><div class="line"></div><div class="line"># Google Analytics</div><div class="line">#google_analytics:</div><div class="line"></div><div class="line"></div><div class="line"># Make duoshuo show UA</div><div class="line"># user_id must NOT be null when admin_enable is true!</div><div class="line"># you can visit http://dev.duoshuo.com get duoshuo user id.</div><div class="line">duoshuo_info:</div><div class="line">  ua_enable: true</div><div class="line">  admin_enable: false</div><div class="line">  user_id: 0</div><div class="line">  #admin_nickname: ROOT</div><div class="line"></div><div class="line"></div><div class="line"># Facebook SDK Support.</div><div class="line"># https://github.com/iissnan/hexo-theme-next/pull/410</div><div class="line">facebook_sdk:</div><div class="line">  enable: false</div><div class="line">  app_id:       #&lt;app_id&gt;</div><div class="line">  fb_admin:     #&lt;user_id&gt;</div><div class="line">  like_button:  #true</div><div class="line">  webmaster:    #true</div><div class="line"></div><div class="line"></div><div class="line"># Show number of visitors to each article.</div><div class="line"># You can visit https://leancloud.cn get AppID and AppKey.</div><div class="line">leancloud_visitors:</div><div class="line">  enable: false</div><div class="line">  app_id: #&lt;app_id&gt;</div><div class="line">  app_key: #&lt;app_key&gt;</div><div class="line"></div><div class="line"></div><div class="line"># Tencent analytics ID</div><div class="line"># tencent_analytics:</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">#! ---------------------------------------------------------------</div><div class="line">#! DO NOT EDIT THE FOLLOWING SETTINGS</div><div class="line">#! UNLESS YOU KNOW WHAT YOU ARE DOING</div><div class="line">#! ---------------------------------------------------------------</div><div class="line"></div><div class="line"># Motion</div><div class="line">use_motion: true</div><div class="line"></div><div class="line"># Fancybox</div><div class="line">fancybox: true</div><div class="line"></div><div class="line"># Static files</div><div class="line">vendors: vendors</div><div class="line">css: css</div><div class="line">js: js</div><div class="line">images: images</div><div class="line"></div><div class="line"># Theme version</div><div class="line">version: 0.5.0</div><div class="line"></div><div class="line"># title, chinese available</div><div class="line">links_title: 友情链接 </div><div class="line"># # links</div><div class="line">links:</div><div class="line">   MacTalk: http://macshuo.com/</div></pre></td></tr></table></figure>
+<p>参考文献：</p>
+<p><a href="https://hexo.io/" target="_blank" rel="external">Hexo</a><br><a href="http://sunwhut.com/2015/10/30/buildBlog/?hmsr=toutiao.io&amp;utm_medium=toutiao.io&amp;utm_source=toutiao.io" target="_blank" rel="external">如何利用GitHub Pages和Hexo快速搭建个人博客</a><br><a href="http://theme-next.iissnan.com/" target="_blank" rel="external">Next主题</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/hexo/" rel="tag"># hexo</a>
+          
+            <a href="/blog/tags/next/" rel="tag"># next</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2015/12/22/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/02/02/markdown-editor-Mou-MacDown-pk/" rel="prev" title="Mac 下两款 Markdown 编辑器 Mou/MacDown 大 PK">
+                Mac 下两款 Markdown 编辑器 Mou/MacDown 大 PK <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/uploads/avatar.png"
+               alt="曹淼" />
+          <p class="site-author-name" itemprop="name">曹淼</p>
+          <p class="site-description motion-element" itemprop="description">上善若水</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/blog/categories">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装Hexo"><span class="nav-number">1.</span> <span class="nav-text">安装Hexo</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hexo常用的几个命令"><span class="nav-number"></span> <span class="nav-text">Hexo常用的几个命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建新博文"><span class="nav-number">1.</span> <span class="nav-text">创建新博文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行服务器"><span class="nav-number">2.</span> <span class="nav-text">运行服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成静态站点文件"><span class="nav-number">3.</span> <span class="nav-text">生成静态站点文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#部署到Git"><span class="nav-number">4.</span> <span class="nav-text">部署到Git</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fancybox"><span class="nav-number"></span> <span class="nav-text">fancybox</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主题设置"><span class="nav-number"></span> <span class="nav-text">主题设置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#下载主题"><span class="nav-number">1.</span> <span class="nav-text">下载主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用Hexo主题"><span class="nav-number">2.</span> <span class="nav-text">应用Hexo主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置RSS"><span class="nav-number">3.</span> <span class="nav-text">设置RSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加标签tags页面"><span class="nav-number">4.</span> <span class="nav-text">添加标签tags页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加分类页面"><span class="nav-number">5.</span> <span class="nav-text">添加分类页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#添加404页面"><span class="nav-number">6.</span> <span class="nav-text">添加404页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代码高亮"><span class="nav-number">7.</span> <span class="nav-text">代码高亮</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第三方服务"><span class="nav-number"></span> <span class="nav-text">第三方服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#多说评论"><span class="nav-number">1.</span> <span class="nav-text">多说评论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#百度统计"><span class="nav-number">2.</span> <span class="nav-text">百度统计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#站内搜索"><span class="nav-number">3.</span> <span class="nav-text">站内搜索</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#其他设置"><span class="nav-number">4.</span> <span class="nav-text">其他设置</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">曹淼</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+
+</body>
+</html>
