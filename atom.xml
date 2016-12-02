@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>曹淼的“git博客”</title>
+  <title>曹淼的“git博客”| 上善若水</title>
   <subtitle>道法自然</subtitle>
   <link href="/blog/atom.xml" rel="self"/>
   
@@ -10,7 +10,7 @@
   
   <author>
     <name>曹淼</name>
-    
+    <email>plp.cm@qq.com</email>
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
