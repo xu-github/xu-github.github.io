@@ -2,9 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/02/02/python-virtualenv-virtualenvwrapper-practice/</loc>
+    <loc>https://plpcm.github.io/blog/blog/2015/12/23/hexo-init/</loc>
     
-    <lastmod>2016-12-05T08:28:53.000Z</lastmod>
+    <lastmod>2016-12-05T08:32:30.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/02/05/python-virtualenv-virtualenvwrapper-practice/</loc>
+    
+    <lastmod>2016-12-05T08:32:12.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/02/05/python-pip/</loc>
+    
+    <lastmod>2016-12-05T08:32:03.000Z</lastmod>
     
   </url>
   
@@ -12,20 +26,6 @@
     <loc>https://plpcm.github.io/blog/blog/2016/12/05/hotlink/</loc>
     
     <lastmod>2016-12-05T08:25:33.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/02/02/python-pip/</loc>
-    
-    <lastmod>2016-12-05T03:14:21.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/12/23/hexo-init/</loc>
-    
-    <lastmod>2016-12-05T02:53:37.000Z</lastmod>
     
   </url>
   
