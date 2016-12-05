@@ -68,7 +68,7 @@
 <link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="nginx," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -86,16 +86,15 @@
 
 
 
-<meta name="description" content="应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。例如如果域名是aa.abc.com,就使用root路径为/data/public/aa bb.abc.com,就使用root路径为/data/public/bb cc.abc.com,就是用root路径为/data/public/cc">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Nginx虚拟主机根据不同的域名使用不同的root路径">
-<meta property="og:url" content="https://plpcm.github.io/blog/2016/03/12/nginx_var_root/index.html">
+<meta name="description" content="混迹互联网圈数载，潜心修行编程之道的码农">
+<meta property="og:type" content="website">
+<meta property="og:title" content="曹淼的“git博客”">
+<meta property="og:url" content="https://plpcm.github.io/blog/page/2/index.html">
 <meta property="og:site_name" content="曹淼的“git博客”">
-<meta property="og:description" content="应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。例如如果域名是aa.abc.com,就使用root路径为/data/public/aa bb.abc.com,就使用root路径为/data/public/bb cc.abc.com,就是用root路径为/data/public/cc">
-<meta property="og:updated_time" content="2016-12-02T10:07:55.000Z">
+<meta property="og:description" content="混迹互联网圈数载，潜心修行编程之道的码农">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Nginx虚拟主机根据不同的域名使用不同的root路径">
-<meta name="twitter:description" content="应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。例如如果域名是aa.abc.com,就使用root路径为/data/public/aa bb.abc.com,就使用root路径为/data/public/bb cc.abc.com,就是用root路径为/data/public/cc">
+<meta name="twitter:title" content="曹淼的“git博客”">
+<meta name="twitter:description" content="混迹互联网圈数载，潜心修行编程之道的码农">
 
 
 
@@ -123,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="https://plpcm.github.io/blog/2016/03/12/nginx_var_root/"/>
+  <link rel="canonical" href="https://plpcm.github.io/blog/page/2/"/>
 
 
 
 
 
-  <title> Nginx虚拟主机根据不同的域名使用不同的root路径 | 曹淼的“git博客” </title>
+  <title> 曹淼的“git博客” </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -150,7 +149,9 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left page-post-detail ">
+  <div class="container one-collumn sidebar-position-left 
+   page-home 
+ ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -305,9 +306,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-
-  <div id="posts" class="posts-expand">
+  <section id="posts" class="posts-expand">
     
+      
 
   
 
@@ -316,7 +317,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/03/12/nginx_var_root/">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2015/12/22/hello-world/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="曹淼">
@@ -340,7 +341,10 @@
             
             
               
-                Nginx虚拟主机根据不同的域名使用不同的root路径
+                
+                <a class="post-title-link" href="/blog/2015/12/22/hello-world/" itemprop="url">
+                  Hello World
+                </a>
               
             
           </h1>
@@ -353,8 +357,8 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-03-12T15:33:16+08:00">
-                2016-03-12
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-22T19:08:10+08:00">
+                2015-12-22
               </time>
             
 
@@ -372,8 +376,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/nginx/" itemprop="url" rel="index">
-                    <span itemprop="name">nginx</span>
+                  <a href="/blog/categories/hexo/" itemprop="url" rel="index">
+                    <span itemprop="name">hexo</span>
                   </a>
                 </span>
 
@@ -395,10 +399,6 @@
           
 
           
-              <div class="post-description">
-                  应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。例如如果域名是aa.abc.com,就使用root路径为/data/public/aa bb.abc.com,就使用root路径为/data/public/bb cc.abc.com,就是用root路径为/data/public/cc
-              </div>
-          
 
         </div>
       </header>
@@ -411,93 +411,49 @@
       
 
       
-        <h2 id="一-应用场景描述"><a href="#一-应用场景描述" class="headerlink" title="一 应用场景描述"></a>一 应用场景描述</h2><p>应开发同事需求，需要在开发环境的Nginx能够根据不同的域名使用不同的root路径。<br>例如如果域名是</p>
-<p>aa.abc.com,就使用root路径为/data/public/aa</p>
-<p>bb.abc.com,就使用root路径为/data/public/bb</p>
-<p>cc.abc.com,就是用root路径为/data/public/cc</p>
-<h2 id="二-解决方法"><a href="#二-解决方法" class="headerlink" title="二 解决方法"></a>二 解决方法</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">server</div><div class="line">&#123;</div><div class="line">        listen      <span class="number">80</span>;</div><div class="line">        server_name *.abc.com;</div><div class="line">        <span class="built_in">set</span> $path_name aa;</div><div class="line">        <span class="keyword">if</span> ($host ~ <span class="string">"bb"</span>)</div><div class="line">        &#123;</div><div class="line">          <span class="built_in">set</span> $path_name bb;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> ($host ~ <span class="string">"cc"</span>)</div><div class="line">        &#123;</div><div class="line">          <span class="built_in">set</span> $path_name cc;</div><div class="line">        &#125;</div><div class="line">        root        /data/<span class="keyword">public</span>/$path_name/;</div><div class="line">        location / &#123;</div><div class="line">            <span class="keyword">if</span> (!-e $request_filename)&#123;</div><div class="line">              rewrite /(.*) /index.php last;</div><div class="line">			&#125;</div><div class="line">            index index.php;</div><div class="line">        &#125;</div><div class="line">        location ~ .php$ &#123;</div><div class="line">            fastcgi_pass  <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">9000</span>;</div><div class="line">            fastcgi_index  index.php;</div><div class="line">            fastcgi_param  SCRIPT_FILENAME  $document_root/$fastcgi_script_name;</div><div class="line">            include        fastcgi_params;</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这里设置变量$path_name,然后在root路径中使用这个变量</p>
-<h2 id="三-相关Nginx指令介绍"><a href="#三-相关Nginx指令介绍" class="headerlink" title="三 相关Nginx指令介绍"></a>三 相关Nginx指令介绍</h2><ol>
-<li>set指令<br>用于定义一个变量，并为变量赋值<br>作用范围为if,location,server<br>如以上的<br>set $path_name aa;</li>
-<li>if指令<br>if(condition) {…}<br>作用范围为<br>如：</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">if ($host ~ &quot;bb&quot;)</div><div class="line">&#123;</div><div class="line">set $path_name bb;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>if指令用于检查一个条件是否符合，如果条件符合，则执行大括号内的内容。if指令不支持嵌套，不支持多个&amp;&amp;或||<br>可以指定的条件为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">1）变量名</div><div class="line">2）变量比较可以使用 =（等于）和!=（不等于）</div><div class="line">3）正则表达式匹配可以使用 ~（区分大小写匹配）和 ~* （不区分大小写匹配）</div><div class="line">  !~ 和 !~* 则表示不匹配</div><div class="line">4）-f和!-f 用来判断文件是否存在</div><div class="line">5) -d和!-d 用来判断目录是否存在</div><div class="line">6) -e和!-e 用来判断文件或目录是否存在</div><div class="line">7）-x和!-x 用来判断文件是否可以执行</div></pre></td></tr></table></figure>
-<ol>
-<li>Nginx内置变量</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$host                            请求的主机名</div><div class="line">$request_filename                    请求的文件名</div></pre></td></tr></table></figure>
-<ol>
-<li>rewrite指令</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rewrite regex replacement flag;</div></pre></td></tr></table></figure>
-<p>用来重定向URL</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">if (!-e $request_filename)&#123;</div><div class="line">rewrite /(.*) /index.php last;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>rewrite最后一项为标记位，Nginx支持的标记为有：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">last          表示完成rewrite</div><div class="line">permanent      返回301永久重定向，浏览器地址栏会显示跳转后的URL</div><div class="line">break        本条规则匹配完成后，终止其他规则的匹配</div><div class="line">redirect        返回302临时重定向</div></pre></td></tr></table></figure>
-<p>last和break完成URL的重定向，浏览器上的地址不会变，但在服务器端上的位置发生了变化。permanent和redirect用来实现URL跳转，浏览器地址栏会显示跳转后的URL。<br>使用alias指令时必须使用last指令，使用proxy_pass指令时必须使用break指令</p>
-
+        
+          使用 hexo 搭建基于github的免费blog
+          <!--noindex-->
+          <div class="post-more-link text-center">
+            <a class="btn" href="/blog/2015/12/22/hello-world/">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
       
     </div>
 
     <div>
       
-        
-
-      
     </div>
 
     <div>
-      
-        
-
       
     </div>
 
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/blog/tags/nginx/" rel="tag"># nginx</a>
-          
-        </div>
+
       
 
       
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/blog/2016/03/02/openresty-cc/" rel="next" title="OpenResty实现防cc攻击">
-                <i class="fa fa-chevron-left"></i> OpenResty实现防cc攻击
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/blog/2016/12/02/hotlink/" rel="prev" title="收藏链接">
-                收藏链接 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
       
-
-      
+        <div class="post-eof"></div>
       
     </footer>
   </article>
 
 
+    
+  </section>
 
-    <div class="post-spread">
-      
-    </div>
-  </div>
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/blog/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/blog/">1</a><span class="page-number current">2</span>
+  </nav>
+
 
 
           </div>
@@ -505,10 +461,6 @@
 
 
           
-  <div class="comments" id="comments">
-    
-  </div>
-
 
         </div>
         
@@ -528,17 +480,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel">
+      <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/blog/uploads/avatar.png"
@@ -549,7 +492,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/blog/archives">
-              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-count">11</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -557,7 +500,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/blog/categories">
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -566,7 +509,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/blog/tags">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -647,22 +590,6 @@
 
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一-应用场景描述"><span class="nav-number">1.</span> <span class="nav-text">一 应用场景描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二-解决方法"><span class="nav-number">2.</span> <span class="nav-text">二 解决方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三-相关Nginx指令介绍"><span class="nav-number">3.</span> <span class="nav-text">三 相关Nginx指令介绍</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
     </div>
@@ -761,10 +688,6 @@
   
 
   
-  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
-<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
-
-
 
   
 

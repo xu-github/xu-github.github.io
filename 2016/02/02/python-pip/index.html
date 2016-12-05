@@ -68,7 +68,7 @@
 <link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="cc,防攻击,openresty," />
+  <meta name="keywords" content="python,pip," />
 
 
 
@@ -86,18 +86,16 @@
 
 
 
-<meta name="description" content="本文介绍使用openresty来实现防cc攻击的功能。">
+<meta name="description" content="pip类似RedHat里面的yum，安装Python包非常方便。本节详细介绍pip的安装、以及使用方法。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="OpenResty实现防cc攻击">
-<meta property="og:url" content="https://plpcm.github.io/blog/2016/03/02/openresty-cc/index.html">
+<meta property="og:title" content="pip安装使用详解">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/02/02/python-pip/index.html">
 <meta property="og:site_name" content="曹淼的“git博客”">
-<meta property="og:description" content="本文介绍使用openresty来实现防cc攻击的功能。">
-<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/openresty/openresty-cc.png">
-<meta property="og:updated_time" content="2016-12-02T10:28:47.000Z">
+<meta property="og:description" content="pip类似RedHat里面的yum，安装Python包非常方便。本节详细介绍pip的安装、以及使用方法。">
+<meta property="og:updated_time" content="2016-12-05T03:14:21.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="OpenResty实现防cc攻击">
-<meta name="twitter:description" content="本文介绍使用openresty来实现防cc攻击的功能。">
-<meta name="twitter:image" content="https://plpcm.github.io/blog/blog/uploads/openresty/openresty-cc.png">
+<meta name="twitter:title" content="pip安装使用详解">
+<meta name="twitter:description" content="pip类似RedHat里面的yum，安装Python包非常方便。本节详细介绍pip的安装、以及使用方法。">
 
 
 
@@ -125,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="https://plpcm.github.io/blog/2016/03/02/openresty-cc/"/>
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/02/02/python-pip/"/>
 
 
 
 
 
-  <title> OpenResty实现防cc攻击 | 曹淼的“git博客” </title>
+  <title> pip安装使用详解 | 曹淼的“git博客” </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -318,7 +316,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/03/02/openresty-cc/">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/02/02/python-pip/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="曹淼">
@@ -342,7 +340,7 @@
             
             
               
-                OpenResty实现防cc攻击
+                pip安装使用详解
               
             
           </h1>
@@ -355,8 +353,8 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-03-02T18:30:16+08:00">
-                2016-03-02
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-02-02T10:30:16+08:00">
+                2016-02-02
               </time>
             
 
@@ -374,8 +372,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blog/categories/openresty/" itemprop="url" rel="index">
-                    <span itemprop="name">openresty</span>
+                  <a href="/blog/categories/python/" itemprop="url" rel="index">
+                    <span itemprop="name">python</span>
                   </a>
                 </span>
 
@@ -398,7 +396,7 @@
 
           
               <div class="post-description">
-                  本文介绍使用openresty来实现防cc攻击的功能。
+                  pip类似RedHat里面的yum，安装Python包非常方便。本节详细介绍pip的安装、以及使用方法。
               </div>
           
 
@@ -413,24 +411,27 @@
       
 
       
-        <p>导读<strong>OpenResty 通过汇聚各种设计精良的 Nginx 模块（由章亦春自主研发并汇聚各种精良模块），从而将 Nginx 有效地变成一个强大的通用 Web 应用平台。这样，Web 开发人员和系统工程师可以使用 Lua 脚本语言调动 Nginx 支持的各种 C 以及 Lua 模块，快速构造出足以胜任 10K 乃至 1000K 以上单机并发连接的高性能 Web 应用系统</strong></p>
-<p>本文介绍使用openresty来实现防cc攻击的功能。openresty官网<a href="http://openresty.org/cn/index.html" target="_blank" rel="external">http://openresty.org/cn/index.html</a>。下面是防cc攻击的流程图。</p>
-<p><img src="/blog/uploads/openresty/openresty-cc.png" alt="流程图"></p>
-<p>根据流程图，我们知道防cc攻击主要包括两部分，一是限制请求速度，二是给用户发送js跳转代码进行验证请求是否合法。</p>
-<p><strong>安装依赖</strong></p>
-<p>RHEL/Centos:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install readline-devel pcre-devel openssl-devel</div></pre></td></tr></table></figure>
-<p>ubuntu:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">apt-get install libreadline-dev libncurses5-dev libpcre3-dev libssl-dev perl</div></pre></td></tr></table></figure>
-<p><strong>luajit安装</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /tmp/</div><div class="line">git <span class="built_in">clone</span> http://luajit.org/git/luajit-2.0.git</div><div class="line"><span class="built_in">cd</span> luajit-2.0/</div><div class="line">make &amp;&amp; make install</div><div class="line">ln -sf luajit-2.0.0-beta10 /usr/<span class="built_in">local</span>/bin/luajit</div><div class="line">ln -sf /usr/<span class="built_in">local</span>/lib/libluajit-5.1.so.2 /usr/lib/</div></pre></td></tr></table></figure>
-<p><strong>openresty安装</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /tmp</div><div class="line">wget http://agentzh.org/misc/nginx/ngx_openresty-1.2.4.13.tar.gz</div><div class="line">tar xzf ngx_openresty-1.2.4.13.tar.gz</div><div class="line"><span class="built_in">cd</span> ngx_openresty-1.2.4.13/</div><div class="line">./configure --prefix=/usr/<span class="built_in">local</span>/openresty --with-luajit</div><div class="line">make &amp;&amp; make install</div></pre></td></tr></table></figure>
-<p><strong>nginx配置</strong></p>
-<p>nginx.conf:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">http&#123;</div><div class="line">[......]</div><div class="line">lua_shared_dict limit <span class="number">10</span>m;</div><div class="line">lua_shared_dict jsjump <span class="number">10</span>m;</div><div class="line"></div><div class="line">    server &#123;</div><div class="line">#lua_code_cache off;</div><div class="line">        listen       <span class="number">80</span>;</div><div class="line">        server_name  www.centos.bz;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">default_type  text/html;</div><div class="line">content_by_lua_file <span class="string">"/usr/local/openresty/nginx/conf/lua"</span>;</div><div class="line">        &#125;</div><div class="line">        location @cc &#123;</div><div class="line">            internal;</div><div class="line">            root   html;</div><div class="line">            index  index.html index.htm;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>/usr/local/openresty/nginx/conf/lua文件:</p>
-<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- 限速功能</span></div><div class="line"><span class="keyword">local</span> ip = ngx.var.binary_remote_addr</div><div class="line"><span class="keyword">local</span> limit = ngx.shared.limit</div><div class="line"><span class="keyword">local</span> req,_=limit:get(ip)</div><div class="line"><span class="keyword">if</span> req <span class="keyword">then</span></div><div class="line">		<span class="comment">-- 10秒钟内容最多只能请求20次</span></div><div class="line">        <span class="keyword">if</span> req &gt; <span class="number">20</span> <span class="keyword">then</span></div><div class="line">                ngx.exit(<span class="number">503</span>)</div><div class="line">        <span class="keyword">else</span></div><div class="line">                limit:incr(ip,<span class="number">1</span>)</div><div class="line">        <span class="keyword">end</span></div><div class="line"><span class="keyword">else</span></div><div class="line">        limit:set(ip,<span class="number">1</span>,<span class="number">10</span>)</div><div class="line"><span class="keyword">end</span></div><div class="line"><span class="comment">--验证部分</span></div><div class="line"><span class="keyword">local</span> jsjump = ngx.shared.jsjump</div><div class="line"><span class="keyword">local</span> uri = ngx.var.request_uri</div><div class="line"><span class="keyword">local</span> jspara,flags=jsjump:get(ip)</div><div class="line"><span class="keyword">local</span> args = ngx.req.get_uri_args()</div><div class="line"><span class="keyword">if</span> jspara <span class="keyword">then</span></div><div class="line">    <span class="keyword">if</span> flags <span class="keyword">then</span></div><div class="line">        ngx.exec(<span class="string">"@cc"</span>)</div><div class="line">    <span class="keyword">else</span></div><div class="line">                <span class="keyword">local</span> p_jskey=<span class="string">''</span></div><div class="line">                <span class="keyword">if</span> args[<span class="string">"jskey"</span>] <span class="keyword">and</span> <span class="built_in">type</span>(args[<span class="string">"jskey"</span>])==<span class="string">'table'</span> <span class="keyword">then</span></div><div class="line">                         p_jskey=args[<span class="string">"jskey"</span>][<span class="built_in">table</span>.getn(args[<span class="string">"jskey"</span>])]</div><div class="line">                <span class="keyword">else</span></div><div class="line">                         p_jskey=args[<span class="string">"jskey"</span>]</div><div class="line">                <span class="keyword">end</span></div><div class="line">        <span class="keyword">if</span> p_jskey <span class="keyword">and</span> p_jskey==<span class="built_in">tostring</span>(jspara) <span class="keyword">then</span></div><div class="line">                        jsjump:set(ip,jspara,<span class="number">3600</span>,<span class="number">1</span>) <span class="comment">--通过后，白名单时间为3600秒，即1小时</span></div><div class="line">                        ngx.exec(<span class="string">"@cc"</span>)</div><div class="line">        <span class="keyword">else</span></div><div class="line">                        <span class="keyword">local</span> url=<span class="string">''</span></div><div class="line">                        <span class="keyword">if</span> ngx.var.args <span class="keyword">then</span></div><div class="line">                               url=ngx.var.scheme..<span class="string">"://"</span>..ngx.var.host..uri..<span class="string">"&amp;jskey="</span>..jspara</div><div class="line">                        <span class="keyword">else</span></div><div class="line">                               url=ngx.var.scheme..<span class="string">"://"</span>..ngx.var.host..uri..<span class="string">"?jskey="</span>..jspara</div><div class="line">                        <span class="keyword">end</span></div><div class="line">                        <span class="keyword">local</span> jscode=<span class="string">"window.location.href='"</span>..url..<span class="string">"';"</span></div><div class="line">                        ngx.say(jscode)</div><div class="line">        <span class="keyword">end</span></div><div class="line">    <span class="keyword">end</span></div><div class="line"><span class="keyword">else</span></div><div class="line"><span class="built_in">math</span>.randomseed( <span class="built_in">os</span>.time() );</div><div class="line">    <span class="keyword">local</span> random=<span class="built_in">math</span>.random(<span class="number">100000</span>,<span class="number">999999</span>)</div><div class="line">    jsjump:set(ip,random,<span class="number">60</span>)</div><div class="line">    <span class="keyword">local</span> url=<span class="string">''</span></div><div class="line">    <span class="keyword">if</span> ngx.var.args <span class="keyword">then</span></div><div class="line">        url=ngx.var.scheme..<span class="string">"://"</span>..ngx.var.host..uri..<span class="string">"&amp;jskey="</span>..random</div><div class="line">    <span class="keyword">else</span></div><div class="line">        url=ngx.var.scheme..<span class="string">"://"</span>..ngx.var.host..uri..<span class="string">"?jskey="</span>..random</div><div class="line">    <span class="keyword">end</span></div><div class="line">    <span class="keyword">local</span> jscode=<span class="string">"window.location.href='"</span>..url..<span class="string">"';"</span></div><div class="line">    ngx.say(jscode)</div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+        <p>pip类似RedHat里面的yum，安装<a href="http://www.ttlsa.com/python/" target="_blank" rel="external">Python</a>包非常方便。本节详细介绍pip的安装、以及使用方法。</p>
+<h3 id="1、pip下载安装"><a href="#1、pip下载安装" class="headerlink" title="1、pip下载安装"></a><strong>1、pip下载安装</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">curl -O https://bootstrap.pypa.io/get-pip.py</div><div class="line">sudo python get-pip.py</div></pre></td></tr></table></figure>
+<h3 id="2-pip使用详解"><a href="#2-pip使用详解" class="headerlink" title="2. pip使用详解"></a><strong>2. pip使用详解</strong></h3><p>2.1 pip安装包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">pip install SomePackage</div><div class="line">[...]</div><div class="line">Successfully installed SomePackage</div></pre></td></tr></table></figure>
+<p>2.2 pip查看已安装的包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">show --files SomePackage</div><div class="line">  Name: SomePackage</div><div class="line">  Version: 1.0</div><div class="line">  Location: /my/env/lib/pythonx.x/site-packages</div><div class="line">  Files:</div><div class="line">   ../somepackage/__init__.py</div><div class="line">  [...]</div></pre></td></tr></table></figure>
+<p>2.3 pip检查哪些包需要更新</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">pip list --outdated</div><div class="line">  SomePackage (Current: 1.0 Latest: 2.0)</div></pre></td></tr></table></figure>
+<p>2.4 pip升级包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">pip install --upgrade SomePackage</div><div class="line">  [...]</div><div class="line">  Found existing installation: SomePackage 1.0</div><div class="line">  Uninstalling SomePackage:</div><div class="line">    Successfully uninstalled SomePackage</div><div class="line">  Running setup.py install <span class="keyword">for</span> SomePackage</div><div class="line">  Successfully installed SomePackage</div></pre></td></tr></table></figure>
+<p>2.5 pip卸载包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">pip uninstall SomePackage</div><div class="line">  Uninstalling SomePackage:</div><div class="line">    /my/env/lib/pythonx.x/site-packages/somepackage</div><div class="line">  Proceed (y/n)? y</div><div class="line">  Successfully uninstalled SomePackage</div></pre></td></tr></table></figure>
+<h3 id="3-pip使用实例"><a href="#3-pip使用实例" class="headerlink" title="3. pip使用实例"></a><strong>3. pip使用实例</strong></h3><p>3.1 安装<a href="http://www.ttlsa.com/redis/" target="_blank" rel="external">redis</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install redis</div></pre></td></tr></table></figure>
+<p>3.2 卸载redis</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">pip uninstall redis</div><div class="line">Uninstalling redis:</div><div class="line">  /usr/lib/python2.6/site-packages/redis-2.9.1-py2.6.egg-info</div><div class="line">.....省略一些内容....</div><div class="line">Proceed (y/n)? y</div><div class="line">  Successfully uninstalled redis</div></pre></td></tr></table></figure>
+<p>3.3 查看待更新包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">pip list --outdate</div><div class="line">pygpgme (Current: 0.1 Latest: 0.3)</div><div class="line">pycurl (Current: 7.19.0 Latest: 7.19.3.1)</div><div class="line">iniparse (Current: 0.3.1 Latest: 0.4)</div></pre></td></tr></table></figure>
+<h3 id="4-常见错误"><a href="#4-常见错误" class="headerlink" title="4. 常见错误"></a><strong>4. 常见错误</strong></h3><p>4.1 ImportError No module named setuptools<br>请参考《<a href="http://www.ttlsa.com/python/importerror-no-module-named-setuptools-res/?preview=true" target="_blank" rel="external">ImportError No module named setuptools解决</a>》</p>
+<h3 id="5-pip参数解释"><a href="#5-pip参数解释" class="headerlink" title="5. pip参数解释"></a><strong>5. pip参数解释</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">pip --help</div><div class="line"></div><div class="line">Usage:</div><div class="line">  pip &lt;<span class="built_in">command</span>&gt; [options]</div><div class="line"></div><div class="line">Commands:</div><div class="line">  install                     Install packages.</div><div class="line">  download                    Download packages.</div><div class="line">  uninstall                   Uninstall packages.</div><div class="line">  freeze                      Output installed packages <span class="keyword">in</span> requirements format.</div><div class="line">  list                        List installed packages.</div><div class="line">  show                        Show information about installed packages.</div><div class="line">  check                       Verify installed packages have compatible dependencies.</div><div class="line">  search                      Search PyPI <span class="keyword">for</span> packages.</div><div class="line">  wheel                       Build wheels from your requirements.</div><div class="line">  <span class="built_in">hash</span>                        Compute hashes of package archives.</div><div class="line">  completion                  A helper <span class="built_in">command</span> used <span class="keyword">for</span> <span class="built_in">command</span> completion.</div><div class="line">  <span class="built_in">help</span>                        Show <span class="built_in">help</span> <span class="keyword">for</span> commands.</div><div class="line"></div><div class="line">General Options:</div><div class="line">  -h, --help                  Show help.</div><div class="line">  --isolated                  Run pip <span class="keyword">in</span> an isolated mode, ignoring environment variables and user configuration.</div><div class="line">  -v, --verbose               Give more output. Option is additive, and can be used up to 3 times.</div><div class="line">  -V, --version               Show version and exit.</div><div class="line">  -q, --quiet                 Give less output. Option is additive, and can be used up to 3 <span class="built_in">times</span> (corresponding to WARNING, ERROR, and CRITICAL logging levels).</div><div class="line">  --log &lt;path&gt;                Path to a verbose appending log.</div><div class="line">  --proxy &lt;proxy&gt;             Specify a proxy <span class="keyword">in</span> the form [user:passwd@]proxy.server:port.</div><div class="line">  --retries &lt;retries&gt;         Maximum number of retries each connection should attempt (default 5 <span class="built_in">times</span>).</div><div class="line">  --timeout &lt;sec&gt;             Set the socket timeout (default 15 seconds).</div><div class="line">  --exists-action &lt;action&gt;    Default action when a path already exists: (s)witch, (i)gnore, (w)ipe, (b)ackup, (a)bort.</div><div class="line">  --trusted-host &lt;hostname&gt;   Mark this host as trusted, even though it does not have valid or any HTTPS.</div><div class="line">  --cert &lt;path&gt;               Path to alternate CA bundle.</div><div class="line">  --client-cert &lt;path&gt;        Path to SSL client certificate, a single file containing the private key and the certificate <span class="keyword">in</span> PEM format.</div><div class="line">  --cache-dir &lt;dir&gt;           Store the cache data <span class="keyword">in</span> &lt;dir&gt;.</div><div class="line">  --no-cache-dir              Disable the cache.</div><div class="line">  --disable-pip-version-check</div><div class="line">                              Don<span class="string">'t periodically check PyPI to determine whether a new version of pip is available for download. Implied with --no-index.</span></div></pre></td></tr></table></figure>
+<h3 id="6-结束"><a href="#6-结束" class="headerlink" title="6. 结束"></a>6.<strong> 结束</strong></h3><p>安装使用一目了然，太简单了。</p>
 
       
     </div>
@@ -454,11 +455,9 @@
       
         <div class="post-tags">
           
-            <a href="/blog/tags/cc/" rel="tag"># cc</a>
+            <a href="/blog/tags/python/" rel="tag"># python</a>
           
-            <a href="/blog/tags/防攻击/" rel="tag"># 防攻击</a>
-          
-            <a href="/blog/tags/openresty/" rel="tag"># openresty</a>
+            <a href="/blog/tags/pip/" rel="tag"># pip</a>
           
         </div>
       
@@ -467,8 +466,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2016/03/02/nginx-limit-mod/" rel="next" title="nginx限制某个IP同一时间段的访问次数">
-                <i class="fa fa-chevron-left"></i> nginx限制某个IP同一时间段的访问次数
+              <a href="/blog/2015/12/22/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
               </a>
             
           </div>
@@ -477,8 +476,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/blog/2016/03/12/nginx-var-root/" rel="prev" title="Nginx虚拟主机根据不同的域名使用不同的root路径">
-                Nginx虚拟主机根据不同的域名使用不同的root路径 <i class="fa fa-chevron-right"></i>
+              <a href="/blog/2016/02/02/markdown-editor-Mou-MacDown-pk/" rel="prev" title="Mac 下两款 Markdown 编辑器 Mou/MacDown 大 PK">
+                Mac 下两款 Markdown 编辑器 Mou/MacDown 大 PK <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -526,8 +525,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/blog/uploads/avatar.png"
@@ -636,6 +644,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、pip下载安装"><span class="nav-number">1.</span> <span class="nav-text">1、pip下载安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-pip使用详解"><span class="nav-number">2.</span> <span class="nav-text">2. pip使用详解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-pip使用实例"><span class="nav-number">3.</span> <span class="nav-text">3. pip使用实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-常见错误"><span class="nav-number">4.</span> <span class="nav-text">4. 常见错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-pip参数解释"><span class="nav-number">5.</span> <span class="nav-text">5. pip参数解释</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-结束"><span class="nav-number">6.</span> <span class="nav-text">6. 结束</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
     </div>
