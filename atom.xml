@@ -452,6 +452,86 @@ fetch</code>取回所有分支（branch）的更新。如果只想取回特定�
   </entry>
   
   <entry>
+    <title>virtualenv 和 virtualenvwrapper 实践</title>
+    <link href="https://plpcm.github.io/blog/2016/02/02/python-virtualenv-virtualenvwrapper-practice/"/>
+    <id>https://plpcm.github.io/blog/2016/02/02/python-virtualenv-virtualenvwrapper-practice/</id>
+    <published>2016-02-02T08:39:16.000Z</published>
+    <updated>2016-12-05T08:28:53.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>各位 Python 的小伙伴肯定多多少少接触过 virtualenv。本文将介绍 virtualenv 以及如何更科学更优雅地使用 virtualenv。</p>
+<h1 id="virtualenv"><a href="#virtualenv" class="headerlink" title="virtualenv"></a>virtualenv</h1><p>首先来聊一下 <code>virtualenv</code> 是个什么鬼。</p>
+<p>在使用 <code>Python</code> 开发的过程中，工程一多，难免会碰到不同的工程依赖不同版本的库的问题；亦或者是在开发过程中不想让物理环境里充斥各种各样的库，引发未来的依赖灾难。此时，我们需要对于不同的工程使用不同的虚拟环境来保持开发环境以及宿主环境的清洁。这里，就要隆重介绍 <code>virtualenv</code>，一个可以帮助我们管理不同 <code>Python</code> 环境的绝好工具。<code>virtualenv</code> 可以在系统中建立多个不同并且相互不干扰的虚拟环境。另外，值得一提的是，在 <code>virtualenv</code> 的虚拟环境中使用 <code>pip</code> 安装依赖还可以绕过某些系统的权限设置，因为毕竟不需要向系统目录写入数据嘛~~</p>
+<p>那么，<code>virtualenv</code> 是怎么运行的呢？</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>首先从安装讲起，这里假设已经安装了 <code>pip</code>，如果没有安装 <code>pip</code> 的话，请自行出门谷歌(好吧，我是好人，附上<a href="https://pip.readthedocs.org/en/stable" target="_blank" rel="external"><code>pip</code>官方文档</a>链接)。之后就可以用 <code>pip</code> 来直接安装 <code>virtualenv</code> 了。当然，这里可能是需要使用 <code>sudo</code> 提升权限的，毕竟是在宿主物理环境里安装。如下命令中 <code>sudo</code> 省略，如有需求请自行添加。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install virtualenv</div></pre></td></tr></table></figure>
+<p>好了现在你拥有了 <code>virtualenv</code> 虚拟环境管理器。</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>接下来说使用。</p>
+<p>比如我们想要做一点奇怪的事情，写一个脚本去抓取某个网站的信息，我们暂且把这个工程叫做 <code>spider</code> 吧。这个工程里需要访问网络，我们打算使用为人类编写的网络访问库 <code>requests</code>，但是我们又不想在宿主环境中安装这个包。让我们开始吧。</p>
+<p>假设我们把这个工程放在 <code>/path/to/project/spider/</code> 目录下，并且这里我们把虚拟环境直接放在工程目录下。首先，我们在这个目录下建立一个虚拟环境。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /path/to/project/spider</div><div class="line">virtualenv --no-site-packages venv</div></pre></td></tr></table></figure>
+<p>命令<code>virtualenv</code>就可以创建一个独立的Python运行环境，我们还加上了参数<code>--no-site-packages</code>，这样，已经安装到系统Python环境中的所有第三方包都不会复制过来，这样，我们就得到了一个不带任何第三方包的“干净”的Python运行环境。</p>
+<p>这样，虚拟环境就建立好了。此时可以看到，在这个目录下面会有三个目录被建立:</p>
+<blockquote>
+<ul>
+<li>bin</li>
+<li>include</li>
+<li>lib</li>
+</ul>
+</blockquote>
+<p>其中，<code>bin</code> 目录中包含一些在这个虚拟环境中可用的命令，以及开启虚拟环境的脚本 <code>activate</code>；<code>include</code> 中包含虚拟环境中的头文件，包括 <code>Python</code> 的头文件；<code>lib</code> 中就是一些依赖库啦~~</p>
+<p>当然，现在我们还没有进入到虚拟环境中。激活虚拟环境只需要一条命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">source</span> venv/bin/activate</div><div class="line">(vv) plpcm:spider docker$</div></pre></td></tr></table></figure>
+<p>注意到命令提示符变了，有个<code>(venv)</code>前缀，表示当前环境是一个名为<code>venv</code>的Python环境。</p>
+<p>接下来安装工程需要的 <code>requests</code> 库。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install requests</div></pre></td></tr></table></figure>
+<p>搞定！</p>
+<p>这时候在虚拟环境里就有了 <code>requests</code> 库，宿主环境中则不会被干扰。</p>
+<p>那么如何退出虚拟环境嘞？退出就更简单啦，只需要下面一个命令就搞定啦。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">deactivate</div></pre></td></tr></table></figure>
+<p>此时就回到了进入虚拟环境之前，一切都好像没发生过。多年以后，如果你忘记了虚拟环境的位置，一切就真的没发生过了 = =</p>
+<p>补充一句，如果想要删除虚拟环境，只要把这个spider目录下的 venv目录删掉就好了。</p>
+<h1 id="virtualenvwrapper"><a href="#virtualenvwrapper" class="headerlink" title="virtualenvwrapper"></a>virtualenvwrapper</h1><p>为神马需要 <code>virtualenvwrapper</code>？这要从 <code>virtualenv</code> 说起。</p>
+<p>上一节结束的时候说，如果忘记了虚拟环境的位置，一切就真的没发生过了。虽然是句玩笑，不过真的会发生哦~</p>
+<p><code>virtualenv</code> 的一个最大的缺点就是，每次开启虚拟环境之前要去虚拟环境所在目录下的 <code>bin</code> 目录下 <code>source</code> 一下 <code>activate</code>，这就需要我们记住每个虚拟环境所在的目录。</p>
+<p>一种可行的解决方案是，将所有的虚拟环境目录全都集中起来，比如放到 <code>~/virtualenvs/</code>，并对不同的虚拟环境使用不同的目录来管理。<code>virtualenvwrapper</code> 正是这样做的。并且，它还省去了每次开启虚拟环境时候的 <code>source</code> 操作，使得虚拟环境更加好用。</p>
+<h3 id="安装-1"><a href="#安装-1" class="headerlink" title="安装"></a>安装</h3><p>同样，从安装开始。</p>
+<p>安装 <code>virtualenvwrapper</code> 也可以使用 <code>pip</code> 的方式。需要加入 <code>sudo</code> 的话请自行加入哦~</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install virtualenvwrapper</div></pre></td></tr></table></figure>
+<p>不过，在 Mac OS X El Capitan 上可能会出现安装报错的情况，主要问题出在一个叫做 <code>six</code> 的包上。因此安装的时候，可以采用如下方式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pip install virtualenvwrapper --ignore-installed six</div></pre></td></tr></table></figure>
+<p>现在，我们就拥有了一个可以管理虚拟环境的神器。</p>
+<h3 id="使用-1"><a href="#使用-1" class="headerlink" title="使用"></a>使用</h3><p>首先，需要对 <code>virtualenvwrapper</code> 进行配置。它需要指定一个环境变量，叫做 <code>WORKON_HOME</code>，并且需要运行一下它的初始化工具 <code>virtualenvwrapper.sh</code>，这个脚本在 <code>/usr/local/bin/</code> 目录下。<code>WORKON_HOME</code> 就是它将要用来存放各种虚拟环境目录的目录，这里我们可以设置为 <code>~/.virtualenvs</code>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">export</span> WORKON_HOME=<span class="string">'~/.virtualenvs'</span></div><div class="line"><span class="built_in">source</span> /usr/<span class="built_in">local</span>/bin/virtualenvwrapper.sh</div></pre></td></tr></table></figure>
+<p>由于每次都需要执行这两部操作，我们可以将其写入终端的配置文件中。例如，如果使用 <code>bash</code>，则添加到 <code>~/.bashrc</code> 中；如果使用 <code>zsh</code>，则添加到 <code>~/.zshrc</code> 中。这样每次启动终端的时候都会自动运行，终端其中之后 <code>virtualenvwrapper</code> 就可以用啦。</p>
+<p>利用 <code>virtualenvwrapper</code>，我们可以使用下面的命令轻松创建一个虚拟环境。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mkvirtualenv spider</div></pre></td></tr></table></figure>
+<p>之后我们就有了一个叫做 <code>spider</code> 的虚拟环境。它被存放在 <code>$WORKON_HOME/spider</code> 目录下。</p>
+<p>新建虚拟环境之后会自动激活虚拟环境。如果我们平时想要进入某个虚拟环境，可以用下面的命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">workon spider</div></pre></td></tr></table></figure>
+<p>这也就是为什么环境变量中存放虚拟环境的目录为啥叫做 <code>WORKON_HOME</code>。顺便说一句，<code>workon</code> 后面可是可以支持用 <code>tab</code> 自动补全的哟。</p>
+<p>同样，离开虚拟环境，可以使用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">deactivate</div></pre></td></tr></table></figure>
+<p>另外，删除虚拟环境也一样简单。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rmvirtualenv spider</div></pre></td></tr></table></figure>
+<h1 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h1><p>到这里，<code>virtualenv</code> 和 <code>virtualenvwrapper</code> 的基本使用就介绍完了，需要了解更多用法，可以参考官方文档哟。希望这两个工具能够帮助小伙伴们在工作中提高效率哟~~</p>
+]]></content>
+    
+    <summary type="html">
+    
+      在使用 Python 开发的过程中，工程一多，难免会碰到不同的工程依赖不同版本的库的问题；亦或者是在开发过程中不想让物理环境里充斥各种各样的库，引发未来的依赖灾难。此时，我们需要对于不同的工程使用不同的虚拟环境来保持开发环境以及宿主环境的清洁。这里，就要隆重介绍 virtualenv，一个可以帮助我们管理不同 Python 环境的绝好工具。virtualenv 可以在系统中建立多个不同并且相互不干扰的虚拟环境。另外，值得一提的是，在 virtualenv 的虚拟环境中使用 pip 安装依赖还可以绕过某些系统的权限设置
+    
+    </summary>
+    
+      <category term="python" scheme="https://plpcm.github.io/blog/categories/python/"/>
+    
+    
+      <category term="python" scheme="https://plpcm.github.io/blog/tags/python/"/>
+    
+      <category term="virtualenv" scheme="https://plpcm.github.io/blog/tags/virtualenv/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Macdown 编辑器</title>
     <link href="https://plpcm.github.io/blog/2016/02/02/macdown-introduce/"/>
     <id>https://plpcm.github.io/blog/2016/02/02/macdown-introduce/</id>

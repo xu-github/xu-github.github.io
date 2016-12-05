@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/02/02/python-virtualenv-virtualenvwrapper-practice/</loc>
+    
+    <lastmod>2016-12-05T08:28:53.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://plpcm.github.io/blog/blog/2016/12/05/hotlink/</loc>
     
     <lastmod>2016-12-05T08:25:33.000Z</lastmod>
