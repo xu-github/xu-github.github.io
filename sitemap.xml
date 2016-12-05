@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/12/05/hotlink/</loc>
+    
+    <lastmod>2016-12-05T08:37:13.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://plpcm.github.io/blog/blog/2015/12/23/hexo-init/</loc>
     
     <lastmod>2016-12-05T08:32:30.000Z</lastmod>
@@ -19,13 +26,6 @@
     <loc>https://plpcm.github.io/blog/blog/2016/02/05/python-pip/</loc>
     
     <lastmod>2016-12-05T08:32:03.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/12/05/hotlink/</loc>
-    
-    <lastmod>2016-12-05T08:25:33.000Z</lastmod>
     
   </url>
   
