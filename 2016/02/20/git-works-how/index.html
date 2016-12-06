@@ -121,10 +121,10 @@
 <meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/27-12-bravo.png">
 <meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/28-12-fetched-to-alpha.png">
 <meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/29-12-merged-to-alpha.png">
-<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/30-13-alpha-cloned-curl">
 <meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/30-13-alpha-cloned-to-delta-bare.png">
 <meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/31-14-alpha.png">
-<meta property="og:updated_time" content="2016-12-06T05:44:05.000Z">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/32-14-pushed-to-delta.png">
+<meta property="og:updated_time" content="2016-12-06T05:57:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Git工作原理">
 <meta name="twitter:description" content="本文重点介绍了支持Git的图形结构，以及该图形的属性指示Git行为的方式。从基础开始，同时有实例讲解，根据实例建立一个更真实的模型，让你更好地理解git做了什么。">
@@ -714,12 +714,12 @@
 <h3 id="Clone-一个裸仓库"><a href="#Clone-一个裸仓库" class="headerlink" title="Clone 一个裸仓库"></a>Clone 一个裸仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">~/alpha $ cd ..</div><div class="line">      ~ $ git clone alpha delta --bare</div><div class="line">          Cloning into bare repository &apos;delta&apos;</div></pre></td></tr></table></figure>
 <p>移动到上面的目录。 将<code>delta</code> <code>clone</code>为裸存储库。 这是一个有两个区别的普通<code>clone</code>。 配置文件指示存储库是裸的。 通常存储在<code>.git</code>目录中的文件存储在存储库的根目录中如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">delta</div><div class="line">├── HEAD</div><div class="line">├── config</div><div class="line">├── objects</div><div class="line">└── refs</div></pre></td></tr></table></figure>
-<p><img src="/blog/uploads/git-works-how/30-13-alpha-cloned-curl" alt="`alpha` and `delta` graphs after `alpha` cloned to `delta`"></p>
+<p><img src="/blog/uploads/git-works-how/30-13-alpha-cloned-to-delta-bare.png" alt="`alpha` and `delta` graphs after `alpha` cloned to `delta`"></p>
 <h3 id="Push分支到裸存储库"><a href="#Push分支到裸存储库" class="headerlink" title="Push分支到裸存储库"></a>Push分支到裸存储库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">      ~ $ cd alpha</div><div class="line">~/alpha $ git remote add delta ../delta</div></pre></td></tr></table></figure>
 <p>返回到<code>alpha</code>存储库。 将<code>delta</code>设置为<code>alpha</code>上的远程存储库。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;14&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data/number.txt</div><div class="line">~/alpha $ git commit -m &apos;14&apos;</div><div class="line">          [master cb51da8] 14</div></pre></td></tr></table></figure>
 <p>将<code>data/number.txt</code>的内容设置为<code>14</code>，并将更改提交到<code>alpha</code>上的<code>master</code></p>
-<p><img src="/blog/uploads/git-works-how/30-13-alpha-cloned-to-delta-bare.png" alt="`14` commit on `alpha`"></p>
+<p><img src="/blog/uploads/git-works-how/31-14-alpha.png" alt="`14` commit on `alpha`"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git push delta master</div><div class="line">          Writing objects: 100%</div><div class="line">          To ../delta</div><div class="line">            3238468..cb51da8 master -&gt; master</div></pre></td></tr></table></figure>
 <p><code>push</code> <code>master</code>到<code>delta</code>，有3个步骤</p>
 <ol>
@@ -727,8 +727,7 @@
 <li><code>delta/refs/heads/master</code>被更新为指向<code>14</code>提交。</li>
 <li><code>alpha/.git/refs/remotes/delta/master</code>设置为指向<code>14</code>提交。 <code>alpha</code>具有<code>delta</code>的状态的最新记录.</li>
 </ol>
-<p><img src="/blog/uploads/git-works-how/31-14-alpha.png" alt="`14` commit pushed from `alpha` to `delta`"></p>
-<p><a href="http://deweixu.me/tags/git/" target="_blank" rel="external">#git</a></p>
+<p><img src="/blog/uploads/git-works-how/32-14-pushed-to-delta.png" alt="`14` commit pushed from `alpha` to `delta`"></p>
 
       
     </div>

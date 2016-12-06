@@ -366,7 +366,7 @@ fetch</code>取回所有分支（branch）的更新。如果只想取回特定�
     <link href="https://plpcm.github.io/blog/2016/02/20/git-works-how/"/>
     <id>https://plpcm.github.io/blog/2016/02/20/git-works-how/</id>
     <published>2016-02-20T02:30:16.000Z</published>
-    <updated>2016-12-06T05:44:05.000Z</updated>
+    <updated>2016-12-06T05:57:20.000Z</updated>
     
     <content type="html"><![CDATA[<p>原文地址：<a href="https://codewords.recurse.com/issues/two/git-from-the-inside-out" target="_blank" rel="external">https://codewords.recurse.com/issues/two/git-from-the-inside-out</a>)</p>
 <p>这篇文章解释了<code>git</code>的工作原理，它会使你更深入的理解<code>git</code>，更好的使用它来控制项目的版本。</p>
@@ -638,12 +638,12 @@ fetch</code>取回所有分支（branch）的更新。如果只想取回特定�
 <h3 id="Clone-一个裸仓库"><a href="#Clone-一个裸仓库" class="headerlink" title="Clone 一个裸仓库"></a>Clone 一个裸仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">~/alpha $ cd ..</div><div class="line">      ~ $ git clone alpha delta --bare</div><div class="line">          Cloning into bare repository &apos;delta&apos;</div></pre></td></tr></table></figure>
 <p>移动到上面的目录。 将<code>delta</code> <code>clone</code>为裸存储库。 这是一个有两个区别的普通<code>clone</code>。 配置文件指示存储库是裸的。 通常存储在<code>.git</code>目录中的文件存储在存储库的根目录中如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">delta</div><div class="line">├── HEAD</div><div class="line">├── config</div><div class="line">├── objects</div><div class="line">└── refs</div></pre></td></tr></table></figure>
-<p><img src="/blog/uploads/git-works-how/30-13-alpha-cloned-curl" alt="`alpha` and `delta` graphs after `alpha` cloned to `delta`"></p>
+<p><img src="/blog/uploads/git-works-how/30-13-alpha-cloned-to-delta-bare.png" alt="`alpha` and `delta` graphs after `alpha` cloned to `delta`"></p>
 <h3 id="Push分支到裸存储库"><a href="#Push分支到裸存储库" class="headerlink" title="Push分支到裸存储库"></a>Push分支到裸存储库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">      ~ $ cd alpha</div><div class="line">~/alpha $ git remote add delta ../delta</div></pre></td></tr></table></figure>
 <p>返回到<code>alpha</code>存储库。 将<code>delta</code>设置为<code>alpha</code>上的远程存储库。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;14&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data/number.txt</div><div class="line">~/alpha $ git commit -m &apos;14&apos;</div><div class="line">          [master cb51da8] 14</div></pre></td></tr></table></figure>
 <p>将<code>data/number.txt</code>的内容设置为<code>14</code>，并将更改提交到<code>alpha</code>上的<code>master</code></p>
-<p><img src="/blog/uploads/git-works-how/30-13-alpha-cloned-to-delta-bare.png" alt="`14` commit on `alpha`"></p>
+<p><img src="/blog/uploads/git-works-how/31-14-alpha.png" alt="`14` commit on `alpha`"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git push delta master</div><div class="line">          Writing objects: 100%</div><div class="line">          To ../delta</div><div class="line">            3238468..cb51da8 master -&gt; master</div></pre></td></tr></table></figure>
 <p><code>push</code> <code>master</code>到<code>delta</code>，有3个步骤</p>
 <ol>
@@ -651,8 +651,7 @@ fetch</code>取回所有分支（branch）的更新。如果只想取回特定�
 <li><code>delta/refs/heads/master</code>被更新为指向<code>14</code>提交。</li>
 <li><code>alpha/.git/refs/remotes/delta/master</code>设置为指向<code>14</code>提交。 <code>alpha</code>具有<code>delta</code>的状态的最新记录.</li>
 </ol>
-<p><img src="/blog/uploads/git-works-how/31-14-alpha.png" alt="`14` commit pushed from `alpha` to `delta`"></p>
-<p><a href="http://deweixu.me/tags/git/" target="_blank" rel="external">#git</a></p>
+<p><img src="/blog/uploads/git-works-how/32-14-pushed-to-delta.png" alt="`14` commit pushed from `alpha` to `delta`"></p>
 ]]></content>
     
     <summary type="html">
@@ -833,7 +832,7 @@ Header 2
 #### Header 4
 ##### Header 5
 ###### Header 6
-</code></pre><h3 id="Links-and-Email"><a href="#Links-and-Email" class="headerlink" title="Links and Email"></a>Links and Email</h3><h4 id="Inline"><a href="#Inline" class="headerlink" title="Inline"></a>Inline</h4><p>Just put angle brackets around an email and it becomes clickable: <a href="&#109;&#x61;&#x69;&#108;&#116;&#x6f;&#x3a;&#x75;&#x72;&#97;&#110;&#117;&#x73;&#x6a;&#114;&#64;&#x67;&#109;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#109;">&#x75;&#x72;&#97;&#110;&#117;&#x73;&#x6a;&#114;&#64;&#x67;&#109;&#x61;&#x69;&#108;&#x2e;&#99;&#111;&#109;</a><br><code>&lt;uranusjr@gmail.com&gt;</code>  </p>
+</code></pre><h3 id="Links-and-Email"><a href="#Links-and-Email" class="headerlink" title="Links and Email"></a>Links and Email</h3><h4 id="Inline"><a href="#Inline" class="headerlink" title="Inline"></a>Inline</h4><p>Just put angle brackets around an email and it becomes clickable: <a href="&#x6d;&#x61;&#105;&#108;&#116;&#x6f;&#58;&#117;&#x72;&#x61;&#x6e;&#x75;&#x73;&#106;&#114;&#x40;&#x67;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#109;">&#117;&#x72;&#x61;&#x6e;&#x75;&#x73;&#106;&#114;&#x40;&#x67;&#109;&#x61;&#105;&#x6c;&#46;&#99;&#111;&#109;</a><br><code>&lt;uranusjr@gmail.com&gt;</code>  </p>
 <p>Same thing with urls: <a href="http://macdown.uranusjr.com" target="_blank" rel="external">http://macdown.uranusjr.com</a><br><code>&lt;http://macdown.uranusjr.com&gt;</code>  </p>
 <p>Perhaps you want to some link text like this: <a href="http://macdown.uranusjr.com" title="Title" target="_blank" rel="external">Macdown Website</a><br><code>[Macdown Website](http://macdown.uranusjr.com &quot;Title&quot;)</code> (The title is optional)  </p>
 <h4 id="Reference-style"><a href="#Reference-style" class="headerlink" title="Reference style"></a>Reference style</h4><p>Sometimes it looks too messy to include big long urls inline, or you want to keep all your urls together.  </p>
