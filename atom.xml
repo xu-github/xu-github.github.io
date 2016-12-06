@@ -362,6 +362,313 @@ fetch</code>取回所有分支（branch）的更新。如果只想取回特定�
   </entry>
   
   <entry>
+    <title>Git工作原理</title>
+    <link href="https://plpcm.github.io/blog/2016/02/20/git-works-how/"/>
+    <id>https://plpcm.github.io/blog/2016/02/20/git-works-how/</id>
+    <published>2016-02-20T02:30:16.000Z</published>
+    <updated>2016-12-06T05:39:05.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>原文地址：<a href="https://codewords.recurse.com/issues/two/git-from-the-inside-out" target="_blank" rel="external">https://codewords.recurse.com/issues/two/git-from-the-inside-out</a>)</p>
+<p>这篇文章解释了<code>git</code>的工作原理，它会使你更深入的理解<code>git</code>，更好的使用它来控制项目的版本。</p>
+<p>本文重点介绍了支持Git的图形结构，以及该图形的属性指示Git行为的方式。从基础开始，同时有实例讲解，根据实例建立一个更真实的模型，让你更好地理解<code>git</code>做了什么。</p>
+<h3 id="创建项目"><a href="#创建项目" class="headerlink" title="创建项目"></a>创建项目</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~ $ mkdir alpha</div><div class="line">~ $ cd alpha</div></pre></td></tr></table></figure>
+<p>项目目录是<code>alpha</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ mkdir data</div><div class="line">~/alpha $ printf &apos;a&apos; &gt; data/letter.txt</div></pre></td></tr></table></figure>
+<p>到目录<code>alpha</code>下创建了一个名为<code>data</code>的目录，在里面创建了一个名为<code>letter.txt</code>的文件，其中的内容是一个字符<code>a</code>，<code>alpha</code>目录结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">alpha</div><div class="line">└── data</div><div class="line">    └── letter.txt</div></pre></td></tr></table></figure>
+<h3 id="初始化仓库"><a href="#初始化仓库" class="headerlink" title="初始化仓库"></a>初始化仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git init</div><div class="line">          Initialized empty Git repository</div></pre></td></tr></table></figure>
+<p><code>git init</code>使当前目录变成了<code>Git</code>仓库，为此，它创建了一个<code>.git</code>目录并向其中写入了一些文件。这些文件定义了关于Git配置和项目历史的一切，它们只是普通文件。 用户可以使用文本编辑器或shell来读取和编辑它们。 这就是说，用户可以像他们的项目文件一样轻松地阅读和编辑他们项目的历史。</p>
+<p>现在<code>alpha</code>目录的结构就像下面这样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">alpha</div><div class="line">├── data</div><div class="line">|   └── letter.txt</div><div class="line">└── .git</div><div class="line">    ├── objects</div><div class="line">    etc...</div></pre></td></tr></table></figure>
+<p><code>.git</code>目录及其内容归<code>Git</code>系统所有，所有其他的文件统称为工作副本，归用户所有。</p>
+<h3 id="添加文件"><a href="#添加文件" class="headerlink" title="添加文件"></a>添加文件</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git add data/letter.txt</div></pre></td></tr></table></figure>
+<p>运行上面的命令，有两个效果。</p>
+<p>首先，它在<code>.git/objects/</code>目录中创建了一个新的<code>blob</code>文件。</p>
+<p>这个<code>blob</code>文件包含<code>data/letter.txt</code>的压缩内容。 它的名称通过文件内容的<code>Hash</code>(应该是用的<code>sha1</code>)得到。取一段文本的<code>Hash</code>值意味着运行一个程序，将其内容变成一块较小的文本，这块文本是原始内容的唯一标识。例如，<code>Git</code>将<code>aes</code>转换为<code>2e65efe2a145dda7ee51d1741299f848e5bf752e</code>，前两个字符用作对象数据库中的目录的名称：<code>.git/objects/2e/</code>。 散列的其余部分用作保存所添加文件的内容的<code>blob</code>文件的名称：</p>
+<p><code>.git/objects/2e/65efe2a145dda7ee51d1741299f848e5bf752e</code>。</p>
+<blockquote>
+<p><code>git add</code>将文件添加到<code>Git</code>并将其内容保存到<code>objects</code>目录中。 如果用户从工作副本中删除<code>data/letter.text</code>，它的内容在<code>Git</code>中仍然是安全的。</p>
+</blockquote>
+<p>其次，<code>git add</code>将文件添加到<code>索引</code>。 <code>索引</code>是一个列表，其中包含<code>Git</code>已被告知要跟踪的每个文件。 它作为一个文件存储在<code>.git/index</code>。 文件的每一行将被跟踪的文件映射到其内容的<code>哈希</code>。 这是运行<code>git add</code>命令后的索引：</p>
+<p><code>data/letter.txt 2e65efe2a145dda7ee51d1741299f848e5bf752e</code></p>
+<p>创建一个包含内容<code>1234</code>的文件<code>data/number.txt</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;1234&apos; &gt; data/number.txt</div></pre></td></tr></table></figure>
+<p>目录结构变成了下面这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">alpha</div><div class="line">└── data</div><div class="line">    └── letter.txt</div><div class="line">    └── number.txt</div></pre></td></tr></table></figure>
+<p>添加文件到<code>Git</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git add data</div></pre></td></tr></table></figure>
+<p><code>git add</code>命令创建一个包含<code>data/number.txt</code>内容的<code>blob</code>对象。 它为指向<code>blob</code>的<code>data/number.txt</code>添加一个索引条目。 这是<code>git add</code>命令第二次运行后的索引：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">data/letter.txt 2e65efe2a145dda7ee51d1741299f848e5bf752e</div><div class="line">data/number.txt 274c0052dd5408f8ae2bc8440029ff67d79bc5c3</div></pre></td></tr></table></figure>
+<blockquote>
+<p>只有数据目录中的文件被列在索引中，虽然用户运行了<code>git add data</code>。 数据目录<code>data</code>不单独列出。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;1&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data</div></pre></td></tr></table></figure>
+<p>当最初创建<code>data/number.txt</code>时，想要输入内容<code>1</code>，而不是<code>1234</code>.他们进行更正并将文件再次添加到索引。 此命令将使用新内容创建一个新的<code>blob</code>。 并且它更新<code>data/number.txt</code>的索引条目以指向新的<code>blob</code>。</p>
+<h3 id="git-commit"><a href="#git-commit" class="headerlink" title="git commit"></a>git commit</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git commit -m &apos;a1&apos;</div><div class="line">          [master (root-commit) 774b54a] a</div></pre></td></tr></table></figure>
+<p>进行<code>a1</code>提交，<code>Git</code>打印了这次提交的相关信息。</p>
+<p><code>commit</code>命令有三个步骤。 创建一个树形图来表示正在提交的项目版本的内容。 创建一个提交对象。 将当前分支指向新的提交对象。</p>
+<h3 id="创建树形图"><a href="#创建树形图" class="headerlink" title="创建树形图"></a>创建树形图</h3><p><code>Git</code>通过从索引创建树图来记录项目的当前状态。 此树图记录项目中每个文件的位置和内容。</p>
+<p>该图由两种类型的对象组成：<code>blob</code>和<code>树</code>。</p>
+<p><code>Blob</code>是通过<code>git add</code>存储的。 它们表示文件的内容。</p>
+<p>在<code>commit</code>时存储树。 树表示工作副本中的目录。</p>
+<p>下面是记录新提交的<code>data</code>目录的内容的树对象：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">100664 blob 2e65efe2a145dda7ee51d1741299f848e5bf752e letter.txt</div><div class="line">100664 blob 56a6051ca2b02b04ef92d5150c9ef600403cb1de number.txt</div></pre></td></tr></table></figure>
+<p>第一行记录展示了<code>data/letter.txt</code>文件的信息。 第一部分是文件的权限。 第二部表示此条目的内容由<code>blob</code>而不是<code>树</code>表示。 第三部分描述了<code>blob</code>的<code>Hash</code>。 第四部分描述文件的名称。第二行当然就是文件<code>data/number.txt</code>文件的信息。</p>
+<p>下面是<code>alpha</code>的树对象：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">040000 tree 0eed1217a2947f4930583229987d90fe5e8e0b74 data</div></pre></td></tr></table></figure>
+<p><code>alpha</code>树对象只包含了一个指向<code>data</code>树指针。(译著：如果<code>alpha</code>目录下还有一个文件， <code>alpha</code>树对象就还会多一行，就是指向多出文件的<code>blob</code>对象)</p>
+<p><a href="/blog/uploads/git-works-how/1-a1-tree-graph.png">![<code>a1</code> commit object pointing at its tree graph]]</a></p>
+<p>在上面的图中，<code>root</code>树指向<code>data</code>树。 <code>data</code>树指向<code>data/letter.txt</code>和<code>data/number.txt</code>的<code>blob</code>。</p>
+<h3 id="创建一个提交对象"><a href="#创建一个提交对象" class="headerlink" title="创建一个提交对象"></a>创建一个提交对象</h3><p><code>git commit</code>在创建树图后创建一个<code>提交对象</code>。 <code>提交对象</code>只是<code>.git/objects/</code>中的另一个文本文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">tree ffe298c3ce8bb07326f888907996eaa48d266db4</div><div class="line">author Mary Rose Cook &lt;mary@maryrosecook.com&gt; 1424798436 -0500</div><div class="line">committer Mary Rose Cook &lt;mary@maryrosecook.com&gt; 1424798436 -0500</div><div class="line"></div><div class="line">a1</div></pre></td></tr></table></figure>
+<p>第一行指向树图。 <code>Hash</code>是表示工作副本的根的树对象。 也就是<code>alpha</code>目录。 最后一行是提交消息。</p>
+<p><a href="/blog/uploads/git-works-how/2-a1-commit.png">![<code>a1</code> commit object pointing at its tree graph]</a></p>
+<h3 id="将当前分支指向新的提交"><a href="#将当前分支指向新的提交" class="headerlink" title="将当前分支指向新的提交"></a>将当前分支指向新的提交</h3><p>最后，commit命令将当前分支指向新的提交对象。哪个是当前分支？ <code>.git/HEAD</code>文件记录了当前分支：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ref: refs/heads/master</div></pre></td></tr></table></figure>
+<p>这说明<code>HEAD</code>指向<code>master</code>, <code>master</code>是主分支。<br><code>HEAD</code>和<code>master</code>都是<code>refs</code>。 <code>ref</code>是<code>Git</code>用来标识特定提交的标签。</p>
+<p>表示<code>master</code>引用的文件不存在，因为这是对仓库的第一次提交。 <code>Git</code>在<code>.git/refs/heads/master</code>下创建文件，并将其内容设置为提交对象的哈希值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">74ac3ad9cde0b265d2b4f1c778b283a6e2ffbafd</div></pre></td></tr></table></figure>
+<p>(如果你在阅读时输入这些<code>Git</code>命令，你的<code>a1</code>提交的<code>哈希值</code>将不同于我的<code>哈希值</code>。 内容对象（如blob和树）总是散列为相同的值。 提交不会，因为它们包括创建者的日期和名称。)</p>
+<p>添加<code>HEAD</code>和<code>master</code>到树图：</p>
+<p><a href="/blog/uploads/git-works-how/3-a1-refs.png">![<code>HEAD</code> pointing at <code>master</code> and <code>master</code> pointing at the <code>a1</code> commit]</a></p>
+<p><code>HEAD</code>指向<code>master</code>，就像提交之前一样。 但<code>maste</code>r现在存在并指向新的提交对象<code>a1</code>。</p>
+<h3 id="再一次commit"><a href="#再一次commit" class="headerlink" title="再一次commit"></a>再一次commit</h3><p>下面是<code>a1</code>提交后的<code>Git</code>结构图。 包含工作副本和索引。</p>
+<p><a href="/blog/uploads/git-works-how/4-a1-wc-and-index.png">![<code>a1</code> commit shown with the working copy and index]</a></p>
+<p>工作副本，索引和<code>a1</code>提交都具有与<code>data/letter.txt</code>和<code>data/number.txt</code>相同的内容。 索引和<code>HEAD</code>提交都使用<code>Hash</code>来引用<code>blob</code>对象，但是工作副本内容作为文本存储在不同的地方。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;2&apos; &gt; data/number.txt</div></pre></td></tr></table></figure>
+<p>将<code>data/number.txt</code>的内容设置为<code>2</code>.这会更新工作副本，但<code>索引</code>和<code>HEAD</code>不变。</p>
+<p><a href="/blog/uploads/git-works-how/5-a1-wc-number-set-to-2.png">![<code>data/number.txt</code> set to <code>2</code> in the working copy]</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git add data/number.txt</div></pre></td></tr></table></figure>
+<p>将文件添加到<code>Git</code>。 这会向<code>objects</code>目录添加一个包含<code>2</code>的<code>blob</code>。 它指向新<code>blob</code>的<code>data/number.txt</code>的索引条目。</p>
+<p><a href="/blog/uploads/git-works-how/6-a1-wc-and-index-number-set-to-2.png">![<code>data/number.txt</code> set to <code>2</code> in the working copy and index]</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git commit -m &apos;a2&apos;</div><div class="line">          [master f0af7e6] a2</div></pre></td></tr></table></figure></p>
+<p>提交的步骤与之前相同。</p>
+<p>首先，创建一个新的树形图来表示索引的内容。</p>
+<p><code>data/number.txt</code>的索引条目已更改。 旧的数据树不再反映<code>data</code>目录的索引状态。 必须创建一个新的<code>data</code>树对象：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">100664 blob 2e65efe2a145dda7ee51d1741299f848e5bf752e letter.txt</div><div class="line">100664 blob d8263ee9860594d2806b0dfd1bfd17528b0ba2a4 number.txt</div></pre></td></tr></table></figure>
+<p>新数据树与旧数据树的哈希值不同。 必须创建一个新的根树以记录此<code>Hash</code>值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">040000 tree 40b0318811470aaacc577485777d7a6780e51f0b data</div></pre></td></tr></table></figure>
+<p>其次，创建一个新的提交对象。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">tree ce72afb5ff229a39f6cce47b00d1b0ed60fe3556</div><div class="line">parent 774b54a193d6cfdd081e581a007d2e11f784b9fe</div><div class="line">author Mary Rose Cook &lt;mary@maryrosecook.com&gt; 1424813101 -0500</div><div class="line">committer Mary Rose Cook &lt;mary@maryrosecook.com&gt; 1424813101 -0500</div><div class="line"></div><div class="line">a2</div></pre></td></tr></table></figure>
+<p>提交对象的第一行指向新的根树对象。 第二行指向<code>a1</code>：新提交的父级。要找到父提交，要跟着<code>HEAD</code>和<code>master</code>来掌握并发现<code>a1</code>的提交哈希。</p>
+<p>最后，master分支文件的内容被设置为新提交的<code>hash</code>值。</p>
+<p><a href="/blog/uploads/git-works-how/7-a2.png">![<code>a2</code> commit]</a></p>
+<p><a href="/blog/uploads/git-works-how/8-a2-just-objects-commits-and-refs.png">![Git graph without the working copy and index]</a></p>
+<p>内容存储为对象树。 这意味着只有diffs存储在对象数据库中。 看看上面的图表。 <code>a2 commit</code>重用了在<code>a1</code>提交之前创建的<code>blob</code>。 类似地，如果提交中整个没有变，则其树以及其下的所有<code>blob</code>和树可以被重用。 一般来说，提交的内容更改很少。 这意味着<code>Git</code>可以在小的空间中存储大的提交历史。</p>
+<p>每个提交都有一个父级。 这意味着存储库可以存储项目的历史记录。</p>
+<p><code>refs</code>是提交历史的一部分或另一部分的入口点。 这意味着提交可以被赋予有意义的名称。 用户将他们的工作组织到对他们的项目有意义的谱系中，具体的参考如<code>fix-for-bug-376</code>。 <code>Git</code>使用符号引用，如<code>HEAD</code>，<code>MERGE_HEAD</code>和<code>FETCH_HEAD</code>来支持操作提交历史记录的命令。</p>
+<p><code>objects</code>目录中的节点是不可变的。 这意味着内容被编辑，而不是被删除。 每一次添加的内容和每次提交的对象都是在目录中.</p>
+<p><code>refs</code>是可变的。 因此，<code>ref</code>的含义可以改变。 <code>master</code>指向的提交可能是当前项目的最佳版本，但是，很快，它将被更新的更好的提交取代。</p>
+<h3 id="Check-out-a-commit"><a href="#Check-out-a-commit" class="headerlink" title="Check out a commit"></a>Check out a commit</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git checkout 37888c2</div><div class="line">          You are in &apos;detached HEAD&apos; state...</div></pre></td></tr></table></figure>
+<p>使用<code>Hash</code>值<code>checkout``a2</code>的提交(如果你在运行这些git命令，这里的<code>hash</code>值要换成你自己的，使用<code>git log</code>查看)</p>
+<p><code>checkout</code> 有四个步骤：</p>
+<ul>
+<li>获取<code>a2</code>提交，并获取指向它的树图</li>
+<li>它将树形图中的文件条目写入工作副本。 这将导致没有更改。 工作副本已经具有被写入其中的树图的内容，因为<code>HEAD</code>已经通过<code>master</code>指向<code>a2</code>提交。</li>
+<li>将树图中的文件条目写入索引。 这也导致没有变化。 索引已经具有<code>a2</code>提交的内容。</li>
+<li><code>HEAD</code>的内容设置为<code>a2</code>提交的哈希：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">f0af7e62679e144bb28c627ee3e8f7bdb235eee9</div></pre></td></tr></table></figure>
+<p>将<code>HEAD</code>的内容设置为<code>Hash</code>值会使存储库处于分离的<code>HEAD</code>状态。 注意在下面的图表中，<code>HEAD</code>直接指向<code>a2</code>提交，而不是指向<code>master</code>。</p>
+<p><a href="/blog/uploads/git-works-how/9-a2-detached-head.png">![Detached <code>HEAD</code> on <code>a2</code> commit]</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;3&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data/number.txt</div><div class="line">~/alpha $ git commit -m &apos;a3&apos;</div><div class="line">          [detached HEAD 3645a0e] a3</div></pre></td></tr></table></figure>
+<p>将<code>data/number.txt</code>的内容设置为<code>3</code>，并提交更改。 <code>Git</code>去<code>HEAD</code>得到<code>a3</code>提交的父级。 而不是找到一个分支ref，它找到并返回<code>a2</code>提交的哈希。</p>
+<p><code>Git</code>更新<code>HEAD</code>直接指向新的<code>a3</code>提交的哈希。 存储库仍处于分离的<code>HEAD</code>状态。 它不在一个分支上，因为没有提交指向<code>a3</code>或其一个后代。 这意味着它很容易丢失。</p>
+<p><a href="/blog/uploads/git-works-how/10-a3-detached-head.png">![<code>a3</code> commit that is not on a branch]</a></p>
+<h3 id="创建分支"><a href="#创建分支" class="headerlink" title="创建分支"></a>创建分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git branch deputy</div></pre></td></tr></table></figure>
+<p>创建一个新分支<code>deputy</code>。 这只是在<code>.git/refs/heads/deputy</code>创建一个新文件，其中包含<code>HEAD</code>指向的哈希, 也就是<code>a3</code>提交的哈希。</p>
+<blockquote>
+<p>分支只是refs, refs只是文件。 这意味着Git分支是轻量级的。</p>
+</blockquote>
+<p><code>deputy</code>分支的创建将新的<code>a3</code>提交安全地放置在分支上。 <code>HEAD</code>仍然分离，因为它仍然直接指向一个提交。</p>
+<p><a href="/blog/uploads/git-works-how/11-a3-on-deputy.png">![<code>a3</code> commit now on the <code>deputy</code> branch]</a></p>
+<h3 id="切换分支"><a href="#切换分支" class="headerlink" title="切换分支"></a>切换分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git checkout master</div><div class="line">          Switched to branch &apos;master&apos;</div></pre></td></tr></table></figure>
+<p>切换到了<code>master</code>分支</p>
+<ul>
+<li>获取<code>a2</code>提交，并将<code>master</code>指向获取提交点的树图。</li>
+<li>树形图中的文件条目替换工作副本的文件。 这将使<code>data/number.txt</code>的内容设置为2。</li>
+<li>将树图中的文件条目写入索引。 这会将<code>data/number.txt</code>的条目更新为2个<code>blob</code>的散列。</li>
+<li>改变<code>HEAD</code>的值</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ref: refs/heads/master</div></pre></td></tr></table></figure>
+<p><a href="/blog/uploads/git-works-how/12-a3-on-master-on-a2.png">![<code>master</code> checked out and pointing at the <code>a2</code> commit]</a></p>
+<h3 id="切换到与工作副本不兼容-有改变-的分支"><a href="#切换到与工作副本不兼容-有改变-的分支" class="headerlink" title="切换到与工作副本不兼容(有改变)的分支"></a>切换到与工作副本不兼容(有改变)的分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;789&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git checkout deputy</div><div class="line">          Your changes to these files would be overwritten</div><div class="line">          by checkout:</div><div class="line">            data/number.txt</div><div class="line">          Commit your changes or stash them before you</div><div class="line">          switch branches.</div></pre></td></tr></table></figure>
+<p>将<code>data/number.txt</code>的内容设置为<code>789</code>， 当<code>checkout</code>到<code>deputy</code>时，<code>Git</code>报了一个错误。</p>
+<p><code>HEAD</code>指向<code>master</code>，<code>master</code>指向<code>a2</code>，其中<code>data/number.txt</code>的内容是<code>2</code>。<code>deputy</code>指向<code>a3</code>，其中<code>data/number.txt</code>的内容是<code>3</code>。<code>data/number.txt</code>在工作副本的内容为<code>789</code>，所有这些版本都不同，差异必须解决。</p>
+<p><code>Git</code>可以使用要切换分支中提交的版本替换掉工作副本中的版本，这样可以避免数据丢失。</p>
+<p><code>Git</code>可以合并工作副本的版本和要切换分支中的版本，但这很复杂。</p>
+<p>所以<code>Git</code>报了一个错误，不能切换分支。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;2&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git checkout deputy</div><div class="line">          Switched to branch &apos;deputy&apos;</div></pre></td></tr></table></figure>
+<p>把<code>data/number.txt</code>的内容变回<code>2</code>时，便切换成功了。</p>
+<p><a href="/blog/uploads/git-works-how/13-a3ondeputy.png">![<code>deputy</code> checked out]</a></p>
+<h3 id="合并祖先"><a href="#合并祖先" class="headerlink" title="合并祖先"></a>合并祖先</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git merge master</div><div class="line">          Already up-to-date.</div></pre></td></tr></table></figure>
+<p>将主分支<code>master</code>和并到<code>deputy</code>分支。和并两个分支实际上是合并两个提交。第一个提交指向<code>deputy</code>，它是接收者。第二个提交指向<code>master</code>，它是提交者。可以理解为把<code>master</code>提交到<code>deputy</code>。对于这个合并，<code>git</code>什么也没有做，因为两个分支的内容是一样的。</p>
+<p>图中的一系列的提交可以看成是对存储库的一系列更改。这也就意味着，在合并中，如果提交者(<code>master</code>)是接收者(<code>deputy</code>)的祖先，<code>git</code>将什么也不做，因为这些变化已经存在。</p>
+<h3 id="合并后代"><a href="#合并后代" class="headerlink" title="合并后代"></a>合并后代</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git checkout master</div><div class="line">          Switched to branch &apos;master&apos;</div></pre></td></tr></table></figure>
+<p>切换到分支<code>master</code></p>
+<p><a href="/blog/uploads/git-works-how/14-a3-on-master-on-a2.png">![<code>master</code> checked out and pointing at the <code>a2</code> commit]</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git merge deputy</div><div class="line">          Fast-forward</div></pre></td></tr></table></figure>
+<p>合并<code>deputy</code>到<code>master</code>。<code>Git</code>发现接受者的<code>a2</code>提是提交者<code>a3</code>的祖先，它可以做快进合并。</p>
+<p>获得提交者的提交<code>a3</code>并提供指向它的树图，将树图中的文件条目写入工作副本和索引。<code>快进</code>是指<code>master</code>指向<code>a3</code>。</p>
+<p><a href="/blog/uploads/git-works-how/15-a3-on-master.png">![<code>a3</code> commit from <code>deputy</code> fast-forward merged into <code>master</code>]</a></p>
+<p>在合并中，如果提交者(<code>deputy</code>分支上的<code>a3</code>提价)是接收者(<code>master</code>上的<code>a2</code>提价)的后代，则历史记录不改变。 已经有一系列提交描述了要做出的改变(<code>接收者和提交者之间的提交序列</code>)。 虽然Git历史没有改变，Git图确实改变。 HEAD指向的具体引用被更新为指向提交者(<code>master</code>指向<code>a3</code>)。</p>
+<h3 id="合并来自两个不同谱系的分支"><a href="#合并来自两个不同谱系的分支" class="headerlink" title="合并来自两个不同谱系的分支"></a>合并来自两个不同谱系的分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;4&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data/number.txt</div><div class="line">~/alpha $ git commit -m &apos;a4&apos;</div><div class="line">          [master 7b7bd9a] a4</div></pre></td></tr></table></figure>
+<p>把<code>number.txt</code>的内容设置为<code>4</code>，并提交到<code>master</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git checkout deputy</div><div class="line">          Switched to branch &apos;deputy&apos;</div><div class="line">~/alpha $ printf &apos;b&apos; &gt; data/letter.txt</div><div class="line">~/alpha $ git add data/letter.txt</div><div class="line">~/alpha $ git commit -m &apos;b3&apos;</div><div class="line">          [deputy 982dffb] b3</div></pre></td></tr></table></figure>
+<p>切换到<code>deputy</code>分支，把<code>data/letter.txt</code>的内容设置为<code>b</code>，并提交到<code>deputy</code>。</p>
+<p><a href="/blog/uploads/git-works-how/16-a4-b3-on-deputy.png">![<code>a4</code> committed to <code>master</code>, <code>b3</code> committed to <code>deputy</code> and <code>deputy</code> checked out]</a></p>
+<p>提交可以共享父级，这意味着可以在提价的历史中创建新的谱系。</p>
+<p>提交可以有多个父级。 这意味着单独的谱系可以通过具有两个父的提交来合并：合并提交。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git merge master -m &apos;b4&apos;</div><div class="line">          Merge made by the &apos;recursive&apos; strategy.</div></pre></td></tr></table></figure>
+<p>合并<code>master</code>到<code>deputy</code></p>
+<p><code>Git</code>发现接收者<code>b3</code>和提供者<code>a4</code>在不同的谱系中。 它做一个合并提交。 这个过程有八个步骤。</p>
+<ol>
+<li><code>Git</code>将提交者的提交的哈希写入到<code>alpha/.git/MERGE_HEAD</code>文件。 这个文件的存在告诉<code>Git</code>在合并中。</li>
+<li><code>Git</code>查找基本提交：接收者和提交者提交的最近的祖先的共同点。</li>
+</ol>
+<p><a href="/blog/uploads/git-works-how/17-a4-b3-on-deputy.png">![<code>a3</code>, the base commit of <code>a4</code> and <code>b3</code>]</a></p>
+<p>提交有父级别。 这意味着可以找到两个谱系起始点。 <code>Git</code>从<code>b3</code>向后跟踪，找到所有的祖先，从<code>a4</code>向后寻找所有的祖先。 它找到两个谱系共享的最近的祖先<code>a3</code>。 这是基本提交。</p>
+<ol>
+<li><code>Git</code>从接收者和提交者提交的树图生成基本的索引。</li>
+<li><code>Git</code>生成一个<code>diff</code>，它将接收者提交和提交者提交对基础提交所做的更改合并。 此<code>diff</code>是指向更改的文件路径列表：添加，删除，修改或冲突。</li>
+</ol>
+<p><code>Git</code>获取出现在<code>base</code>，<code>receiver</code>或<code>giver</code>索引中的所有文件的列表。 比较较索引条目以决定对文件做出的更改。 它将一个相应的条目写入<code>diff</code>。 在这种情况下，<code>diff</code>有两个条目。</p>
+<p>第一个条目是是<code>data/letter.txt</code>。 文件内容在<code>base</code>和<code>receiver</code>中不同。 但是在<code>base</code>和<code>giver</code>中是一样的。 <code>Git</code>看到内容被<code>reviceer</code>修改，但是没有被<code>giver</code>修改。 <code>data/letter.txt</code>的<code>diff</code>条目是一个修改，而不是冲突。</p>
+<p><code>diff</code>中的第二个条目是<code>data/number.txt</code>。 在这种情况下，文件内容在<code>base</code>和<code>receiver</code>中是相同的，并且在<code>giver</code>中是不同的。 <code>data/letter.txt</code>的<code>diff</code>条目也是一个修改。</p>
+<p>可以找到合并的<code>base</code>提交。 这意味着，如果一个文件只是从<code>receiver</code>或提<code>giver</code>的<code>base</code>改变，<code>Git</code>可以自动解决该文件的合并。 这减少了用户必须做的工作。</p>
+<ol>
+<li>由<code>diff</code>中的条目指示的更改将应用于工作副本。 <code>data/letter.txt</code>的内容设置为<code>b</code>，<code>data/number.txt</code>的内容设置为<code>4</code>。</li>
+<li>由<code>diff</code>中的条目指示的更改将应用于索引。 <code>data/letter.txt</code>的条目指向<code>b</code> <code>blob</code>，<code>data/number.txt</code>的条目指向<code>4</code> <code>blob</code>。</li>
+<li>更新索引：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">tree 20294508aea3fb6f05fcc49adaecc2e6d60f7e7d</div><div class="line">parent 982dffb20f8d6a25a8554cc8d765fb9f3ff1333b</div><div class="line">parent 7b7bd9a5253f47360d5787095afc5ba56591bfe7</div><div class="line">author Mary Rose Cook &lt;mary@maryrosecook.com&gt; 1425596551 -0500</div><div class="line">committer Mary Rose Cook &lt;mary@maryrosecook.com&gt; 1425596551 -0500</div><div class="line"></div><div class="line">b4</div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：这次提交有两个父级</p>
+</blockquote>
+<ol>
+<li>将当前分支<code>deputy</code> 分支指向新的提交。</li>
+</ol>
+<p><a href="/blog/uploads/git-works-how/18-b4-on-deputy.png">![<code>b4</code>, the merge commit resulting from the recursive merge of <code>a4</code> into <code>b3</code>]</a></p>
+<h3 id="合并来自不同谱系的两个提交，这两个提交都修改同一个文件"><a href="#合并来自不同谱系的两个提交，这两个提交都修改同一个文件" class="headerlink" title="合并来自不同谱系的两个提交，这两个提交都修改同一个文件"></a>合并来自不同谱系的两个提交，这两个提交都修改同一个文件</h3><p>切换到<code>master</code>分支，并把<code>deputy</code>合并到<code>master</code>，<code>快进</code>到<code>b4</code>，现在<code>master</code>和<code>deputy</code>都指向同一个提交</p>
+<p><a href="/blog/uploads/git-works-how/19-b4-master-deputy-on-b4.png">![<code>deputy</code> merged into <code>master</code> to bring <code>master</code> up to the latest commit, <code>b4</code>]</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git checkout deputy</div><div class="line">          Switched to branch &apos;deputy&apos;</div><div class="line">~/alpha $ printf &apos;5&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data/number.txt</div><div class="line">~/alpha $ git commit -m &apos;b5&apos;</div><div class="line">          [deputy bd797c2] b5</div></pre></td></tr></table></figure>
+<p>切换到<code>deputy</code>分支，把<code>data/number.txt</code>的内容设置为<code>5</code>，并提交。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git checkout master</div><div class="line">          Switched to branch &apos;master&apos;</div><div class="line">~/alpha $ printf &apos;6&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data/number.txt</div><div class="line">~/alpha $ git commit -m &apos;b6&apos;</div><div class="line">          [master 4c3ce18] b6</div></pre></td></tr></table></figure>
+<p>切换到<code>master</code>分支，把<code>data/number.txt</code>的内容设置为<code>6</code>，并提交。</p>
+<p><a href="/blog/uploads/git-works-how/20-b5-on-deputy-b6-on-master.png">![<code>b5</code> commit on <code>deputy</code> and <code>b6</code> commit on <code>master</code>]</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git merge deputy</div><div class="line">          CONFLICT in data/number.txt</div><div class="line">          Automatic merge failed; fix conflicts and</div><div class="line">          commit the result.</div></pre></td></tr></table></figure>
+<p>将<code>deputy</code>合并到<code>master</code>。存在冲突，并且合并已暂停。冲突合并的过程遵循与未冲突合并的过程相同的前六个步骤：设置<code>.git/MERGE_HEAD</code>，查找<code>base</code>，生成<code>base</code>，<code>receiver</code>，<code>giver</code>的索引，创建<code>diff</code>，更新工作副本和更新索引。由于冲突，不采取第七提交步骤和第八更新<code>ref</code>步骤。让我们再次看看这些步骤，发生了什么。</p>
+<ol>
+<li><code>Git</code>将<code>giver</code>提交的哈希写入<code>.git/MERGE_HEAD</code>文件。</li>
+</ol>
+<p><a href="/blog/uploads/git-works-how/21-b6-on-master-with-merge-head.png">![<code>MERGE_HEAD</code> written during merge of <code>b5</code> into <code>b6</code>]</a></p>
+<ol>
+<li><code>Git</code>找到<code>base</code>提交<code>b4</code></li>
+<li><code>Git</code>从接收者和提交者提交的树图生成基本的索引。</li>
+<li><code>Git</code>生成一个<code>diff</code>，它将接收者提交和提交者提交对基础提交所做的更改合并。 此<code>diff</code>是指向更改的文件路径列表：添加，删除，修改或冲突。</li>
+</ol>
+<p>在这种情况下，<code>diff</code>只包含一个条目：<code>data/number.txt</code>。 该条目被标记为冲突，因为<code>data/number.txt</code>的内容在接收者，提供者和<code>base</code>中是不同的。</p>
+<ol>
+<li>由<code>diff</code>中的条目指示的更改将应用于工作副本。 对于冲突区域，<code>Git</code>将两个版本写入工作副本中的文件。 <code>data/number.txt</code>的内容设置为：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</div><div class="line">6</div><div class="line">=======</div><div class="line">5</div><div class="line">&gt;&gt;&gt;&gt;&gt;&gt;&gt; deputy</div></pre></td></tr></table></figure>
+<ol>
+<li>由<code>diff</code>中的条目指示的更改应用于索引。 索引中的条目通过其文件路径和阶段的组合成唯一标识。 未冲突文件的条目具有阶段<code>0</code>.在此合并之前，索引如下所示，其中<code>0</code>是阶段值：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">0 data/letter.txt 63d8dbd40c23542e740659a7168a0ce3138ea748</div><div class="line">0 data/number.txt 62f9457511f879886bb7728c986fe10b0ece6bcb</div></pre></td></tr></table></figure>
+<p>在合并<code>diff</code>被写入索引之后，索引如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">0 data/letter.txt 63d8dbd40c23542e740659a7168a0ce3138ea748</div><div class="line">1 data/number.txt bf0d87ab1b2b0ec1a11a3973d2845b42413d9767</div><div class="line">2 data/number.txt 62f9457511f879886bb7728c986fe10b0ece6bcb</div><div class="line">3 data/number.txt 7813681f5b41c028345ca62a2be376bae70b7f61</div></pre></td></tr></table></figure>
+<p>在阶段<code>0</code>的<code>data/letter.txt</code>的条目与在合并之前相同。 在阶段<code>0</code>的<code>data/number.txt</code>的条目被去掉了。 它有三个新的条目。 阶段<code>1</code>的条目具有<code>base</code> <code>data/number.txt</code>内容的散列。 阶段<code>2</code>的条目具有<code>receiver</code> <code>data/number.txt</code>内容的散列。 阶段<code>3</code>的条目具有<code>giver</code> <code>data/number.txt</code>内容的散列。 这三个条目的存在告诉<code>Git</code> <code>data/number.txt</code>是冲突的。合并就暂停了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;11&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data/number.txt</div></pre></td></tr></table></figure>
+<p>通过将<code>data/number.txt</code>的内容设置为<code>11</code>来合成两个冲突版本的内容。他们将文件添加到索引。 <code>Git</code>添加一个包含<code>11</code>的<code>Blob</code>。添加一个冲突的文件告诉<code>Git</code>冲突已解决。 <code>Git</code>从索引中删除阶段<code>1</code>,<code>2</code>和<code>3</code>的<code>data/number.txt</code>条目。 在阶段<code>0</code>的<code>data/number.txt</code>的条目中添加新<code>blob</code>的散列。 该索引现在为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">0 data/letter.txt 63d8dbd40c23542e740659a7168a0ce3138ea748</div><div class="line">0 data/number.txt 9d607966b721abde8931ddd052181fae905db503</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git commit -m &apos;b11&apos;</div><div class="line">          [master 251a513] b11</div></pre></td></tr></table></figure>
+<ol>
+<li>提交。 <code>Git</code>在存储库中看到<code>.git/MERGE_HEAD</code>，告诉它合并正在进行。 然后检查索引并发现没有冲突。 就创建一个新的提交<code>b11</code>，以记录解析的合并的内容。 z最后会删除<code>.git/MERGE_HEAD</code>文件。 这将完成合并。</li>
+<li>将当前分支<code>master</code>指向新的提交。</li>
+</ol>
+<p><a href="/blog/uploads/git-works-how/22-b11-on-master.png">![<code>b11</code>, the merge commit resulting from the conflicted, recursive merge of <code>b5</code> into <code>b6</code>]</a></p>
+<h3 id="移除一个文件"><a href="#移除一个文件" class="headerlink" title="移除一个文件"></a>移除一个文件</h3><p>下面的图包括提交历史、最近提交的树和<code>blob</code>以及工作副本和索引：</p>
+<p><a href="/blog/uploads/git-works-how/24-b11-letter-removed-from-wc-and-index.png">![The working copy, index, <code>b11</code> commit and its tree graph]</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git rm data/letter.txt</div><div class="line">          rm &apos;data/letter.txt&apos;</div></pre></td></tr></table></figure>
+<p>告诉<code>Git</code>删除<code>data/letter.txt</code>。 该文件从工作副本中删除。 该条目从索引中删除。</p>
+<p><a href="/blog/uploads/git-works-how/24-b11-letter-removed-from-wc-and-index.png">![After <code>data/letter.txt</code> <code>rm</code>ed from working copy and index]</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git commit -m &apos;11&apos;</div><div class="line">          [master d14c7d2] 11</div></pre></td></tr></table></figure>
+<p>提交。 作为提交的一部分，一如既往，Git构建一个表示索引内容的树形图。 <code>data/letter.txt</code>不包括在树图中，因为它不在索引中。</p>
+<p><a href="/blog/uploads/git-works-how/25-11.png">![<code>11</code> commit made after <code>data/letter.txt</code> <code>rm</code>ed]</a></p>
+<h3 id="复制存储库"><a href="#复制存储库" class="headerlink" title="复制存储库"></a>复制存储库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ cd ..</div><div class="line">      ~ $ cp -R alpha bravo</div></pre></td></tr></table></figure>
+<p>将<code>alpha/</code>存储库的内容复制到<code>bravo/</code>目录。 这将产生以下目录结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">~</div><div class="line">├── alpha</div><div class="line">|   └── data</div><div class="line">|       └── number.txt</div><div class="line">└── bravo</div><div class="line">    └── data</div><div class="line">        └── number.txt</div></pre></td></tr></table></figure>
+<p>现在<code>bravo</code>目录中有另一个<code>Git</code>图：</p>
+<p><a href="/blog/uploads/git-works-how/26-11-cp-alpha-to-bravo.png">![New graph created when <code>alpha</code> <code>cp</code>ed to <code>bravo</code>]</a></p>
+<h3 id="将存储库链接到另一个存储库"><a href="#将存储库链接到另一个存储库" class="headerlink" title="将存储库链接到另一个存储库"></a>将存储库链接到另一个存储库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">      ~ $ cd alpha</div><div class="line">~/alpha $ git remote add bravo ../bravo</div></pre></td></tr></table></figure>
+<p>移回到<code>alpha</code>存储库。 他们将<code>bravo</code>设置为<code>alpha</code>上的远程存储库。 这会在<code>alpha/.git/config</code>文件中添加：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[remote &quot;bravo&quot;]</div><div class="line">	url = ../bravo/</div></pre></td></tr></table></figure>
+<h3 id="从远程获取分支"><a href="#从远程获取分支" class="headerlink" title="从远程获取分支"></a>从远程获取分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">~/alpha $ cd ../bravo</div><div class="line">~/bravo $ printf &apos;12&apos; &gt; data/number.txt</div><div class="line">~/bravo $ git add data/number.txt</div><div class="line">~/bravo $ git commit -m &apos;12&apos;</div><div class="line">          [master 94cd04d] 12</div></pre></td></tr></table></figure>
+<p>进入<code>bravo</code>存储库。 将<code>data/number.txt</code>的内容设置为<code>12</code>，并将更改提交到<code>bravo</code>上的<code>master</code>。</p>
+<p><a href="/blog/uploads/git-works-how/27-12-bravo.png">![<code>12</code> commit on <code>bravo</code> repository]</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">~/bravo $ cd ../alpha</div><div class="line">~/alpha $ git fetch bravo master</div><div class="line">          Unpacking objects: 100%</div><div class="line">          From ../bravo</div><div class="line">            * branch master -&gt; FETCH_HEAD</div></pre></td></tr></table></figure>
+<p>进入<code>alpha</code>存储库。 从<code>bravo</code>获取<code>master</code>到<code>alpha</code>。 这个过程有四个步骤。</p>
+<ol>
+<li><code>Git</code>获取<code>master</code>在<code>bravo</code>上指向的提交的哈希。 这是<code>12</code>提交的哈希。</li>
+<li><code>Git</code>提供了<code>12</code>提交所依赖的所有对象的列表：提交对象本身，其树图中的对象，<code>12</code>提交的祖先提交和它们的树图中的对象。 它从此列表中删除<code>alpha</code>对象数据库已有的对象。 它将其余部分复制到<code>alpha/.git/objects/</code>。</li>
+<li>将<code>alpha/.git/refs/remotes/bravo/master</code>下的具体<code>ref</code>文件的内容设置为12提交的哈希值。</li>
+<li>将<code>alpha/.git/FETCH_HEAD</code>的内容设置为：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">94cd04d93ae88a1f53a4646532b1e8cdfbc0977f branch &apos;master&apos; of ../bravo</div></pre></td></tr></table></figure>
+<p>下图表示了<code>fetch</code>命令从<code>bravo</code>获取了<code>master</code>的<code>12</code>提交</p>
+<p><a href="/blog/uploads/git-works-how/28-12-fetched-to-alpha.png">![<code>alpha</code> after <code>bravo/master</code> fetched]</a></p>
+<p>对象是可以复制的，这意味着可以在存储库之间共享历史记录。</p>
+<p>存储库可以存储远程分支引用，如<code>alpha/.git/refs/remotes/bravo/master</code>， 这意味着存储库可以在本地记录在远程存储库上分支的状态。 在获取时是正确的，但如果远程分支改变，它将过期。</p>
+<h3 id="合并FETCH-HEAD"><a href="#合并FETCH-HEAD" class="headerlink" title="合并FETCH_HEAD"></a>合并FETCH_HEAD</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git merge FETCH_HEAD</div><div class="line">          Updating d14c7d2..94cd04d</div><div class="line">          Fast-forward</div></pre></td></tr></table></figure>
+<p>合并<code>FETCH_HEAD</code>, <code>FETCH_HEAD</code>只是另一个<code>ref</code>。 解析了<code>12</code>提交，<code>giver</code>。 <code>master</code>开始指向<code>11</code>提交。 <code>Git</code>做一个快进合并，并将<code>master</code>指向在<code>12</code>提交。</p>
+<p><a href="/blog/uploads/git-works-how/29-12-merged-to-alpha.png">![<code>alpha</code> after <code>FETCH_HEAD</code> merged]</a></p>
+<h3 id="从远程分支Pull"><a href="#从远程分支Pull" class="headerlink" title="从远程分支Pull"></a>从远程分支Pull</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git pull bravo master</div><div class="line">          Already up-to-date.</div></pre></td></tr></table></figure>
+<p>将<code>bravo</code>的<code>master</code>拉到<code>alpha</code>。 <code>Pull</code>是<code>fetch and merge FETCH_HEAD</code>的缩写。</p>
+<h3 id="Clone一个存储库"><a href="#Clone一个存储库" class="headerlink" title="Clone一个存储库"></a>Clone一个存储库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">~/alpha $ cd ..</div><div class="line">      ~ $ git clone alpha charlie</div><div class="line">          Cloning into &apos;charlie&apos;</div></pre></td></tr></table></figure>
+<p>移动到上面的目录。 <code>clone</code> <code>alpha</code>到<code>charlie</code>。 <code>clone</code>到<code>charlie</code>具有与生成<code>bravo</code>存储库的<code>cp</code>类似的结果。 <code>Git</code>创建一个名为<code>charlie</code>的新目录。 它将<code>charlie</code>作为一个Git仓库，将<code>alpha</code>添加为远程仓库被称为<code>origin</code>，获取源并合并<code>FETCH_HEAD</code>。</p>
+<h3 id="Push分支到远程分支"><a href="#Push分支到远程分支" class="headerlink" title="Push分支到远程分支"></a>Push分支到远程分支</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">      ~ $ cd alpha</div><div class="line">~/alpha $ printf &apos;13&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data/number.txt</div><div class="line">~/alpha $ git commit -m &apos;13&apos;</div><div class="line">          [master 3238468] 13</div></pre></td></tr></table></figure>
+<p>返回到<code>alpha</code>仓库，把<code>data/number.txt</code>的内容设置为<code>13</code>，并提交。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git remote add charlie ../charlie</div></pre></td></tr></table></figure>
+<p>设置<code>alpha</code>的远程仓库为<code>charlie</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git push charlie master</div><div class="line">          Writing objects: 100%</div><div class="line">          remote error: refusing to update checked out</div><div class="line">          branch: refs/heads/master because it will make</div><div class="line">          the index and work tree inconsistent</div></pre></td></tr></table></figure>
+<p><code>push</code> <code>master</code>到<code>charlie</code>.</p>
+<p><code>13</code>提交所需的所有对象都复制到<code>charlie</code>。</p>
+<p>此时，推送过程停止。 <code>Git</code>告诉我们出了什么问题。 它拒绝推送到远程分支。 这是有道理的, 因为推送将更新远程索引和<code>HEAD</code>。 这将导致混乱，如果有人正在编辑远程的工作副本。(这也有其他的解决办法，可以google一下)</p>
+<p>此时，可以创建一个新的分支，将<code>13</code>提交合并到其中，并将该分支推送到<code>charlie</code>。但是我们想要一个类似<code>GitHub</code>那样的中央仓库，无论什么时候都可以<code>push</code> <code>pull</code>。(中央仓库为什么可以？因为在初始化仓库的时候使用的是<code>git init --bare</code>, 初始化成一个裸存储库，远程仓库应该都要这么初始化。)</p>
+<h3 id="Clone-一个裸仓库"><a href="#Clone-一个裸仓库" class="headerlink" title="Clone 一个裸仓库"></a>Clone 一个裸仓库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">~/alpha $ cd ..</div><div class="line">      ~ $ git clone alpha delta --bare</div><div class="line">          Cloning into bare repository &apos;delta&apos;</div></pre></td></tr></table></figure>
+<p>移动到上面的目录。 将<code>delta</code> <code>clone</code>为裸存储库。 这是一个有两个区别的普通<code>clone</code>。 配置文件指示存储库是裸的。 通常存储在<code>.git</code>目录中的文件存储在存储库的根目录中如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">delta</div><div class="line">├── HEAD</div><div class="line">├── config</div><div class="line">├── objects</div><div class="line">└── refs</div></pre></td></tr></table></figure>
+<p><a href="/blog/uploads/git-works-how/30-13-alpha-cloned-curl">![<code>alpha</code> and <code>delta</code> graphs after <code>alpha</code> cloned to <code>delta</code>]</a></p>
+<h3 id="Push分支到裸存储库"><a href="#Push分支到裸存储库" class="headerlink" title="Push分支到裸存储库"></a>Push分支到裸存储库</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">      ~ $ cd alpha</div><div class="line">~/alpha $ git remote add delta ../delta</div></pre></td></tr></table></figure>
+<p>返回到<code>alpha</code>存储库。 将<code>delta</code>设置为<code>alpha</code>上的远程存储库。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">~/alpha $ printf &apos;14&apos; &gt; data/number.txt</div><div class="line">~/alpha $ git add data/number.txt</div><div class="line">~/alpha $ git commit -m &apos;14&apos;</div><div class="line">          [master cb51da8] 14</div></pre></td></tr></table></figure>
+<p>将<code>data/number.txt</code>的内容设置为<code>14</code>，并将更改提交到<code>alpha</code>上的<code>master</code></p>
+<p><a href="/blog/uploads/git-works-how/30-13-alpha-cloned-to-delta-bare.png">![<code>14</code> commit on <code>alpha</code>]</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">~/alpha $ git push delta master</div><div class="line">          Writing objects: 100%</div><div class="line">          To ../delta</div><div class="line">            3238468..cb51da8 master -&gt; master</div></pre></td></tr></table></figure>
+<p><code>push</code> <code>master</code>到<code>delta</code>，有3个步骤</p>
+<ol>
+<li><code>master</code>分支上的<code>14</code>提交所需的所有对象都从<code>alpha/.git/objects/</code>复制到<code>delta/objects /</code>。</li>
+<li><code>delta/refs/heads/master</code>被更新为指向<code>14</code>提交。</li>
+<li><code>alpha/.git/refs/remotes/delta/master</code>设置为指向<code>14</code>提交。 <code>alpha</code>具有<code>delta</code>的状态的最新记录.</li>
+</ol>
+<p><a href="/blog/uploads/git-works-how/31-14-alpha.png">![<code>14</code> commit pushed from <code>alpha</code> to <code>delta</code>]</a></p>
+<p><a href="http://deweixu.me/tags/git/" target="_blank" rel="external">#git</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      本文重点介绍了支持Git的图形结构，以及该图形的属性指示Git行为的方式。从基础开始，同时有实例讲解，根据实例建立一个更真实的模型，让你更好地理解git做了什么。
+    
+    </summary>
+    
+      <category term="git" scheme="https://plpcm.github.io/blog/categories/git/"/>
+    
+    
+      <category term="git" scheme="https://plpcm.github.io/blog/tags/git/"/>
+    
+  </entry>
+  
+  <entry>
     <title>virtualenv 和 virtualenvwrapper 实践</title>
     <link href="https://plpcm.github.io/blog/2016/02/05/python-virtualenv-virtualenvwrapper-practice/"/>
     <id>https://plpcm.github.io/blog/2016/02/05/python-virtualenv-virtualenvwrapper-practice/</id>
