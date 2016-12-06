@@ -100,7 +100,7 @@
 <meta property="og:image" content="http://blog.codinglabs.org/uploads/pictures/how-web-analytics-data-collection-system-work/6.png">
 <meta property="og:image" content="http://blog.codinglabs.org/uploads/pictures/how-web-analytics-data-collection-system-work/7.png">
 <meta property="og:image" content="http://blog.codinglabs.org/uploads/pictures/how-web-analytics-data-collection-system-work/8.png">
-<meta property="og:updated_time" content="2016-12-06T10:44:35.000Z">
+<meta property="og:updated_time" content="2016-12-06T10:48:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="网站统计中的数据收集原理及实现">
 <meta name="twitter:description" content="网站数据统计分析工具是网站站长和运营人员经常使用的一种工具，比较常用的有谷歌分析、百度统计和腾讯分析等等。所有这些统计分析工具的第一步都是网站访问数据的收集。目前主流的数据收集方式基本都是基于javascript的。本文将简要分析这种数据收集的原理，并一步一步实际搭建一个实际的数据收集系统。 数据...">
@@ -462,7 +462,85 @@
 <p><img src="http://blog.codinglabs.org/uploads/pictures/how-web-analytics-data-collection-system-work/5.png" alt="img"></p>
 <p>图5. 访问数据收集系统工作分解</p>
 <p>下面详述每一步的实现。我将这个系统叫做MyAnalytics。</p>
-<h4 id="确定收集的信息"><a href="#确定收集的信息" class="headerlink" title="确定收集的信息"></a>确定收集的信息</h4><p>为了简单起见，我不打算实现GA的完整数据收集模型，而是收集以下信息。<br>|名称|途径|备注|<br>|——–|:——–|:—–|<br>|访问时间|web|server|Nginx|$msec|<br>|IP|web|server|Nginx|$remote_addr|<br>|域名|javascript|document.domain|<br>|URL|javascript|document.URL|<br>|页面标题|javascript|document.title|<br>|分辨率|javascript|window.screen.height|&amp;|width|<br>|颜色深度|javascript|window.screen.colorDepth|<br>|Referrer|javascript|document.referrer|<br>|浏览客户端|web|server|Nginx|$http_user_agent|<br>|客户端语言|javascript|navigator.language|<br>|访客标识|cookie|<br>|网站标识|javascript|自定义对象|</p>
+<h4 id="确定收集的信息"><a href="#确定收集的信息" class="headerlink" title="确定收集的信息"></a>确定收集的信息</h4><p>为了简单起见，我不打算实现GA的完整数据收集模型，而是收集以下信息。</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th style="text-align:left">途径</th>
+<th style="text-align:left">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>访问时间</td>
+<td style="text-align:left">web</td>
+<td style="text-align:left">server</td>
+<td>Nginx</td>
+<td>$msec</td>
+</tr>
+<tr>
+<td>IP</td>
+<td style="text-align:left">web</td>
+<td style="text-align:left">server</td>
+<td>Nginx</td>
+<td>$remote_addr</td>
+</tr>
+<tr>
+<td>域名</td>
+<td style="text-align:left">javascript</td>
+<td style="text-align:left">document.domain</td>
+</tr>
+<tr>
+<td>URL</td>
+<td style="text-align:left">javascript</td>
+<td style="text-align:left">document.URL</td>
+</tr>
+<tr>
+<td>页面标题</td>
+<td style="text-align:left">javascript</td>
+<td style="text-align:left">document.title</td>
+</tr>
+<tr>
+<td>分辨率</td>
+<td style="text-align:left">javascript</td>
+<td style="text-align:left">window.screen.height</td>
+<td>&amp;</td>
+<td>width</td>
+</tr>
+<tr>
+<td>颜色深度</td>
+<td style="text-align:left">javascript</td>
+<td style="text-align:left">window.screen.colorDepth</td>
+</tr>
+<tr>
+<td>Referrer</td>
+<td style="text-align:left">javascript</td>
+<td style="text-align:left">document.referrer</td>
+</tr>
+<tr>
+<td>浏览客户端</td>
+<td style="text-align:left">web</td>
+<td style="text-align:left">server</td>
+<td>Nginx</td>
+<td>$http_user_agent</td>
+</tr>
+<tr>
+<td>客户端语言</td>
+<td style="text-align:left">javascript</td>
+<td style="text-align:left">navigator.language</td>
+</tr>
+<tr>
+<td>访客标识</td>
+<td style="text-align:left">cookie</td>
+</tr>
+<tr>
+<td>网站标识</td>
+<td style="text-align:left">javascript</td>
+<td style="text-align:left">自定义对象</td>
+</tr>
+</tbody>
+</table>
 <h4 id="埋点代码"><a href="#埋点代码" class="headerlink" title="埋点代码"></a>埋点代码</h4><p>埋点代码我将借鉴GA的模式，但是目前不会将配置对象作为一个FIFO队列用。一个埋点代码的模板如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;script type=&quot;text/javascript&quot;&gt;</div><div class="line">var _maq = _maq || [];</div><div class="line">_maq.push([&apos;_setAccount&apos;, &apos;网站标识&apos;]);</div><div class="line"> </div><div class="line">(function() &#123;</div><div class="line">    var ma = document.createElement(&apos;script&apos;); ma.type =&apos;text/javascript&apos;; ma.async = true;</div><div class="line">    ma.src = (&apos;https:&apos; == document.location.protocol ?&apos;https://analytics&apos; : &apos;http://analytics&apos;) + &apos;.codinglabs.org/ma.js&apos;;</div><div class="line">    var s = document.getElementsByTagName(&apos;script&apos;)[0]; s.parentNode.insertBefore(ma, s);</div><div class="line">&#125;)();</div><div class="line">&lt;/script&gt;</div></pre></td></tr></table></figure>
 <p>这里我启用了二级域名analytics.codinglabs.org，统计脚本的名称为ma.js。当然这里有一点小问题，因为我并没有https的服务器，所以如果一个https站点部署了代码会有问题，不过这里我们先忽略吧。</p>
@@ -497,7 +575,7 @@
 <p>注意，原始日志最好尽量多的保留信息而不要做过多过滤和处理。例如上面的MyAnalytics保留了毫秒级时间戳而不是格式化后的时间，时间的格式化是后面的系统做的事而不是日志收集系统的责任。后面的系统根据原始日志可以分析出很多东西，例如通过IP库可以定位访问者的地域、user agent中可以得到访问者的操作系统、浏览器等信息，再结合复杂的分析模型，就可以做流量、来源、访客、地域、路径等分析了。当然，一般不会直接对原始日志分析，而是会将其清洗格式化后转存到其它地方，如MySQL或HBase中再做分析。</p>
 <p>分析部分的工作有很多开源的基础设施可以使用，例如实时分析可以使用<a href="https://github.com/nathanmarz/storm" target="_blank" rel="external">Storm</a>，而离线分析可以使用<a href="http://hadoop.apache.org/" target="_blank" rel="external">Hadoop</a>。当然，在日志比较小的情况下，也可以通过shell命令做一些简单的分析，例如，下面三条命令可以分别得出我的博客在今天上午8点到9点的访问量（PV），访客数（UV）和独立IP数（IP）：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">awk -F^A <span class="string">'&#123;print $1&#125;'</span> ma-2012102409.log | wc <span class="_">-l</span></div><div class="line">awk -F^A <span class="string">'&#123;print $12&#125;'</span> ma-2012102409.log | uniq | wc <span class="_">-l</span></div><div class="line">awk -F^A <span class="string">'&#123;print $2&#125;'</span> ma-2012102409.log | uniq | wc <span class="_">-l</span></div></pre></td></tr></table></figure></p>
 <p>其它好玩的东西朋友们可以慢慢挖掘。</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">GA的开发者文档：[https://developers.google.com/analytics/devguides/collection/gajs/](https://developers.google.com/analytics/devguides/collection/gajs/)</div><div class="line">一篇关于实现nginx收日志的文章：[http://blog.linezing.com/2011/11/%E4%BD%BF%E7%94%A8nginx%E8%AE%B0%E6%97%A5%E5%BF%97](http://blog.linezing.com/2011/11/%E4%BD%BF%E7%94%A8nginx%E8%AE%B0%E6%97%A5%E5%BF%97)</div><div class="line">关于Nginx可以参考：[http://wiki.nginx.org/Main](http://wiki.nginx.org/Main)</div><div class="line">OpenResty的官方网站为：[http://openresty.org](http://openresty.org/)</div><div class="line">ngx_lua模块可参考：[https://github.com/chaoslawful/lua-nginx-module](https://github.com/chaoslawful/lua-nginx-module)</div><div class="line">本文http抓包使用[Chrome](http://www.google.com/chrome)浏览器开发者工具，绘制思维导图使用[Xmind](http://www.xmind.net/)，流程和结构图使用[Tikz PGF](http://www.texample.net/tikz/)</div></pre></td></tr></table></figure>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>GA的开发者文档：<a href="https://developers.google.com/analytics/devguides/collection/gajs/" target="_blank" rel="external">https://developers.google.com/analytics/devguides/collection/gajs/</a><br>一篇关于实现nginx收日志的文章：<a href="http://blog.linezing.com/2011/11/%E4%BD%BF%E7%94%A8nginx%E8%AE%B0%E6%97%A5%E5%BF%97" target="_blank" rel="external">http://blog.linezing.com/2011/11/%E4%BD%BF%E7%94%A8nginx%E8%AE%B0%E6%97%A5%E5%BF%97</a><br>关于Nginx可以参考：<a href="http://wiki.nginx.org/Main" target="_blank" rel="external">http://wiki.nginx.org/Main</a><br>OpenResty的官方网站为：<a href="http://openresty.org/" target="_blank" rel="external">http://openresty.org</a><br>ngx_lua模块可参考：<a href="https://github.com/chaoslawful/lua-nginx-module" target="_blank" rel="external">https://github.com/chaoslawful/lua-nginx-module</a><br>本文http抓包使用<a href="http://www.google.com/chrome" target="_blank" rel="external">Chrome</a>浏览器开发者工具，绘制思维导图使用<a href="http://www.xmind.net/" target="_blank" rel="external">Xmind</a>，流程和结构图使用<a href="http://www.texample.net/tikz/" target="_blank" rel="external">Tikz PGF</a></p>
 
       
     </div>
