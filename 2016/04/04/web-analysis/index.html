@@ -68,7 +68,7 @@
 <link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="openresty,analysis,web,ga," />
+  <meta name="keywords" content="openresty,analysis,web,ga,nginxlog," />
 
 
 
@@ -100,7 +100,7 @@
 <meta property="og:image" content="http://blog.codinglabs.org/uploads/pictures/how-web-analytics-data-collection-system-work/6.png">
 <meta property="og:image" content="http://blog.codinglabs.org/uploads/pictures/how-web-analytics-data-collection-system-work/7.png">
 <meta property="og:image" content="http://blog.codinglabs.org/uploads/pictures/how-web-analytics-data-collection-system-work/8.png">
-<meta property="og:updated_time" content="2016-12-06T10:48:34.000Z">
+<meta property="og:updated_time" content="2016-12-06T10:54:55.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="网站统计中的数据收集原理及实现">
 <meta name="twitter:description" content="网站数据统计分析工具是网站站长和运营人员经常使用的一种工具，比较常用的有谷歌分析、百度统计和腾讯分析等等。所有这些统计分析工具的第一步都是网站访问数据的收集。目前主流的数据收集方式基本都是基于javascript的。本文将简要分析这种数据收集的原理，并一步一步实际搭建一个实际的数据收集系统。 数据...">
@@ -474,17 +474,13 @@
 <tbody>
 <tr>
 <td>访问时间</td>
-<td style="text-align:left">web</td>
-<td style="text-align:left">server</td>
-<td>Nginx</td>
-<td>$msec</td>
+<td style="text-align:left">web server</td>
+<td style="text-align:left">Nginx $msec</td>
 </tr>
 <tr>
 <td>IP</td>
-<td style="text-align:left">web</td>
-<td style="text-align:left">server</td>
-<td>Nginx</td>
-<td>$remote_addr</td>
+<td style="text-align:left">web server</td>
+<td style="text-align:left">Nginx $remote_addr</td>
 </tr>
 <tr>
 <td>域名</td>
@@ -504,9 +500,7 @@
 <tr>
 <td>分辨率</td>
 <td style="text-align:left">javascript</td>
-<td style="text-align:left">window.screen.height</td>
-<td>&amp;</td>
-<td>width</td>
+<td style="text-align:left">window.screen.height &amp; width</td>
 </tr>
 <tr>
 <td>颜色深度</td>
@@ -520,10 +514,8 @@
 </tr>
 <tr>
 <td>浏览客户端</td>
-<td style="text-align:left">web</td>
-<td style="text-align:left">server</td>
-<td>Nginx</td>
-<td>$http_user_agent</td>
+<td style="text-align:left">web server</td>
+<td style="text-align:left">Nginx $http_user_agent</td>
 </tr>
 <tr>
 <td>客户端语言</td>
@@ -533,6 +525,7 @@
 <tr>
 <td>访客标识</td>
 <td style="text-align:left">cookie</td>
+<td style="text-align:left"></td>
 </tr>
 <tr>
 <td>网站标识</td>
@@ -575,7 +568,7 @@
 <p>注意，原始日志最好尽量多的保留信息而不要做过多过滤和处理。例如上面的MyAnalytics保留了毫秒级时间戳而不是格式化后的时间，时间的格式化是后面的系统做的事而不是日志收集系统的责任。后面的系统根据原始日志可以分析出很多东西，例如通过IP库可以定位访问者的地域、user agent中可以得到访问者的操作系统、浏览器等信息，再结合复杂的分析模型，就可以做流量、来源、访客、地域、路径等分析了。当然，一般不会直接对原始日志分析，而是会将其清洗格式化后转存到其它地方，如MySQL或HBase中再做分析。</p>
 <p>分析部分的工作有很多开源的基础设施可以使用，例如实时分析可以使用<a href="https://github.com/nathanmarz/storm" target="_blank" rel="external">Storm</a>，而离线分析可以使用<a href="http://hadoop.apache.org/" target="_blank" rel="external">Hadoop</a>。当然，在日志比较小的情况下，也可以通过shell命令做一些简单的分析，例如，下面三条命令可以分别得出我的博客在今天上午8点到9点的访问量（PV），访客数（UV）和独立IP数（IP）：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">awk -F^A <span class="string">'&#123;print $1&#125;'</span> ma-2012102409.log | wc <span class="_">-l</span></div><div class="line">awk -F^A <span class="string">'&#123;print $12&#125;'</span> ma-2012102409.log | uniq | wc <span class="_">-l</span></div><div class="line">awk -F^A <span class="string">'&#123;print $2&#125;'</span> ma-2012102409.log | uniq | wc <span class="_">-l</span></div></pre></td></tr></table></figure></p>
 <p>其它好玩的东西朋友们可以慢慢挖掘。</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>GA的开发者文档：<a href="https://developers.google.com/analytics/devguides/collection/gajs/" target="_blank" rel="external">https://developers.google.com/analytics/devguides/collection/gajs/</a><br>一篇关于实现nginx收日志的文章：<a href="http://blog.linezing.com/2011/11/%E4%BD%BF%E7%94%A8nginx%E8%AE%B0%E6%97%A5%E5%BF%97" target="_blank" rel="external">http://blog.linezing.com/2011/11/%E4%BD%BF%E7%94%A8nginx%E8%AE%B0%E6%97%A5%E5%BF%97</a><br>关于Nginx可以参考：<a href="http://wiki.nginx.org/Main" target="_blank" rel="external">http://wiki.nginx.org/Main</a><br>OpenResty的官方网站为：<a href="http://openresty.org/" target="_blank" rel="external">http://openresty.org</a><br>ngx_lua模块可参考：<a href="https://github.com/chaoslawful/lua-nginx-module" target="_blank" rel="external">https://github.com/chaoslawful/lua-nginx-module</a><br>本文http抓包使用<a href="http://www.google.com/chrome" target="_blank" rel="external">Chrome</a>浏览器开发者工具，绘制思维导图使用<a href="http://www.xmind.net/" target="_blank" rel="external">Xmind</a>，流程和结构图使用<a href="http://www.texample.net/tikz/" target="_blank" rel="external">Tikz PGF</a></p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p>GA的开发者文档：<a href="https://developers.google.com/analytics/devguides/collection/gajs/" target="_blank" rel="external">https://developers.google.com/analytics/devguides/collection/gajs/</a><br>一篇关于实现nginx收日志的文章:<br><a href="http://blog.linezing.com/2011/11/%E4%BD%BF%E7%94%A8nginx%E8%AE%B0%E6%97%A5%E5%BF%97" target="_blank" rel="external">http://blog.linezing.com/2011/11/%E4%BD%BF%E7%94%A8nginx%E8%AE%B0%E6%97%A5%E5%BF%97</a><br>关于Nginx可以参考：<a href="http://wiki.nginx.org/Main" target="_blank" rel="external">http://wiki.nginx.org/Main</a><br>OpenResty的官方网站为：<a href="http://openresty.org/" target="_blank" rel="external">http://openresty.org</a><br>ngx_lua模块可参考：<a href="https://github.com/chaoslawful/lua-nginx-module" target="_blank" rel="external">https://github.com/chaoslawful/lua-nginx-module</a><br>本文http抓包使用<a href="http://www.google.com/chrome" target="_blank" rel="external">Chrome</a>浏览器开发者工具，绘制思维导图使用<a href="http://www.xmind.net/" target="_blank" rel="external">Xmind</a>，流程和结构图使用<a href="http://www.texample.net/tikz/" target="_blank" rel="external">Tikz PGF</a></p>
 
       
     </div>
@@ -606,6 +599,8 @@
             <a href="/blog/tags/web/" rel="tag"># web</a>
           
             <a href="/blog/tags/ga/" rel="tag"># ga</a>
+          
+            <a href="/blog/tags/nginxlog/" rel="tag"># nginxlog</a>
           
         </div>
       
@@ -711,7 +706,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/blog/tags">
-                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-count">19</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
