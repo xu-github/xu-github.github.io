@@ -276,7 +276,7 @@
     <link href="https://plpcm.github.io/blog/2016/03/05/openresty-luagd-checkcode/"/>
     <id>https://plpcm.github.io/blog/2016/03/05/openresty-luagd-checkcode/</id>
     <published>2016-03-05T02:30:16.000Z</published>
-    <updated>2016-12-06T07:52:49.000Z</updated>
+    <updated>2016-12-07T09:50:16.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="使用openresty可以很容易的实现生成验证码功能。"><a href="#使用openresty可以很容易的实现生成验证码功能。" class="headerlink" title="使用openresty可以很容易的实现生成验证码功能。"></a>使用openresty可以很容易的实现生成验证码功能。</h2><p><a href="http://www.lua.org/" target="_blank" rel="external">Lua</a>下有个<a href="http://lua-gd.luaforge.net/" target="_blank" rel="external">Lua-GD</a>图形库，通过简单的Lua语句就能控制、生成图片。</p>
 <p><strong>环境说明：</strong></p>
@@ -312,7 +312,7 @@
 <p>说明：</p>
 <p>须先完成gd的安装，且版本号必须为gd-2.0.33 调用Lua-GD库的lua代码须由OpenResty中集成的LuaJIT解释执行</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ wget http://sourceforge.net/projects/lua-gd/files/lua-gd/lua-gd-2.0.33r2%20(<span class="keyword">for</span>%20Lua%205.1)/lua-gd-2.0.33r2.tar.gz/download?use_mirror=jaist</div><div class="line">$ tar zvxf lua-gd-2.0.33r2.tar.gz</div><div class="line">$ <span class="built_in">cd</span> lua-gd-2.0.33r2</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ wget http://jaist.dl.sourceforge.net/project/lua-gd/lua-gd/lua-gd-2.0.33r2%20%28<span class="keyword">for</span>%20Lua%205.1%29/lua-gd-2.0.33r2.tar.gz</div><div class="line">$ tar zvxf lua-gd-2.0.33r2.tar.gz</div><div class="line">$ <span class="built_in">cd</span> lua-gd-2.0.33r2</div></pre></td></tr></table></figure>
 <p>接写来修改Makefile文件：</p>
 <ul>
 <li>注释第36～42行</li>
@@ -362,7 +362,7 @@
 <p>zklua 仅依赖 zookeeper c API 实现，一般存在于 <code>zookeeper-X.Y.Z/src/c</code>， 因此你需要首先安装 zookeeper c API。</p>
 </blockquote>
 <p>zookeeper c API 安装:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ wget http://mirrors.cnnic.cn/apache/zookeeper/zookeeper-3.4.5/</div><div class="line">$ tar zvxf zookeeper-3.4.5</div><div class="line">$ <span class="built_in">cd</span> zookeeper-3.4.5/src/c</div><div class="line">$ ./configure</div><div class="line">$ make &amp;&amp; make install</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ wget http://apache.fayea.com/zookeeper/zookeeper-3.4.9/zookeeper-3.4.9.tar.gz</div><div class="line">$ tar zvxf zookeeper-3.4.9</div><div class="line">$ <span class="built_in">cd</span> zookeeper-3.4.9/src/c</div><div class="line">$ ./configure</div><div class="line">$ make &amp;&amp; make install</div></pre></td></tr></table></figure>
 <p>然后安装zklua：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ wget https://github.com/forhappy/zklua/archive/master.zip -O zklua-master.zip</div><div class="line">$ unzip zklua-master.zip</div><div class="line">$ <span class="built_in">cd</span> zklua-master</div><div class="line">$ make  &amp;&amp; make install</div></pre></td></tr></table></figure>
 <h1 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h1><h2 id="配置openresty"><a href="#配置openresty" class="headerlink" title="配置openresty"></a>配置openresty</h2><p>openresty安装在<code>/usr/local/openresty</code>目录，在其目录下创建lualib，用于存放上面安装的一些动态连接库</p>
@@ -1298,6 +1298,112 @@ Header 2
       <category term="markdown" scheme="https://plpcm.github.io/blog/tags/markdown/"/>
     
       <category term="mac" scheme="https://plpcm.github.io/blog/tags/mac/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>开始使用Ubuntu作为工作环境</title>
+    <link href="https://plpcm.github.io/blog/2016/01/02/ubuntu-dev-env/"/>
+    <id>https://plpcm.github.io/blog/2016/01/02/ubuntu-dev-env/</id>
+    <published>2016-01-02T02:30:16.000Z</published>
+    <updated>2016-12-07T03:00:51.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>转载自:<a href="http://blog.codinglabs.org/articles/getting-started-with-ubuntu.html" target="_blank" rel="external">http://blog.codinglabs.org/articles/getting-started-with-ubuntu.html</a></p>
+<p><a href="http://blog.codinglabs.org/tag.html#Ubuntu" target="_blank" rel="external">Ubuntu</a></p>
+<p>2012年3月，我自购了一台13寸的Macbook Air，从那时开始至今近两年时间，我一直用它作为工作本。但是最近越来越觉得4G的内存和128G的SSD力不从心，苦于Air无法升级硬件，于是终于下决心拿出入职时公司给配的Dell E6410，自己买了内存和SSD，升级成了8G内存+370G混合硬盘（120G SSD做主盘，250G硬盘做从盘）。</p>
+<p>硬件升级事小，关键是系统的迁移代价比较大。我在Dell本上装的是Ubuntu 13.10，由于我平时习惯使用Dropbox等云端服务，浏览器配置也都通过Google账号漫游，所以这部分迁移几乎没有成本，主要的成本在开发环境配置和常用软件迁移。虽然都是Unix系，但是Mac OSX下很多软件Linux下并没有。</p>
+<p>花了大约一个周末，总算把我的Ubuntu配置的比较顺手了，目前也已经正式投入工作。其中的重头戏便是开发环境（主要是terminal和vim）的配置，另外就是一些常用工具。这篇文章记录了我一些主要的工作，算是给自己留一个文档，也希望能给打算从Mac迁移到Linux的同学做一个借鉴。</p>
+<h1 id="开发环境配置"><a href="#开发环境配置" class="headerlink" title="开发环境配置"></a>开发环境配置</h1><p>之前在Mac下，我直接使用的是<a href="https://github.com/square/maximum-awesome" target="_blank" rel="external">maximum-awesome</a>，开发环境这块完全不用自己操心。可惜maximum-awesome只能在Mac下使用，并没有Linux版。于是需要自己做一些工作，以便让开发环境够顺手。</p>
+<h2 id="使用terminator作为终端"><a href="#使用terminator作为终端" class="headerlink" title="使用terminator作为终端"></a>使用terminator作为终端</h2><h3 id="安装terminator"><a href="#安装terminator" class="headerlink" title="安装terminator"></a>安装terminator</h3><p>Ubuntu自带的终端是gnome-terminal，虽然也还不错，但是不能支持屏幕分割、选择复制等功能让我很不爽，于是我换用terminator作为终端，terminator可以支持屏幕分割，并且默认快捷键和gnome-terminal无异，熟悉gnome-terminal的话可以快速上手。</p>
+<p>Ubuntu下可以这样安装terminator：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install terminator</div></pre></td></tr></table></figure>
+<h3 id="terminator常用快捷键"><a href="#terminator常用快捷键" class="headerlink" title="terminator常用快捷键"></a>terminator常用快捷键</h3><ul>
+<li>Ctrl-Shift-c 拷贝</li>
+<li>Ctrl-Shift-v 粘贴</li>
+<li>Ctrl-Shift-t 开新Tab窗口</li>
+<li>Ctrl-Shift-o 上下拆分屏幕</li>
+<li>Ctrl-Shift-e 左右拆分屏幕</li>
+<li>Ctrl-Shift-w 关闭当前窗口</li>
+<li>Ctrl-Shift-q 关闭整个终端</li>
+</ul>
+<h2 id="配置terminator使用solarized配色"><a href="#配置terminator使用solarized配色" class="headerlink" title="配置terminator使用solarized配色"></a>配置terminator使用solarized配色</h2><h3 id="使用terminator-solarized"><a href="#使用terminator-solarized" class="headerlink" title="使用terminator-solarized"></a>使用terminator-solarized</h3><p>maximum-awesome所使用的<a href="http://ethanschoonover.com/solarized" target="_blank" rel="external">solarized</a>配色是相当不错的，所以自然希望继续使用。针对terminator的solarized配色已经有人专门做好了：<a href="https://github.com/ghuntley/terminator-solarized" target="_blank" rel="external">terminator-solarized</a>，只要按如下操作就可以使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mkdir -p ~/.config/terminator/</div><div class="line">curl https://raw.github.com/ghuntley/terminator-solarized/master/config &gt; ~/.config/terminator/config</div></pre></td></tr></table></figure>
+<p>然后重新打开terminator就已经是solarized配色了。</p>
+<h3 id="对terminator更多的配置"><a href="#对terminator更多的配置" class="headerlink" title="对terminator更多的配置"></a>对terminator更多的配置</h3><p>接下来，可以在terminator-solarized配置文件的基础上进行更多的配置，例如背景透明、启用选择复制等。</p>
+<p>关于terminator的详细配置选项可以参考<a href="http://manpages.ubuntu.com/manpages/intrepid/man5/terminator_config.5.html" target="_blank" rel="external">terminator manpage</a>，下面贴出我的~/.config/terminator/config供参考：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">[global_config]</div><div class="line">    title_transmit_bg_color = <span class="string">"#d30102"</span></div><div class="line">    focus = system</div><div class="line">    suppress_multiple_term_dialog = True</div><div class="line">[keybindings]</div><div class="line">[profiles]</div><div class="line">    [[default]]</div><div class="line">        palette = <span class="string">"#073642:#dc322f:#859900:#b58900:#268bd2:#d33682:#2aa198:#eee8d5:#002b36:#cb4b16:#586e75:#657b83:#839496:#6c71c4:#93a1a1:#fdf6e3"</span></div><div class="line">        copy_on_selection = True</div><div class="line">        background_image = None</div><div class="line">        background_darkness = 0.95</div><div class="line">        background_type = transparent</div><div class="line">        use_system_font = False</div><div class="line">        cursor_color = <span class="string">"#eee8d5"</span></div><div class="line">        foreground_color = <span class="string">"#839496"</span></div><div class="line">        show_titlebar = False</div><div class="line">        font = Monospace 11</div><div class="line">        background_color = <span class="string">"#002b36"</span></div><div class="line">    [[solarized-dark]]</div><div class="line">        palette = <span class="string">"#073642:#dc322f:#859900:#b58900:#268bd2:#d33682:#2aa198:#eee8d5:#002b36:#cb4b16:#586e75:#657b83:#839496:#6c71c4:#93a1a1:#fdf6e3"</span></div><div class="line">        background_color = <span class="string">"#002b36"</span></div><div class="line">        background_image = None</div><div class="line">        cursor_color = <span class="string">"#eee8d5"</span></div><div class="line">        foreground_color = <span class="string">"#839496"</span></div><div class="line">    [[solarized-light]]</div><div class="line">        palette = <span class="string">"#073642:#dc322f:#859900:#b58900:#268bd2:#d33682:#2aa198:#eee8d5:#002b36:#cb4b16:#586e75:#657b83:#839496:#6c71c4:#93a1a1:#fdf6e3"</span></div><div class="line">        background_color = <span class="string">"#fdf6e3"</span></div><div class="line">        background_image = None</div><div class="line">        cursor_color = <span class="string">"#002b36"</span></div><div class="line">        foreground_color = <span class="string">"#657b83"</span></div><div class="line">[layouts]</div><div class="line">    [[default]]</div><div class="line">        [[[child1]]]</div><div class="line">            <span class="built_in">type</span> = Terminal</div><div class="line">            parent = window0</div><div class="line">            profile = default</div><div class="line">        [[[window0]]]</div><div class="line">            <span class="built_in">type</span> = Window</div><div class="line">            parent = <span class="string">""</span></div><div class="line">[plugins]</div></pre></td></tr></table></figure>
+<h3 id="配置dircolors"><a href="#配置dircolors" class="headerlink" title="配置dircolors"></a>配置dircolors</h3><p>完成上述配置后，你会发现用ls命令查看目录和文件时是一片灰色。这是因为默认情况下solarized各种bright方案基本都是灰色，而系统默认显示目录和文件时多用bright色，此时需要配置dircolors才能显示出彩色的文件和目录。</p>
+<p><a href="https://github.com/seebi/dircolors-solarized" target="_blank" rel="external">dircolors-solarized</a>项目提供了适合于solarized的dircolors配色方案，只要选择合适的方案使用就可以了。例如我是用的solarized dark配色，所以可以选择适合这个配色的dircolors.ansi-dark：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl https://raw.github.com/seebi/dircolors-solarized/master/dircolors.ansi-dark &gt; ~/.dircolors</div></pre></td></tr></table></figure>
+<p>然后在~/.bashrc中加入如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># enable color support of ls and also add handy aliases</span></div><div class="line"><span class="keyword">if</span> [ -x /usr/bin/dircolors ]; <span class="keyword">then</span></div><div class="line">    <span class="built_in">test</span> -r ~/.dircolors &amp;&amp; <span class="built_in">eval</span> <span class="string">"<span class="variable">$(dircolors -b ~/.dircolors)</span>"</span> || <span class="built_in">eval</span> <span class="string">"<span class="variable">$(dircolors -b)</span>"</span></div><div class="line">    <span class="built_in">alias</span> ls=<span class="string">'ls --color=auto'</span></div><div class="line">    <span class="comment">#alias dir='dir --color=auto'</span></div><div class="line">    <span class="comment">#alias vdir='vdir --color=auto'</span></div><div class="line"> </div><div class="line">    <span class="built_in">alias</span> grep=<span class="string">'grep --color=auto'</span></div><div class="line">    <span class="built_in">alias</span> fgrep=<span class="string">'fgrep --color=auto'</span></div><div class="line">    <span class="built_in">alias</span> egrep=<span class="string">'egrep --color=auto'</span></div><div class="line"><span class="keyword">fi</span></div><div class="line"> </div><div class="line"><span class="comment"># some more ls aliases</span></div><div class="line"><span class="built_in">alias</span> ll=<span class="string">'ls -alF'</span></div><div class="line"><span class="built_in">alias</span> la=<span class="string">'ls -A'</span></div><div class="line"><span class="built_in">alias</span> l=<span class="string">'ls -CF'</span></div></pre></td></tr></table></figure>
+<p>执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">source ~/.bashrc</div></pre></td></tr></table></figure>
+<p>后，再执行ls或ll就可以看到彩色的目录或文件了。</p>
+<p>配置完的terminator效果如下：</p>
+<p><img src="http://blog.codinglabs.org/uploads/pictures/getting-started-with-ubuntu/01.png" alt="img"></p>
+<h2 id="配置VIM"><a href="#配置VIM" class="headerlink" title="配置VIM"></a>配置VIM</h2><p>vim作为我日常使用频率最高的代码编辑器，自然要好好配置一番。之前的maximum-awesome自带了很多vim插件，这里我没有精力完全按照maximum-awesome的插件配置，只选取了日常比较常用的几个插件先配上，后面需要的话可以再加。</p>
+<h3 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h3><p>我目前安装的插件有：</p>
+<ul>
+<li><a href="https://github.com/scrooloose/nerdtree" target="_blank" rel="external">NERDTree</a>：可以在单独的window中浏览目录和文件，方便打开的选取文件。</li>
+<li><a href="https://github.com/vim-scripts/taglist.vim" target="_blank" rel="external">taglist</a>：可以通过ctags生成的tag文件索引定位代码中的常量、函数、类等结构，阅读代码和写代码必备。</li>
+<li><a href="https://github.com/Lokaltog/vim-powerline" target="_blank" rel="external">powerline</a>：在底部显示一个非常漂亮的状态条，还可以通过不同的颜色提醒用户当前处于什么状态（如normal、insert或visual）。</li>
+<li><a href="https://github.com/altercation/vim-colors-solarized" target="_blank" rel="external">vim-colors-solarized</a>：vim的solarized配色插件。</li>
+</ul>
+<p>如果所有插件都按vim标准方法安装，各种插件会非常分散，不便于管理，于是我选用<a href="https://github.com/tpope/vim-pathogen" target="_blank" rel="external">pathogen</a>安装和管理vim插件。pathogen允许将各个插件放在.vim/bundle/下各自的目录中，通过启动时自动加载所有插件。</p>
+<h3 id="自动配置工具"><a href="#自动配置工具" class="headerlink" title="自动配置工具"></a>自动配置工具</h3><p>整个配置过程过于繁琐不再赘述，我已经将配置过程写成了一个自动配置脚本并放到了github：<a href="https://github.com/ericzhang-cn/vim-conf" target="_blank" rel="external">https://github.com/ericzhang-cn/vim-conf</a>，需要的朋友只要clone下来并运行init.sh脚本就可以自动完成整个配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/ericzhang-cn/vim-conf.gitcd vim-conf &amp;&amp; ./init.sh</div></pre></td></tr></table></figure>
+<p>最终配置效果如下：</p>
+<p><img src="http://blog.codinglabs.org/uploads/pictures/getting-started-with-ubuntu/02.png" alt="img"></p>
+<p>（更新：当前我已经换用<a href="https://github.com/ericzhang-cn/maximum-awesome-linux" target="_blank" rel="external">maximum-awesome-linux</a>，不再维护之前那个配置脚本）</p>
+<h3 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h3><p>其中并没有对vim默认的快捷键做过多重设，只有两个：</p>
+<ul>
+<li>,-d：打开或关闭NERDTree</li>
+<li>,-t：打开或关闭taglist</li>
+</ul>
+<p>（更新：换用maximum-awesome-linux后快捷键会不一样，具体请参考<a href="https://github.com/ericzhang-cn/maximum-awesome-linux/blob/master/README.md" target="_blank" rel="external">README</a>）</p>
+<h1 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h1><h2 id="浏览器"><a href="#浏览器" class="headerlink" title="浏览器"></a>浏览器</h2><p>Ubuntu自带的是Firefox，我平常使用的是Chromium，这点在Ubuntu下没任何问题，可以直接安装：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install chromium-browser</div></pre></td></tr></table></figure>
+<p>用Google账号登录后，书签、插件等会自动同步，非常方便。</p>
+<h2 id="搜狗输入法-amp-谷歌输入法"><a href="#搜狗输入法-amp-谷歌输入法" class="headerlink" title="搜狗输入法&amp;谷歌输入法"></a>搜狗输入法&amp;谷歌输入法</h2><p>Mac下有搜狗输入法或百度输入法。不过目前搜狗也基于fcitx做了linux版的搜狗输入法。</p>
+<p>Ubuntu自带的ibus直接卸掉，然后安装<a href="https://fcitx-im.org/wiki/Fcitx" target="_blank" rel="external">fcitx</a>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo add-apt-repository ppa:fcitx-team/nightly &amp;&amp; sudo apt-get updatesudo apt-get install fcitx-sogoupinyin</div></pre></td></tr></table></figure>
+<p>当然谷歌拼音也不错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install fcitx-googlepinyin</div></pre></td></tr></table></figure>
+<h2 id="邮件"><a href="#邮件" class="headerlink" title="邮件"></a>邮件</h2><p>Mac下是使用Foxmail for Mac，linux下可以选择ThunderBird，用起来很顺手。</p>
+<h2 id="Dropbox"><a href="#Dropbox" class="headerlink" title="Dropbox"></a>Dropbox</h2><p>Dropbox有官方linux客户端，可以到其官网下载安装。不过安装后也许会发现dropbox的icon没有出现在上面的indicator上，可以这样修复：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install libappindicator1dropbox stop &amp;&amp; dropbox start</div></pre></td></tr></table></figure>
+<h2 id="Evernote"><a href="#Evernote" class="headerlink" title="Evernote"></a>Evernote</h2><p>很不幸，我平常用来做笔记的evernote没有linux官方客户端，不过可以选择使用web版，或者安装第三方linux客户端everpad：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo add-apt-repository ppa:nvbn-rm/ppasudo apt-get updatesudo apt-get install everpad</div></pre></td></tr></table></figure>
+<p>当然功能和美观程度都没法和Mac下官方的客户端相比，不过日常使用还是足够了。</p>
+<h2 id="办公Office"><a href="#办公Office" class="headerlink" title="办公Office"></a>办公Office</h2><p>Ubuntu自带的LibreOffice可以很好的满足需求，试用了WPS for linux，无法正常打开Office 2010的文件，故而弃用之。LibreOffice打开Office 2010的文件没有问题。</p>
+<h2 id="PDF及论文管理"><a href="#PDF及论文管理" class="headerlink" title="PDF及论文管理"></a>PDF及论文管理</h2><p>平常使用的<a href="http://www.mendeley.com/" target="_blank" rel="external">Mendeley</a>有官方linux客户端，可以到官网下载。</p>
+<h2 id="绘图及图像处理"><a href="#绘图及图像处理" class="headerlink" title="绘图及图像处理"></a>绘图及图像处理</h2><p>平常工程文档做图一般用<a href="http://www.yworks.com/en/products_yed_about.html" target="_blank" rel="external">yEd</a>，是java开发的，所以在linux下可以直接使用。</p>
+<p>图像处理可以用gimp：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install gimp</div></pre></td></tr></table></figure>
+<h2 id="影音播放"><a href="#影音播放" class="headerlink" title="影音播放"></a>影音播放</h2><p>平常很少离线看视频，如果需要的话，vlc应该够了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install vlc</div></pre></td></tr></table></figure>
+<h2 id="截图工具"><a href="#截图工具" class="headerlink" title="截图工具"></a>截图工具</h2><p>截图工具非shutter莫属：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install shutter</div></pre></td></tr></table></figure>
+<h2 id="阿里旺旺"><a href="#阿里旺旺" class="headerlink" title="阿里旺旺"></a>阿里旺旺</h2><p>因为工作关系，平常必须使用旺旺交流。Mac下有非常好用的官方版，linux下并没有官方旺旺，有个内部版本巨烂无比。不过之前参加活动获赠一个<a href="http://www.codeweavers.com/products/" target="_blank" rel="external">CrossOver</a>正版授权序列号。</p>
+<p>目前CrossOver运行阿里旺旺2013非常流畅。</p>
+<h2 id="QQ"><a href="#QQ" class="headerlink" title="QQ"></a>QQ</h2><p>这个对我来说不是刚需。CrossOver可以运行TM2013，另外WebQQ或开VirtualBox在虚拟机中运行QQ都可以。</p>
+<h2 id="专业软件"><a href="#专业软件" class="headerlink" title="专业软件"></a>专业软件</h2><p>其它常用软件特别是如R或Octave等专业软件，本身就有linux版，所以可以按需安装。如Git等开发工具本来就是linux下的软件，当然更不在话下。</p>
+<p>目前已经用Ubuntu工作了一段时间，总体来说从Mac转过来肯定需要一点适应，不过目前感觉没有遇到特别大的问题，毕竟同属Unix系，对码农来说大多数使用习惯几乎是无缝切换。</p>
+<p>另外，重新回到OSS的感觉不错！最后上张图吧：</p>
+<p><img src="http://blog.codinglabs.org/uploads/pictures/getting-started-with-ubuntu/03.png" alt="img"></p>
+]]></content>
+    
+    <summary type="html">
+    
+      ubuntu 下开发环境搭建
+    
+    </summary>
+    
+      <category term="ubuntu" scheme="https://plpcm.github.io/blog/categories/ubuntu/"/>
+    
+    
+      <category term="ubuntu" scheme="https://plpcm.github.io/blog/tags/ubuntu/"/>
     
   </entry>
   

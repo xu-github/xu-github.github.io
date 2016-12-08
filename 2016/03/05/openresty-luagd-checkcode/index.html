@@ -92,7 +92,7 @@
 <meta property="og:url" content="https://plpcm.github.io/blog/2016/03/05/openresty-luagd-checkcode/index.html">
 <meta property="og:site_name" content="曹淼的“git博客”">
 <meta property="og:description" content="Lua下有个Lua-GD图形库，通过简单的Lua语句就能控制、生成图片。 环境说明： 操作系统：RHEL6.4 RHEL系统默认已安装RPM包的Lua-5.1.4，但其只具有Lua基本功能，不提供 lua.h 等，但 Lua-GD 编译需要用到 lua.h，故 Lua 需要编译安装。 Lua-GD...">
-<meta property="og:updated_time" content="2016-12-06T07:52:49.000Z">
+<meta property="og:updated_time" content="2016-12-07T09:50:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用OpenResty搭建验证码服务器">
 <meta name="twitter:description" content="Lua下有个Lua-GD图形库，通过简单的Lua语句就能控制、生成图片。 环境说明： 操作系统：RHEL6.4 RHEL系统默认已安装RPM包的Lua-5.1.4，但其只具有Lua基本功能，不提供 lua.h 等，但 Lua-GD 编译需要用到 lua.h，故 Lua 需要编译安装。 Lua-GD...">
@@ -445,7 +445,7 @@
 <p>说明：</p>
 <p>须先完成gd的安装，且版本号必须为gd-2.0.33 调用Lua-GD库的lua代码须由OpenResty中集成的LuaJIT解释执行</p>
 </blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ wget http://sourceforge.net/projects/lua-gd/files/lua-gd/lua-gd-2.0.33r2%20(<span class="keyword">for</span>%20Lua%205.1)/lua-gd-2.0.33r2.tar.gz/download?use_mirror=jaist</div><div class="line">$ tar zvxf lua-gd-2.0.33r2.tar.gz</div><div class="line">$ <span class="built_in">cd</span> lua-gd-2.0.33r2</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ wget http://jaist.dl.sourceforge.net/project/lua-gd/lua-gd/lua-gd-2.0.33r2%20%28<span class="keyword">for</span>%20Lua%205.1%29/lua-gd-2.0.33r2.tar.gz</div><div class="line">$ tar zvxf lua-gd-2.0.33r2.tar.gz</div><div class="line">$ <span class="built_in">cd</span> lua-gd-2.0.33r2</div></pre></td></tr></table></figure>
 <p>接写来修改Makefile文件：</p>
 <ul>
 <li>注释第36～42行</li>
@@ -495,7 +495,7 @@
 <p>zklua 仅依赖 zookeeper c API 实现，一般存在于 <code>zookeeper-X.Y.Z/src/c</code>， 因此你需要首先安装 zookeeper c API。</p>
 </blockquote>
 <p>zookeeper c API 安装:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ wget http://mirrors.cnnic.cn/apache/zookeeper/zookeeper-3.4.5/</div><div class="line">$ tar zvxf zookeeper-3.4.5</div><div class="line">$ <span class="built_in">cd</span> zookeeper-3.4.5/src/c</div><div class="line">$ ./configure</div><div class="line">$ make &amp;&amp; make install</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ wget http://apache.fayea.com/zookeeper/zookeeper-3.4.9/zookeeper-3.4.9.tar.gz</div><div class="line">$ tar zvxf zookeeper-3.4.9</div><div class="line">$ <span class="built_in">cd</span> zookeeper-3.4.9/src/c</div><div class="line">$ ./configure</div><div class="line">$ make &amp;&amp; make install</div></pre></td></tr></table></figure>
 <p>然后安装zklua：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ wget https://github.com/forhappy/zklua/archive/master.zip -O zklua-master.zip</div><div class="line">$ unzip zklua-master.zip</div><div class="line">$ <span class="built_in">cd</span> zklua-master</div><div class="line">$ make  &amp;&amp; make install</div></pre></td></tr></table></figure>
 <h1 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h1><h2 id="配置openresty"><a href="#配置openresty" class="headerlink" title="配置openresty"></a>配置openresty</h2><p>openresty安装在<code>/usr/local/openresty</code>目录，在其目录下创建lualib，用于存放上面安装的一些动态连接库</p>
@@ -644,7 +644,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/blog/archives">
-              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-count">16</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -652,7 +652,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/blog/categories">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -661,7 +661,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/blog/tags">
-                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-count">20</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

@@ -2,16 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/04/04/web-analysis/</loc>
+    <loc>https://plpcm.github.io/blog/blog/2016/03/05/openresty-luagd-checkcode/</loc>
     
-    <lastmod>2016-12-06T10:54:55.000Z</lastmod>
+    <lastmod>2016-12-07T09:50:16.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/03/05/openresty-luagd-checkcode/</loc>
+    <loc>https://plpcm.github.io/blog/about/index.html</loc>
     
-    <lastmod>2016-12-06T07:52:49.000Z</lastmod>
+    <lastmod>2016-12-07T08:53:57.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/01/02/ubuntu-dev-env/</loc>
+    
+    <lastmod>2016-12-07T03:00:51.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/04/04/web-analysis/</loc>
+    
+    <lastmod>2016-12-06T10:54:55.000Z</lastmod>
     
   </url>
   
@@ -75,13 +89,6 @@
     <loc>https://plpcm.github.io/blog/blog/2016/03/12/nginx-var-root/</loc>
     
     <lastmod>2016-12-02T10:07:55.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://plpcm.github.io/blog/about/index.html</loc>
-    
-    <lastmod>2016-12-02T08:55:49.000Z</lastmod>
     
   </url>
   
