@@ -5,7 +5,7 @@
   <link href="/blog/atom.xml" rel="self"/>
   
   <link href="https://plpcm.github.io/blog/"/>
-  <updated>2016-12-13T08:57:05.000Z</updated>
+  <updated>2017-01-05T03:41:57.000Z</updated>
   <id>https://plpcm.github.io/blog/</id>
   
   <author>
@@ -14,6 +14,37 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>salt 命令使用入门</title>
+    <link href="https://plpcm.github.io/blog/2017/01/02/salt-command/"/>
+    <id>https://plpcm.github.io/blog/2017/01/02/salt-command/</id>
+    <published>2017-01-02T02:30:16.000Z</published>
+    <updated>2017-01-05T03:41:57.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="查找目标minion的三种方式"><a href="#查找目标minion的三种方式" class="headerlink" title="查找目标minion的三种方式"></a>查找目标minion的三种方式</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">salt <span class="string">'shell正则'</span> <span class="built_in">command</span></div><div class="line">salt -E <span class="string">'prel 正则'</span> commang</div><div class="line">salt -N <span class="variable">$group</span> <span class="built_in">command</span></div><div class="line">salt -L <span class="string">'server1,server2'</span> <span class="built_in">command</span></div></pre></td></tr></table></figure>
+<p>1、根据bash glob来查找：salt ‘*foo.com’ sys.doc</p>
+<p>2、根据正则表达式来查找：salt -E ‘.*’ cmd.run ‘ls -l | grep foo’</p>
+<p>3、根据hostname来查找：salt -L foo.bar.baz,quo.qux cmd.run ‘ps aux | grep<br>foo’</p>
+<p>4、根据grains（机器各种信息）来查找：salt -G ‘os:Redhat’ test.ping</p>
+<p>5、综合以上几种模式混合查找：salt -C ‘G@os:Debian and webser<em> or E@db.</em>‘ test.ping</p>
+<h3 id="常见grains信息如下："><a href="#常见grains信息如下：" class="headerlink" title="常见grains信息如下："></a>常见grains信息如下：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">salt <span class="string">'*'</span> grains.ls  查看grains分类</div><div class="line">salt <span class="string">'*'</span> grains.items 查看grains所有信息</div><div class="line">salt <span class="string">'*'</span> grains.item osrelease 查看grains某个信息</div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      查找minion并执行命令样例
+    
+    </summary>
+    
+      <category term="saltstack" scheme="https://plpcm.github.io/blog/categories/saltstack/"/>
+    
+    
+      <category term="saltstack" scheme="https://plpcm.github.io/blog/tags/saltstack/"/>
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
+    
+  </entry>
   
   <entry>
     <title>supervisor安装与使用</title>
