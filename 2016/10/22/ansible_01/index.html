@@ -1,0 +1,835 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ansible,devops," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="曹淼的“git博客”" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Ansible 是一个配置管理和应用部署工具，功能类似于目前业界的配置管理工具 Chef,Puppet,Saltstack。Ansible 是通过 Python 语言开发。Ansible 平台由 Michael DeHaan 创建，他同时也是知名软件 Cobbler 与 Func 的作者。Ansible 的第一个版本发布于 2012 年 2 月。Ansible 默认通过 SSH 协议管理机器，所以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ansible小结（一）ansible的安装">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/10/22/ansible_01/index.html">
+<meta property="og:site_name" content="曹淼的“git博客”">
+<meta property="og:description" content="Ansible 是一个配置管理和应用部署工具，功能类似于目前业界的配置管理工具 Chef,Puppet,Saltstack。Ansible 是通过 Python 语言开发。Ansible 平台由 Michael DeHaan 创建，他同时也是知名软件 Cobbler 与 Func 的作者。Ansible 的第一个版本发布于 2012 年 2 月。Ansible 默认通过 SSH 协议管理机器，所以">
+<meta property="og:updated_time" content="2017-01-10T10:09:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ansible小结（一）ansible的安装">
+<meta name="twitter:description" content="Ansible 是一个配置管理和应用部署工具，功能类似于目前业界的配置管理工具 Chef,Puppet,Saltstack。Ansible 是通过 Python 语言开发。Ansible 平台由 Michael DeHaan 创建，他同时也是知名软件 Cobbler 与 Func 的作者。Ansible 的第一个版本发布于 2012 年 2 月。Ansible 默认通过 SSH 协议管理机器，所以">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/10/22/ansible_01/"/>
+
+
+
+
+
+  <title> ansible小结（一）ansible的安装 | 曹淼的“git博客” </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">曹淼的“git博客”</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">道法自然</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/blog/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/blog/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/10/22/ansible_01/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="曹淼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/blog/uploads/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="曹淼的“git博客”">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="曹淼的“git博客”" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                ansible小结（一）ansible的安装
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-22T10:30:16+08:00">
+                2016-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/devops/" itemprop="url" rel="index">
+                    <span itemprop="name">devops</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+              <div class="post-description">
+                  Ansible 是一个配置管理和应用部署工具，功能类似于目前业界的配置管理工具 Chef,Puppet,Saltstack。Ansible 是通过 Python 语言开发。Ansible 平台由 Michael DeHaan 创建，他同时也是知名软件 Cobbler 与 Func 的作者。Ansible 的第一个版本发布于 2012 年 2 月。Ansible 默认通过 SSH 协议管理机器，所以 Ansible 不需要安装客户端程序在服务器上。您只需要将 Ansible 安装在一台服务器，在 Ansible 安装完后，您就可以去管理控制其它服务器。不需要为它配置数据库，Ansible 不会以 daemons 方式来启动或保持运行状态。Ansible 可以实现以下目标：
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h3><p>Ansible 是一个配置管理和应用部署工具，功能类似于目前业界的配置管理工具 Chef,Puppet,Saltstack。Ansible 是通过 Python 语言开发。Ansible 平台由 Michael DeHaan 创建，他同时也是知名软件 Cobbler 与 Func 的作者。Ansible 的第一个版本发布于 2012 年 2 月。Ansible 默认通过 SSH 协议管理机器，所以 Ansible 不需要安装客户端程序在服务器上。您只需要将 Ansible 安装在一台服务器，在 Ansible 安装完后，您就可以去管理控制其它服务器。不需要为它配置数据库，Ansible 不会以 daemons 方式来启动或保持运行状态。Ansible 可以实现以下目标：</p>
+<ul>
+<li>自动化部署应用</li>
+<li>自动化管理配置</li>
+<li>自动化的持续交付</li>
+<li>自动化的（AWS）云服务管理。</li>
+</ul>
+<p>根据 Ansible 官方提供的信息，当前使用 Ansible 的用户有：evernote、rackspace、NASA、Atlassian、twitter 等。</p>
+<p>注：以上简介来自于ibm developerworks 中国的介绍。</p>
+<h3 id="二、Ansible的安装"><a href="#二、Ansible的安装" class="headerlink" title="二、Ansible的安装"></a>二、Ansible的安装</h3><h4 id="1、yum源安装"><a href="#1、yum源安装" class="headerlink" title="1、yum源安装"></a>1、yum源安装</h4><p>以centos为例，默认在源里没有ansible，不过在<a href="http://fedoraproject.org/wiki/EPEL" target="_blank" rel="external">fedora epel源</a>里有ansible，配置完epel 源后，可以直接通过yum 进行安装。这里以centos6.8为例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># yum install http://mirrors.sohu.com/fedora-epel/6/x86_64/epel-release-6-8.noarch.rpm</div><div class="line"># yum install ansible</div></pre></td></tr></table></figure>
+<h4 id="2、apt-get安装"><a href="#2、apt-get安装" class="headerlink" title="2、apt-get安装"></a>2、apt-get安装</h4><p>在ubuntu及其衍生版中，可以通过增加ppa源进行apt-get安装，具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install software-properties-common</div><div class="line">$ sudo apt-add-repository ppa:ansible/ansible</div><div class="line">$ sudo apt-get update</div><div class="line">$ sudo apt-get install ansible</div></pre></td></tr></table></figure>
+<h4 id="3、源码安装"><a href="#3、源码安装" class="headerlink" title="3、源码安装"></a>3、源码安装</h4><p>源码安装需要python2.6以上版本，其依赖模块paramiko、PyYAML、Jinja2、httplib2、simplejson、pycrypto模块，以上模块可以通过pip或easy_install 进行安装，不过本部分既然提到的是源码安装，主要针对的无法上外网的情况下，可以通过<a href="https://pypi.python.org/" target="_blank" rel="external">pypi 站点</a>搜索以上包，下载后通过python setup.py install 进行安装。</p>
+<p>最后通过<a href="https://github.com/ansible/ansible" target="_blank" rel="external">github</a>或<a href="https://pypi.python.org/pypi/ansible/1.9.1" target="_blank" rel="external">pypi上</a>下载ansible源码包，通过python setup.py install 安装即可。由于安装过程相对简单，这里略过，主要介绍安装后，可能遇到的问题。</p>
+<p>a、安装PyYAML时，报错如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># python setup.py install</div><div class="line">libyaml is not found or a compiler error: forcing --without-libyaml(if libyaml is installed correctly, you may need to specify the option --include-dirs or uncomment and modify the parameter include_dirs in setup.cfg)</div><div class="line">running install_lib</div><div class="line">running install_egg_info</div><div class="line">Removing /usr/lib64/python2.6/site-packages/PyYAML-3.11-py2.6.egg-info</div><div class="line">Writing /usr/lib64/python2.6/site-packages/PyYAML-3.11-py2.6.egg-info</div></pre></td></tr></table></figure>
+<p>在centos6.8系统中，可以通过yum -y install libyaml 包解决，或者从ISO文件中提供该包，通过rpm -ivh进行安装。</p>
+<p>b、安装完ansible是，报错如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ansible-1.9.1]# ansible -h</div><div class="line">Traceback (most recent call last):</div><div class="line">File &quot;/usr/local/src/ansible-devel/bin/ansible&quot;, line 36, in &lt;module&gt;    </div><div class="line">from ansible.runner import Runner</div><div class="line">File &quot;/usr/local/src/ansible-devel/lib/ansible/runner/__init__.py&quot;, line 62, in &lt;module&gt;</div><div class="line">from Crypto.Random import atfork</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/__init__.py&quot;, line 29, in &lt;module&gt;</div><div class="line">from Crypto.Random import _UserFriendlyRNG</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/_UserFriendlyRNG.py&quot;, line 38, in &lt;module&gt;</div><div class="line">from Crypto.Random.Fortuna import FortunaAccumulator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaAccumulator.py&quot;, line 39, in &lt;module&gt;</div><div class="line">import FortunaGenerator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaGenerator.py&quot;, line 34, in &lt;module&gt; </div><div class="line">from Crypto.Util.number import ceil_shift, exact_log2, exact_div</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Util/number.py&quot;, line 56, in &lt;module&gt;</div><div class="line">if _fastmath is not None and not _fastmath.HAVE_DECL_MPZ_POWM_SEC:</div><div class="line">AttributeError: &apos;module&apos; object has no attribute &apos;HAVE_DECL_MPZ_POWM_SEC&apos;</div></pre></td></tr></table></figure>
+<p>import paramiko包时，报错如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; import paramiko</div><div class="line">Traceback (most recent call last):</div><div class="line">File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;  File &quot;/usr/lib/python2.6/site-packages/paramiko/__init__.py&quot;, line 69, in &lt;module&gt;</div><div class="line">from transport import randpool, SecurityOptions, Transport</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/transport.py&quot;, line 32, in &lt;module&gt;</div><div class="line">from paramiko import util</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/util.py&quot;, line 32, in &lt;module&gt;</div><div class="line">from paramiko.common import *</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/common.py&quot;, line 98, in &lt;module&gt;</div><div class="line">from rng import StrongLockingRandomPool</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/rng.py&quot;, line 22, in &lt;module&gt;</div><div class="line">from Crypto.Util.randpool import RandomPool as _RandomPool</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Util/randpool.py&quot;, line 30, in &lt;module&gt;</div><div class="line">import Crypto.Random</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/__init__.py&quot;, line 29, in &lt;module&gt;</div><div class="line">from Crypto.Random import _UserFriendlyRNG</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/_UserFriendlyRNG.py&quot;, line 38, in &lt;module&gt;</div><div class="line">from Crypto.Random.Fortuna import FortunaAccumulator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaAccumulator.py&quot;, line 39, in &lt;module&gt;</div><div class="line">import FortunaGenerator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaGenerator.py&quot;, line 34, in &lt;module&gt; </div><div class="line">from Crypto.Util.number import ceil_shift, exact_log2, exact_div</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Util/number.py&quot;, line 56, in &lt;module&gt;</div><div class="line">if _fastmath is not None and not _fastmath.HAVE_DECL_MPZ_POWM_SEC:</div><div class="line">AttributeError: &apos;module&apos; object has no attribute &apos;HAVE_DECL_MPZ_POWM_SEC&apos;</div></pre></td></tr></table></figure>
+<p>经网上查找，确认为pycrypto包安装时依赖的GMP版本不对的问题，具体可以通过以下步骤验证：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@361way.com pycrypto-2.6.1]# python setup.py build</div><div class="line">running build</div><div class="line">running build_py</div><div class="line">running build_ext</div><div class="line">running build_configure</div><div class="line">warning: GMP or MPIR library not found; Not building Crypto.PublicKey._fastmath.</div></pre></td></tr></table></figure>
+<p><strong>解决方法：</strong></p>
+<p>打开 /usr/lib64/python2.6/site-packages/Crypto/Util/number.py 文件，可以 看到 56 行上的注释说明，要求 libgmp 为 v5 以上版本。而系统现有版本为 4.1.4，把以下两行暂时注释掉，Ansible 执行正常。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">if _fastmath is not None and not _fastmath.HAVE_DECL_MPZ_POWM_SEC:     </div><div class="line">_warn(&quot;Not using mpz_powm_sec.  You should rebuild using libgmp &gt;= 5 to avoid timing attack vulnerability.&quot;, PowmInsecureWarning)</div></pre></td></tr></table></figure>
+<p>不过，此方法只是临时加以解决，更好的方式是去将 libgmp 升级到符合要求的版本。</p>
+<p>c、执行时报错</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@361way.com src]# ansible test -m raw -a &apos;uptime&apos;</div><div class="line">10.212.52.14 | FAILED =&gt; to use the &apos;ssh&apos; connection type with passwords, you must install the sshpass program</div><div class="line">10.212.52.16 | FAILED =&gt; to use the &apos;ssh&apos; connection type with passwords, you must install the sshpass program</div></pre></td></tr></table></figure>
+<p>安装<a href="http://mirrors.sohu.com/fedora-epel/6/x86_64/sshpass-1.05-1.el6.x86_64.rpm" target="_blank" rel="external">sshpass程序</a>。默认源里没有，我这里选择直接从sohu源里下载安装。</p>
+<h3 id="三、Ansible的配置与验证"><a href="#三、Ansible的配置与验证" class="headerlink" title="三、Ansible的配置与验证"></a>三、Ansible的配置与验证</h3><p>这里以pypi上下载的源码内有一个examles包，可以将使用该示例文件做为默认配置，具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ansible-1.9.1]# mkdir -p /etc/ansible</div><div class="line">[root@361way.com ansible-1.9.1]# cp -rp examples/*  /etc/ansible/</div><div class="line">[root@361way.com ansible-1.9.1]# cd /etc/ansible/</div></pre></td></tr></table></figure>
+<p>使用默认示例配置文件后，编辑/etc/ansible/hosts文件，通过以下方式验证ansible是否可用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# cat /etc/ansible/hosts</div><div class="line">[test]</div><div class="line">10.212.52.252 ansible_ssh_user=root ansible_ssh_pass=361way.com</div><div class="line">10.212.52.14 ansible_ssh_user=root ansible_ssh_pass=abc123</div><div class="line">10.212.52.16 ansible_ssh_user=root ansible_ssh_pass=91it.org</div></pre></td></tr></table></figure>
+<p>以上的配置中，我配置了一个test组，该组下有三台主机，三台都使用root验证，三台的密码分别是361way.com、abc123、91it.org 。</p>
+<p>注：后面的用户和密码项是非必须的，在配置key认证的情况下，不使用密码也可以直接操作 。未使用key的，也可以在ansible通过 -k参数在操作前询问手动输入密码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible test -a &apos;uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 18:01pm  up 21 days  3:24,  3 users,  load average: 0.39, 0.38, 0.35</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 18:09pm  up 329 days  1:01,  2 users,  load average: 0.08, 0.03, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 18:08pm  up 329 days  0:23,  2 users,  load average: 0.06, 0.06, 0.05</div></pre></td></tr></table></figure>
+<p>执行以上指令后，有结果输出，证明安装成功。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/ansible/" rel="tag"># ansible</a>
+          
+            <a href="/blog/tags/devops/" rel="tag"># devops</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/10/22/ansible_11/" rel="next" title="ansible小结（十一）ansible普通用户su切换问题">
+                <i class="fa fa-chevron-left"></i> ansible小结（十一）ansible普通用户su切换问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/10/22/ansible_02/" rel="prev" title="ansible小结（二）ansible架构">
+                ansible小结（二）ansible架构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/uploads/avatar.png"
+               alt="曹淼" />
+          <p class="site-author-name" itemprop="name">曹淼</p>
+          <p class="site-description motion-element" itemprop="description">混迹互联网圈数载，潜心修行编程之道的码农</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/blog/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/plpcm" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/2738224607" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.chinaunix.net/uid/29580597" target="_blank" title="旧版博客">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  旧版博客
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://openresty.org/" title="OpenResty" target="_blank">OpenResty</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git-scm.com/book/zh/v2" title="git-book" target="_blank">git-book</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、简介"><span class="nav-number">1.</span> <span class="nav-text">一、简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Ansible的安装"><span class="nav-number">2.</span> <span class="nav-text">二、Ansible的安装</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、yum源安装"><span class="nav-number">2.1.</span> <span class="nav-text">1、yum源安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、apt-get安装"><span class="nav-number">2.2.</span> <span class="nav-text">2、apt-get安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、源码安装"><span class="nav-number">2.3.</span> <span class="nav-text">3、源码安装</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、Ansible的配置与验证"><span class="nav-number">3.</span> <span class="nav-text">三、Ansible的配置与验证</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">曹淼</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/blog/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/blog/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/blog/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

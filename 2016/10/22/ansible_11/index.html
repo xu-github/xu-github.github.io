@@ -1,0 +1,811 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ansible,devops," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="曹淼的“git博客”" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="在现网应用中，安全加固后的主机是不允许直接以root用户登陆的，而很多命令又需要root用户来执行，在不改造现网的情况下。希望通过一个普通用户先登陆，再su切到root执行。而且每台主机的普通用户和root用户的密码又不同。希望在通过ansible执行的时候不需要交互输入密码，而是直接执行后输出结果。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ansible小结（十一）ansible普通用户su切换问题">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/10/22/ansible_11/index.html">
+<meta property="og:site_name" content="曹淼的“git博客”">
+<meta property="og:description" content="在现网应用中，安全加固后的主机是不允许直接以root用户登陆的，而很多命令又需要root用户来执行，在不改造现网的情况下。希望通过一个普通用户先登陆，再su切到root执行。而且每台主机的普通用户和root用户的密码又不同。希望在通过ansible执行的时候不需要交互输入密码，而是直接执行后输出结果。">
+<meta property="og:updated_time" content="2017-01-10T10:52:45.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ansible小结（十一）ansible普通用户su切换问题">
+<meta name="twitter:description" content="在现网应用中，安全加固后的主机是不允许直接以root用户登陆的，而很多命令又需要root用户来执行，在不改造现网的情况下。希望通过一个普通用户先登陆，再su切到root执行。而且每台主机的普通用户和root用户的密码又不同。希望在通过ansible执行的时候不需要交互输入密码，而是直接执行后输出结果。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/10/22/ansible_11/"/>
+
+
+
+
+
+  <title> ansible小结（十一）ansible普通用户su切换问题 | 曹淼的“git博客” </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">曹淼的“git博客”</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">道法自然</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/blog/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/blog/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/10/22/ansible_11/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="曹淼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/blog/uploads/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="曹淼的“git博客”">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="曹淼的“git博客”" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                ansible小结（十一）ansible普通用户su切换问题
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-22T10:30:16+08:00">
+                2016-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/devops/" itemprop="url" rel="index">
+                    <span itemprop="name">devops</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+              <div class="post-description">
+                  在现网应用中，安全加固后的主机是不允许直接以root用户登陆的，而很多命令又需要root用户来执行，在不改造现网的情况下。希望通过一个普通用户先登陆，再su切到root执行。而且每台主机的普通用户和root用户的密码又不同。希望在通过ansible执行的时候不需要交互输入密码，而是直接执行后输出结果。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、ansible-hosts配置文件"><a href="#一、ansible-hosts配置文件" class="headerlink" title="一、ansible hosts配置文件"></a>一、ansible hosts配置文件</h3><p>在之前的系列文章中我们提到，可以把密码写到hosts配置文件，通过查询官网的相关信息了解了，其除了ansible_ssh_user、ansible_ssh_pass变量外，还为su切换提供了ansible_su_pass变量，通过该变量我们可以把root密码直接写到配置文件中。具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# cat /etc/ansible/hosts</div><div class="line">[test01]</div><div class="line">10.212.52.14 ansible_ssh_user=test ansible_ssh_pass=111111 ansible_su_pass=*I2145</div><div class="line">10.212.52.16 ansible_ssh_user=test ansible_ssh_pass=xyz123  ansible_su_pass=mn1Pokm</div><div class="line">10.212.52.252 ansible_ssh_user=amos ansible_ssh_pass=asdf ansible_su_pass=xyzp)okm</div></pre></td></tr></table></figure>
+<p>注：我测试使用的ansible版本是1.9版的，在新的2.0版本中，变量也做了变化ansible_become_pass替换了之前的ansible_sudo_pass or ansible_su_pass ，具体可以参看<a href="http://docs.ansible.com/ansible/become.html" target="_blank" rel="external">官方文档</a>。</p>
+<h3 id="二、ansible命令参数"><a href="#二、ansible命令参数" class="headerlink" title="二、ansible命令参数"></a>二、ansible命令参数</h3><p>在执行ansible -h查看时，会看到如下条目：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">-S, --su              run operations with su (deprecated, use become)</div><div class="line">-R SU_USER, --su-user=SU_USER</div><div class="line">                      run operations with su as this user (default=root)</div><div class="line">                      (deprecated, use become)</div></pre></td></tr></table></figure>
+<h3 id="三、su切换执行"><a href="#三、su切换执行" class="headerlink" title="三、su切换执行"></a>三、su切换执行</h3><p>所以结合上面两块，我们做下简单的测试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible all  -S -R root -m shell -a &quot;uptime&quot;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 16:13pm  up 34 days  5:40,  2 users,  load average: 0.08, 0.21, 0.30</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 16:26pm  up 538 days 23:17,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 16:24pm  up 538 days 22:39,  2 users,  load average: 0.00, 0.01, 0.05</div></pre></td></tr></table></figure>
+<p>这里需要注意的是，普通用户的家目录是要存在，并切该普通用户要有写的权限的，不然会出现类似如下的报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">10.212.52.252 | FAILED =&gt; Authentication or permission failure.</div><div class="line">In some cases, you may have been able to authenticate and did not have permissions on the remote directory.</div><div class="line">Consider changing the remote temp path in ansible.cfg to a path rooted in &quot;/tmp&quot;.</div><div class="line">Failed command was: mkdir -p $HOME/.ansible/tmp/ansible-tmp-1449456070.96-212322517029279 &amp;&amp; echo $HOME/.ansible/tmp/ansible-tmp-1449456070.96-212322517029279,</div><div class="line">exited with result 1: mkdir: cannot create directory `/home/amos/.ansible&apos;: Permission denied</div></pre></td></tr></table></figure>
+<p>当然，如果这个普通用户没有家目录或者家目录没有写权限在不修改远端主机也有办法可以搞定，修改ansible主机的ansible.cfg配置文件，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# vim /etc/ansible/ansible.cfg</div><div class="line">找到如下行：</div><div class="line">remote_tmp     = $HOME/.ansible/tmp</div><div class="line">修改为</div><div class="line">remote_tmp     = /tmp/.ansible/tmp</div></pre></td></tr></table></figure>
+<p>tmp目录一般都有写的权限吧，改成临时目录为/tmp下即可。</p>
+<p>再下为我们再看看远程主机的message日志文件确认下是否真的是通过普通用户切换的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Dec  3 11:36:20 linux su: (to root) test on /dev/pts/1     //由普通用户test切换为su切换为root的日志</div><div class="line">Dec  3 11:36:20 linux ansible-command: Invoked with creates=None executable=None chdir=None args=uptime removes=None NO_LOG=None shell=True warn=True  //ansible执行的内容</div></pre></td></tr></table></figure>
+<p>功能实现了，最后要说的是，由于该配置文件中涉及到多台主机的用户名密码，所以该文件的安全工作一定要做好。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/ansible/" rel="tag"># ansible</a>
+          
+            <a href="/blog/tags/devops/" rel="tag"># devops</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/10/22/ansible_10/" rel="next" title="ansible小结（八）ansible-playbook简单使用">
+                <i class="fa fa-chevron-left"></i> ansible小结（八）ansible-playbook简单使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/10/22/ansible_01/" rel="prev" title="ansible小结（一）ansible的安装">
+                ansible小结（一）ansible的安装 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/uploads/avatar.png"
+               alt="曹淼" />
+          <p class="site-author-name" itemprop="name">曹淼</p>
+          <p class="site-description motion-element" itemprop="description">混迹互联网圈数载，潜心修行编程之道的码农</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/blog/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/plpcm" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/2738224607" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.chinaunix.net/uid/29580597" target="_blank" title="旧版博客">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  旧版博客
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://openresty.org/" title="OpenResty" target="_blank">OpenResty</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git-scm.com/book/zh/v2" title="git-book" target="_blank">git-book</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、ansible-hosts配置文件"><span class="nav-number">1.</span> <span class="nav-text">一、ansible hosts配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、ansible命令参数"><span class="nav-number">2.</span> <span class="nav-text">二、ansible命令参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、su切换执行"><span class="nav-number">3.</span> <span class="nav-text">三、su切换执行</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">曹淼</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/blog/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/blog/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/blog/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

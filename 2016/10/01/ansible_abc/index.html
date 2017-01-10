@@ -1,0 +1,832 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ansible,devops," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="曹淼的“git博客”" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="这两天花了点时间看了下ansible的文档，也稍稍体验了下，因为是全英文的文档，看起来有些慢，因此想着把常用的东西写篇文章提炼下，这样以后也就方便查阅，同时也方便那些想快速使用ansible的人，能够快速的上手。于是有了这篇文章，命名为“ansible使用指南”。有点标题党，有遗漏的地方欢迎补充^_^">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自动化工具 ansible中文指南">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/10/01/ansible_abc/index.html">
+<meta property="og:site_name" content="曹淼的“git博客”">
+<meta property="og:description" content="这两天花了点时间看了下ansible的文档，也稍稍体验了下，因为是全英文的文档，看起来有些慢，因此想着把常用的东西写篇文章提炼下，这样以后也就方便查阅，同时也方便那些想快速使用ansible的人，能够快速的上手。于是有了这篇文章，命名为“ansible使用指南”。有点标题党，有遗漏的地方欢迎补充^_^">
+<meta property="og:updated_time" content="2017-01-09T07:58:37.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自动化工具 ansible中文指南">
+<meta name="twitter:description" content="这两天花了点时间看了下ansible的文档，也稍稍体验了下，因为是全英文的文档，看起来有些慢，因此想着把常用的东西写篇文章提炼下，这样以后也就方便查阅，同时也方便那些想快速使用ansible的人，能够快速的上手。于是有了这篇文章，命名为“ansible使用指南”。有点标题党，有遗漏的地方欢迎补充^_^">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/10/01/ansible_abc/"/>
+
+
+
+
+
+  <title> 自动化工具 ansible中文指南 | 曹淼的“git博客” </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">曹淼的“git博客”</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">道法自然</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/blog/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/blog/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/10/01/ansible_abc/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="曹淼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/blog/uploads/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="曹淼的“git博客”">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="曹淼的“git博客”" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自动化工具 ansible中文指南
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-01T10:35:16+08:00">
+                2016-10-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/devops/" itemprop="url" rel="index">
+                    <span itemprop="name">devops</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+              <div class="post-description">
+                  这两天花了点时间看了下ansible的文档，也稍稍体验了下，因为是全英文的文档，看起来有些慢，因此想着把常用的东西写篇文章提炼下，这样以后也就方便查阅，同时也方便那些想快速使用ansible的人，能够快速的上手。于是有了这篇文章，命名为“ansible使用指南”。有点标题党，有遗漏的地方欢迎补充^_^
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-什么是ansible"><a href="#1-什么是ansible" class="headerlink" title="1. 什么是ansible"></a>1. 什么是ansible</h1><p>ansible是个什么东西呢？官方的title是“Ansible is Simple IT Automation”——简单的自动化IT工具。这个工具的目标有这么几项：让我们自动化部署APP；自动化管理配置项；自动化的持续交付；自动化的（AWS）云服务管理。</p>
+<p>所有的这几个目标本质上来说都是在一个台或者几台服务器上，执行一系列的命令而已。就像我之前有介绍过的Fabric，以及我们基于Fabric开发的自动化应用部署的工具： <a href="https://github.com/SohuTech/essay" target="_blank" rel="external">Essay</a> 。都是做了这么个事——<strong>批量的在远程服务器上执行命令</strong> 。</p>
+<p>那么fabric和ansible有什么差别呢？简单来说fabric像是一个工具箱，提供了很多好用的工具，用来在Remote执行命令，而Ansible则是提供了一套简单的流程，你要按照它的流程来做，就能轻松完成任务。这就像是库和框架的关系一样。</p>
+<p>当然，它们之间也是有共同点的——都是基于 <a href="https://github.com/paramiko/paramiko" target="_blank" rel="external">paramiko</a> 开发的。这个paramiko是什么呢？它是一个纯Python实现的ssh协议库。因此fabric和ansible还有一个共同点就是不需要在远程主机上安装client/agents，因为它们是基于ssh来和远程主机通讯的。</p>
+<h1 id="2-快速安装"><a href="#2-快速安装" class="headerlink" title="2. 快速安装"></a>2. 快速安装</h1><p>上面简单介绍了下这是个什么东西，怎么安装呢？也很简单，因为ansible是python开发的，因此可以这么安装:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo esay_install ansible</div><div class="line"># 或者</div><div class="line">sudo pip install ansible</div></pre></td></tr></table></figure>
+<p>你也可以从github上clone最新版本，然后安装。</p>
+<p>另外需要注意的是，控制服务器（Master）需要安装Python2.6/7，windows上无法使用ansible。被管理的服务器（Managed Node）需要安装Python2.4以上的版本，如果低于2.5，需要安装python-simplejson。</p>
+<h1 id="3-配置"><a href="#3-配置" class="headerlink" title="3. 配置"></a>3. 配置</h1><p>安装完成之后，先来配置下配置项——.ansible.cfg。ansible执行的时候会按照以下顺序查找配置项:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">* ANSIBLE_CONFIG (环境变量)</div><div class="line">* ansible.cfg (当前目录下)</div><div class="line">* .ansible.cfg (用户家目录下)</div><div class="line">* /etc/ansible/ansible.cfg</div></pre></td></tr></table></figure>
+<p>还有一个重要的配置是hosts的配置，所有的远程主机需要在hosts中配置，可以分组。当然hosts也可以执行是指定。先来一个简单的例子，在家目录下新建一个hosts文件:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># hosts</div><div class="line">[local]</div><div class="line">127.0.0.1</div></pre></td></tr></table></figure>
+<p>然后在终端执行:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ ansible -i ~/hosts all -a &apos;who&apos;</div><div class="line"></div><div class="line"># 结果如下:</div><div class="line">127.0.0.1 | success | rc=0 &gt;&gt;</div><div class="line">Guest    console  Feb  1 16:29</div><div class="line">the5fire console  Jan 20 19:50</div><div class="line">the5fire ttys018  Feb 22 15:35  (localhost)</div></pre></td></tr></table></figure>
+<p>这是一条ad-hoc命令——临时执行命令，ad-hoc是ansible里的一个概念, 在上面命令中就是 -a ，具体稍后再说。命令中的all是值hoss中的所有服务器，当然也可以通过 ansible -i ~/hosts local -a’who’ 这样根据组名指定服务器。</p>
+<p>再说到ansible.cfg的配置，默认ansible执行时会从该配置中加载hosts配置，因此可以通过修改.ansible.cfg来指定默认的hosts文件地址:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># .ansible.cfg</div><div class="line">[defaults]</div><div class="line">hostfile=/Users/the5fire/hosts</div></pre></td></tr></table></figure>
+<p>这样下次执行，就不需要 -i 参数了。</p>
+<h1 id="4-Ad-Hoc"><a href="#4-Ad-Hoc" class="headerlink" title="4. Ad-Hoc"></a>4. Ad-Hoc</h1><p>ad hoc——临时的，在ansible中是指需要快速执行，并且不需要保存的命令。说白了就是执行简单的命令——一条命令。对于复杂的命令后面会说playbook。</p>
+<p>那么这个Ad-Hoc命令怎么用呢？上面已经简单的示范了下。在ansible中还有一个Module（模块）的概念，这个模块可以理解为一个库，所有的命令都需要通过模块来执行，比如上面的那个命令: ansible-i ~/hosts all -a ‘who’ ，其实是调用了默认的command模块: ansible -i ~/hosts all -mcommand -a ‘who’ ,除了command模块还有其他很多模块，比如你就想ping下这个服务器是不是还存在可以通过ping模块: ansible -i ~/hosts all -m ping 。</p>
+<p>还有几个参数需要记录下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">-u username  # 指定ssh连接的用户名</div><div class="line">-f 10        # 指定并发数</div><div class="line">--sudo [-K]    #  如果需要root权限执行的话，-K参数是用来输入root密码的</div></pre></td></tr></table></figure>
+<p>你可以通过各种模块来批量完成某个包的安装，或者其他什么需要的操作。 更多模块可以看官网文档: <a href="http://docs.ansible.com/modules.html" target="_blank" rel="external">modules</a></p>
+<p>关于Ad-Hoc的更多内容参考这里: <a href="http://docs.ansible.com/intro_adhoc.html" target="_blank" rel="external">intro_adhoc</a></p>
+<h1 id="5-简单Playbook"><a href="#5-简单Playbook" class="headerlink" title="5. 简单Playbook"></a>5. 简单Playbook</h1><p>上面的ad hoc是指执行一条临时的不需要保存的命令，那么复杂的命令怎么执行呢？因此也就有了playbook这个命令: ansible-playbook 。</p>
+<p>playbook（剧本），顾名思义，就是需要定义一个脚本或者说配置文件，然后定义好做什么。一个简单的playbook是这样的，把当前用户名输出到whoami.rst文件中:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"># playbook.yml</div><div class="line">---</div><div class="line">- hosts: local  # hosts中指定</div><div class="line">  remote_user: the5fire  # 如果和当前用户一样，则无需指定</div><div class="line">  tasks:</div><div class="line">    - name: whoami</div><div class="line">      shell: &apos;whoami &gt; whoami.rst&apos;</div></pre></td></tr></table></figure>
+<p>执行完这个命令后，你可以在local所代表的服务器的用户目录下发现这么个文件。说道这里，要停一下。这个配置文件是yaml格式的，因此你可能需要去了解下YAML： <a href="http://zh.wikipedia.org/wiki/YAML" target="_blank" rel="external">wiki YAML</a> 。</p>
+<p>简单解释下上面的playbook，hosts后面根据local是从hosts中读取的，tasks是是关键词，指明了要执行哪些任务；下面的name是任务的名称，shell是前面提到的module(模块)，单引号中是命令。</p>
+<p>除了tasks之外，还有一个handlers的命令，handlers是在执行tasks之后服务器发生变化之后可供调用的handler，使用起来如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"># playbook.yml</div><div class="line">---</div><div class="line">- hosts: local  # hosts中指定</div><div class="line">  remote_user: the5fire  # 如果和当前用户一样，则无需指定</div><div class="line">  tasks:</div><div class="line">      - name: whoami</div><div class="line">        copy: src=~/hosts dest=~/hosts.dest  #  本地拷贝到远端</div><div class="line">        notify:  # 如果copy执行完之后~/hosts.dest文件发送了变化，则执行</div><div class="line">            - clear copy  # 调用handler</div><div class="line">  handlers:</div><div class="line">      - name: clear copy</div><div class="line">        shell: &apos;mv ~/hosts.dest hosts.del&apos;  # 假装删除</div></pre></td></tr></table></figure>
+<p>上面只是一个演示，再来一个真实的功能——在local服务器上，从git上clone下来我的blog源码，然后创建虚拟环境，创建数据库，最后运行:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"># deploy-blog-simple.yml</div><div class="line">---</div><div class="line">- hosts: local  # hosts中指定</div><div class="line">remote_user: the5fire  # 如果和当前用户一样，则无需指定</div><div class="line">tasks:</div><div class="line">    - name: check out django_blog</div><div class="line">    git: dest=~/demos/django_selfblog repo=https://github.com/the5fire/django_selfblog</div><div class="line">        update=yes</div><div class="line">    - name: make virtualenv</div><div class="line">    shell: &apos;virtualenv ~/demos&apos;</div><div class="line">    - name: install requirements</div><div class="line">    pip: requirements=~/demos/django_selfblog/requirements.txt</div><div class="line">        virtualenv=~/demos</div><div class="line">    - name: init database</div><div class="line">    shell: . ./bin/activate &amp;&amp; cd django_selfblog/selfblog &amp;&amp; ./init_database.sh chdir=~/demos</div><div class="line">    - name: run manage.py</div><div class="line">    shell: . ./bin/activate &amp;&amp; cd django_selfblog/selfblog &amp;&amp;  ./run.sh chdir=~/demos</div></pre></td></tr></table></figure>
+<p>如果你已经配置好ssh账户免密码登录之后，直接执行: ansible-playbookdeploy-blog-simple.yml 就可以在你指定的服务器上部署，并启动blog了。</p>
+<p>好了，关于ansible的使用，到这里应该先告一段落了，后面还有一些稍微复杂点的概念：role和include。以后有时间再补充一个续。</p>
+<p>在写最后一个playbook的时候，为了最后能正常启动blog程序，花了小半天时间把ansible的代码看了下，下一篇来分享下ansbile里面的一些原理性的东西。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/ansible/" rel="tag"># ansible</a>
+          
+            <a href="/blog/tags/devops/" rel="tag"># devops</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/04/04/web-analysis/" rel="next" title="网站统计中的数据收集原理及实现">
+                <i class="fa fa-chevron-left"></i> 网站统计中的数据收集原理及实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/10/08/ansible_playbook/" rel="prev" title="集群运维ansible的playbook配置及template模板的使用">
+                集群运维ansible的playbook配置及template模板的使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/uploads/avatar.png"
+               alt="曹淼" />
+          <p class="site-author-name" itemprop="name">曹淼</p>
+          <p class="site-description motion-element" itemprop="description">混迹互联网圈数载，潜心修行编程之道的码农</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/blog/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/plpcm" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/2738224607" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.chinaunix.net/uid/29580597" target="_blank" title="旧版博客">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  旧版博客
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://openresty.org/" title="OpenResty" target="_blank">OpenResty</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git-scm.com/book/zh/v2" title="git-book" target="_blank">git-book</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-什么是ansible"><span class="nav-number">1.</span> <span class="nav-text">1. 什么是ansible</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-快速安装"><span class="nav-number">2.</span> <span class="nav-text">2. 快速安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-配置"><span class="nav-number">3.</span> <span class="nav-text">3. 配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-Ad-Hoc"><span class="nav-number">4.</span> <span class="nav-text">4. Ad-Hoc</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-简单Playbook"><span class="nav-number">5.</span> <span class="nav-text">5. 简单Playbook</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">曹淼</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/blog/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/blog/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/blog/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

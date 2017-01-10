@@ -1,0 +1,847 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ansible,devops," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="曹淼的“git博客”" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Ansible的Inventory文件，可以理解为saltstack中的salt-key中的所有minion的列表以及用户自定义的nodegroup的概念，默认情况下这个文件是/etc/ansible/hosts ，后面还会讲到Dynamic Inventory，本节主要讲静态主机群部分。Patterns（模式）部分我们可以理解为正则表达式，通过Patterns我们可以匹配Inventory分组中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ansible小结（三）Inventory与Patterns">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/10/22/ansible_03/index.html">
+<meta property="og:site_name" content="曹淼的“git博客”">
+<meta property="og:description" content="Ansible的Inventory文件，可以理解为saltstack中的salt-key中的所有minion的列表以及用户自定义的nodegroup的概念，默认情况下这个文件是/etc/ansible/hosts ，后面还会讲到Dynamic Inventory，本节主要讲静态主机群部分。Patterns（模式）部分我们可以理解为正则表达式，通过Patterns我们可以匹配Inventory分组中">
+<meta property="og:updated_time" content="2017-01-10T10:26:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ansible小结（三）Inventory与Patterns">
+<meta name="twitter:description" content="Ansible的Inventory文件，可以理解为saltstack中的salt-key中的所有minion的列表以及用户自定义的nodegroup的概念，默认情况下这个文件是/etc/ansible/hosts ，后面还会讲到Dynamic Inventory，本节主要讲静态主机群部分。Patterns（模式）部分我们可以理解为正则表达式，通过Patterns我们可以匹配Inventory分组中">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/10/22/ansible_03/"/>
+
+
+
+
+
+  <title> ansible小结（三）Inventory与Patterns | 曹淼的“git博客” </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">曹淼的“git博客”</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">道法自然</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/blog/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/blog/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/10/22/ansible_03/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="曹淼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/blog/uploads/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="曹淼的“git博客”">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="曹淼的“git博客”" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                ansible小结（三）Inventory与Patterns
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-22T10:30:16+08:00">
+                2016-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/devops/" itemprop="url" rel="index">
+                    <span itemprop="name">devops</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+              <div class="post-description">
+                  Ansible的Inventory文件，可以理解为saltstack中的salt-key中的所有minion的列表以及用户自定义的nodegroup的概念，默认情况下这个文件是/etc/ansible/hosts ，后面还会讲到Dynamic Inventory，本节主要讲静态主机群部分。Patterns（模式）部分我们可以理解为正则表达式，通过Patterns我们可以匹配Inventory分组中的部分主机。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、Hosts-and-Groups（主机与组）"><a href="#一、Hosts-and-Groups（主机与组）" class="headerlink" title="一、Hosts and Groups（主机与组）"></a>一、Hosts and Groups（主机与组）</h3><p>对于/etc/ansible/hosts最简单的定义格式像下面：</p>
+<h4 id="1、简单的主机和组"><a href="#1、简单的主机和组" class="headerlink" title="1、简单的主机和组"></a>1、简单的主机和组</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mail.361way.com</div><div class="line">[webservers]</div><div class="line">web1.361way.com</div><div class="line">web2.361way.com </div><div class="line">[dbservers]</div><div class="line">db1.361way.com</div><div class="line">db2.361way.com</div></pre></td></tr></table></figure>
+<p>a、中括号中的名字代表组名，你可以根据你自己的需求将庞大的主机分成具有标识的组，如上面我分了两个组webservers和dbservers组；</p>
+<p>b、主机(hosts)部分可以使用域名、主机名、IP地址表示；当然使用前两者时，也需要主机能反解析到相应的IP地址，一般此类配置中多使用IP地址；</p>
+<h4 id="2、端口与别名"><a href="#2、端口与别名" class="headerlink" title="2、端口与别名"></a>2、端口与别名</h4><p>如果某些主机的SSH运行在自定义的端口上，ansible使用Paramiko进行ssh连接时，不会使用你SSH配置文件中列出的端口，但是如果修改ansible使用openssh进行ssh连接时将会使用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">192.168.0.10:5309</div></pre></td></tr></table></figure>
+<p>假如你想要为某些静态IP设置一些别名，类似于SaltStack中minion配置文件中id的参数配置。你可以这样做：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">jumper ansible_ssh_port = 5555 ansible_ssh_host = 192.168.1.50</div></pre></td></tr></table></figure>
+<p>上面的 jumper 别名就指代了IP为192.168.1.50，ssh连接端口为5555的主机。</p>
+<h4 id="3、指定主机范围"><a href="#3、指定主机范围" class="headerlink" title="3、指定主机范围"></a>3、指定主机范围</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[webservers]</div><div class="line">www[01:50].361way.com</div><div class="line">[databases]</div><div class="line">db-[a:f].91it.org</div></pre></td></tr></table></figure>
+<p>上面指定了从web1到web50，webservers组共计50台主机；databases组有db-a到db-f共6台主机。</p>
+<h4 id="4、使用主机变量"><a href="#4、使用主机变量" class="headerlink" title="4、使用主机变量"></a>4、使用主机变量</h4><p>以下是Hosts部分中经常用到的变量部分</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">ansible_ssh_host # 要连接的主机名</div><div class="line">ansible_ssh_port # 端口号默认是22</div><div class="line">ansible_ssh_user # ssh连接时默认使用的用户名</div><div class="line">ansible_ssh_pass # ssh连接时的密码</div><div class="line">ansible_sudo_pass # 使用sudo连接用户是的密码</div><div class="line">ansible_ssh_private_key_file # 秘钥文件如果不想使用ssh-agent管理时可以使用此选项</div><div class="line">ansible_shell_type # shell的类型默认sh</div><div class="line">ansible_connection # SSH 连接的类型： local , ssh , paramiko在 ansible 1.2 之前默认是 paramiko ，后来智能选择，优先使用基于 ControlPersist 的 ssh （支持的前提）</div><div class="line">ansible_python _ interpreter #用来指定 python 解释器的路径，同样可以指定ruby 、perl 的路径</div></pre></td></tr></table></figure>
+<p>示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[test]</div><div class="line">10.212.52.252 ansible_ssh_user=root ansible_ssh_pass=&apos;361way.com&apos;</div><div class="line">10.212.52.14 ansible_ssh_user=test1 ansible_ssh_pass=&apos;91it.org&apos;</div><div class="line">10.212.52.16 ansible_ssh_user=test2 ansible_ssh_port=7788 ansible_ssh_pass=&apos;123456&apos;</div></pre></td></tr></table></figure>
+<p>上面的示例中指定了三台主机，三台主机的用密码分别是361way.com、91it.org、123456，指定的ssh连接的用户名分别为root、test1、test2，ssh 端口分别为22、22、7788 ，这样在ansible命令执行的时候就不用再指令用户和密码等了，执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible test -a &apos;uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">01:34am  up 23 days 10:57,  2 users,  load average: 0.42, 0.39, 0.41</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line">01:41am  up 331 days  8:33,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line">01:40am  up 331 days  7:55,  2 users,  load average: 0.09, 0.03, 0.05</div></pre></td></tr></table></figure>
+<h4 id="5、组内变量"><a href="#5、组内变量" class="headerlink" title="5、组内变量"></a>5、组内变量</h4><p>变量也可以通过组名，应用到组内的所有成员：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[test]</div><div class="line">host1</div><div class="line">host2</div><div class="line">[test:vars]</div><div class="line">ntp_server=ntp.361way.com</div><div class="line">proxy=proxy.361way.com</div></pre></td></tr></table></figure>
+<p>上面test组中包含两台主机，通过对test组指定vars变更，相应的host1和host2相当于相应的指定了ntp_server和proxy变量参数值 。</p>
+<h4 id="6、组的包含与组内变量"><a href="#6、组的包含与组内变量" class="headerlink" title="6、组的包含与组内变量"></a>6、组的包含与组内变量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">[hangzhou]</div><div class="line">host1</div><div class="line">host2</div><div class="line">[jiaxing]</div><div class="line">host2</div><div class="line">host3</div><div class="line">[zhejiang:children]</div><div class="line">hangzhou</div><div class="line">jiaxing</div><div class="line">[zhejiang:vars]</div><div class="line">some_server=foo.southeast.example.com</div><div class="line">halon_system_timeout=30</div><div class="line">self_destruct_countdown=60</div><div class="line">escape_pods=2</div><div class="line">[china:children]</div><div class="line">zhejiang</div><div class="line">henan</div><div class="line">shandong</div><div class="line">hebei</div></pre></td></tr></table></figure>
+<p>如上面的示例中，我指定了杭州组我有host1、hosts2；嘉兴组我有host3、host4主机；我又指定了一个组浙江组，同时包含杭州和嘉兴；同时为该组内的所有主机指定了四个vars变量。后面我又设定了一个组中国组，包含浙江、河南、山东、河北。</p>
+<p>注：由于vars变量在ansible ad-hoc部分中基本用不到，主要用在ansible-playbook中，后面的章节部分也会提到。</p>
+<p>以上部分基本上是完全按照<a href="http://docs.ansible.com/intro_inventory.html" target="_blank" rel="external">官方Inventory 文档</a>部分进行了翻译和微小的变化。英文感觉还可以的可以直接查看官方页面。</p>
+<h3 id="二、Patterns（主机与组正则匹配部分）"><a href="#二、Patterns（主机与组正则匹配部分）" class="headerlink" title="二、Patterns（主机与组正则匹配部分）"></a>二、Patterns（主机与组正则匹配部分）</h3><p>把Patterns 直接理解为正则实际是不完全准确的，正常的理解为patterns意味着在ansible中管理哪些主机，也可以理解为，要与哪台主机进行通信。在探讨这个问题之前我们先看下ansible的用法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible &lt;pattern_goes_here&gt; -m &lt;module_name&gt; -a &lt;arguments&gt;</div></pre></td></tr></table></figure>
+<p>直接上一个示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible webservers -m service -a &quot;name=httpd state=restarted&quot;</div></pre></td></tr></table></figure>
+<p>这里是对webservers 组或主机重启httpd服务 ，其中webservers 就是Pattern部分。而之所以上面我说Pattern（模式）可以理解为正则，主要针对下面经常用到的用法而言的。</p>
+<h4 id="1、表示所有的主机可以使用all-或"><a href="#1、表示所有的主机可以使用all-或" class="headerlink" title="1、表示所有的主机可以使用all 或 *"></a>1、表示所有的主机可以使用all 或 *</h4><h4 id="2、通配符与逻辑或"><a href="#2、通配符与逻辑或" class="headerlink" title="2、通配符与逻辑或"></a>2、通配符与逻辑或</h4><p>利用通配符还可以指定一组具有规则特征的主机或主机名，冒号表示or－－－逻辑或</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">one.361way.com</div><div class="line">one.361way:two.361way.com</div><div class="line">192.168.1.50</div><div class="line">192.168.1.*</div></pre></td></tr></table></figure>
+<p>当然，这里的*通配符也可以用在前面，如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">*.361way.com</div><div class="line">*.com</div></pre></td></tr></table></figure>
+<p>上面的用法，在多个组之间同样适用 ，如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">webservers</div><div class="line">webservers:dbservers  //表示两个组中所有的主机</div></pre></td></tr></table></figure>
+<h4 id="3、逻辑非与逻辑and"><a href="#3、逻辑非与逻辑and" class="headerlink" title="3、逻辑非与逻辑and"></a>3、逻辑非与逻辑and</h4><p>当然你可以做出非的表达式，例如，目标主机必须在组webservers但不在phoenix组中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webserver:!phoenix</div></pre></td></tr></table></figure>
+<p>你还可以做出交集的表达式，例如，目标主机必须即在组webservers中又在组staging中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webservers:&amp;staging</div></pre></td></tr></table></figure>
+<p>一个更复杂的示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webserver:dbservers:&amp;staging:!phoenix</div></pre></td></tr></table></figure>
+<p>上面这个复杂的表达式最后表示的目标主机必须满足：在webservers或者dbservers组中，必须还存在于staging组中，但是不在phoenix组中。这些可以看作是SaltStack中Compound matchers 。</p>
+<h4 id="4、混合高级用法"><a href="#4、混合高级用法" class="headerlink" title="4、混合高级用法"></a>4、混合高级用法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">*.361way.com:*.org</div></pre></td></tr></table></figure>
+<p>还可以在开头的地方使用”~”，用来表示这是一个正则表达式:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~(web|db).*\.91it\.org</div></pre></td></tr></table></figure>
+<p>到这里估计你应该用能明白为什么前面我会提到Patterns 可以理解为正则的原因了。最后部分给两个ansible-playbook中具体可能用的用法：</p>
+<p>a、在ansible-palybook命令中，你也可以使用变量来组成这样的表达式，但是你必须使用“-e”的选项来指定这个表达式（通常我们不这样用）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible-palybook -e webservers:!&#123;&#123;excluded&#125;&#125;:&amp;&#123;&#123;required&#125;&#125;</div></pre></td></tr></table></figure>
+<p>b、在ansible和ansible-playbook中，还可以通过一个参数”–limit”来明确指定排除某些主机或组：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible-playbook site.yml --limit datacenter2</div></pre></td></tr></table></figure>
+<p>以上部分主要按照<a href="http://docs.ansible.com/intro_patterns.html" target="_blank" rel="external">官方Pattern部分</a>进行翻译和尝试。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/ansible/" rel="tag"># ansible</a>
+          
+            <a href="/blog/tags/devops/" rel="tag"># devops</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/10/22/ansible_02/" rel="next" title="ansible小结（二）ansible架构">
+                <i class="fa fa-chevron-left"></i> ansible小结（二）ansible架构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/10/22/ansible_04/" rel="prev" title="ansible小结（四）ansible.cfg与默认配置">
+                ansible小结（四）ansible.cfg与默认配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/uploads/avatar.png"
+               alt="曹淼" />
+          <p class="site-author-name" itemprop="name">曹淼</p>
+          <p class="site-description motion-element" itemprop="description">混迹互联网圈数载，潜心修行编程之道的码农</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/blog/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/plpcm" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/2738224607" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.chinaunix.net/uid/29580597" target="_blank" title="旧版博客">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  旧版博客
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://openresty.org/" title="OpenResty" target="_blank">OpenResty</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git-scm.com/book/zh/v2" title="git-book" target="_blank">git-book</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、Hosts-and-Groups（主机与组）"><span class="nav-number">1.</span> <span class="nav-text">一、Hosts and Groups（主机与组）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、简单的主机和组"><span class="nav-number">1.1.</span> <span class="nav-text">1、简单的主机和组</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、端口与别名"><span class="nav-number">1.2.</span> <span class="nav-text">2、端口与别名</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、指定主机范围"><span class="nav-number">1.3.</span> <span class="nav-text">3、指定主机范围</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、使用主机变量"><span class="nav-number">1.4.</span> <span class="nav-text">4、使用主机变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5、组内变量"><span class="nav-number">1.5.</span> <span class="nav-text">5、组内变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6、组的包含与组内变量"><span class="nav-number">1.6.</span> <span class="nav-text">6、组的包含与组内变量</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、Patterns（主机与组正则匹配部分）"><span class="nav-number">2.</span> <span class="nav-text">二、Patterns（主机与组正则匹配部分）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、表示所有的主机可以使用all-或"><span class="nav-number">2.1.</span> <span class="nav-text">1、表示所有的主机可以使用all 或 *</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、通配符与逻辑或"><span class="nav-number">2.2.</span> <span class="nav-text">2、通配符与逻辑或</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、逻辑非与逻辑and"><span class="nav-number">2.3.</span> <span class="nav-text">3、逻辑非与逻辑and</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、混合高级用法"><span class="nav-number">2.4.</span> <span class="nav-text">4、混合高级用法</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">曹淼</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/blog/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/blog/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/blog/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

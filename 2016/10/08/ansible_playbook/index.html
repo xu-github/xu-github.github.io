@@ -1,0 +1,838 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ansible,devops," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="曹淼的“git博客”" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="学习下ansible的playbook的状态配置管理，说来puppet saltstack都有类似的叫法，只是ansible的叫法更犀利，我当时一看playbook还以为是花花公子的playboy。要使用ansible就要深入学习playbook配置及模板。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="集群运维ansible的playbook配置及template模板的使用">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/10/08/ansible_playbook/index.html">
+<meta property="og:site_name" content="曹淼的“git博客”">
+<meta property="og:description" content="学习下ansible的playbook的状态配置管理，说来puppet saltstack都有类似的叫法，只是ansible的叫法更犀利，我当时一看playbook还以为是花花公子的playboy。要使用ansible就要深入学习playbook配置及模板。">
+<meta property="og:image" content="http://img0.tuicool.com/JnQjaa.jpg!web">
+<meta property="og:image" content="http://img2.tuicool.com/rm6NBj.jpg!web">
+<meta property="og:image" content="http://img2.tuicool.com/BVra6b.jpg!web">
+<meta property="og:image" content="http://img1.tuicool.com/R3iMJ3.jpg!web">
+<meta property="og:image" content="http://img1.tuicool.com/iYVVRf.jpg!web">
+<meta property="og:image" content="http://img1.tuicool.com/veMrma.jpg!web">
+<meta property="og:image" content="http://img1.tuicool.com/vyAbIj.jpg!web">
+<meta property="og:image" content="http://img1.tuicool.com/mamAJj.jpg!web">
+<meta property="og:updated_time" content="2017-01-10T03:42:56.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="集群运维ansible的playbook配置及template模板的使用">
+<meta name="twitter:description" content="学习下ansible的playbook的状态配置管理，说来puppet saltstack都有类似的叫法，只是ansible的叫法更犀利，我当时一看playbook还以为是花花公子的playboy。要使用ansible就要深入学习playbook配置及模板。">
+<meta name="twitter:image" content="http://img0.tuicool.com/JnQjaa.jpg!web">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/10/08/ansible_playbook/"/>
+
+
+
+
+
+  <title> 集群运维ansible的playbook配置及template模板的使用 | 曹淼的“git博客” </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">曹淼的“git博客”</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">道法自然</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/blog/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/blog/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/10/08/ansible_playbook/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="曹淼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/blog/uploads/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="曹淼的“git博客”">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="曹淼的“git博客”" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                集群运维ansible的playbook配置及template模板的使用
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-08T09:30:16+08:00">
+                2016-10-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/devops/" itemprop="url" rel="index">
+                    <span itemprop="name">devops</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+              <div class="post-description">
+                  学习下ansible的playbook的状态配置管理，说来puppet saltstack都有类似的叫法，只是ansible的叫法更犀利，我当时一看playbook还以为是花花公子的playboy。要使用ansible就要深入学习playbook配置及模板。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><em>原文</em>  <a href="http://rfyiamcool.blog.51cto.com/1030776/1413031?utm_source=tuicool&amp;utm_medium=referral" target="_blank" rel="external">http://rfyiamcool.blog.51cto.com/1030776/1413031</a></p>
+<p>前言：</p>
+<p>   学习下ansible的playbook的状态配置管理，说来puppet saltstack都有类似的叫法，只是ansible的叫法更犀利，我当时一看playbook还以为是花花公子的playboy。要使用ansible就要深入学习playbook配置及模板。</p>
+<p>先把官网的简单几个语法给说明下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">#这个是你选择的主机</div><div class="line">- hosts: webservers</div><div class="line">#这个是变量</div><div class="line">  vars:</div><div class="line">    http_port: 80</div><div class="line">    max_clients: 200</div><div class="line">#远端的执行权限</div><div class="line">  remote_user: root</div><div class="line">  tasks:</div><div class="line">#利用yum模块来操作</div><div class="line">  - name: ensure apache is at the latest version</div><div class="line">    yum: pkg=httpd state=latest</div><div class="line">  - name: write the apache config file</div><div class="line">    template: src=/srv/httpd.j2 dest=/etc/httpd.conf</div><div class="line">#触发重启服务器</div><div class="line">    notify:</div><div class="line">    - restart apache</div><div class="line">  - name: ensure apache is running</div><div class="line">    service: name=httpd state=started</div><div class="line">#这里的restart apache 和上面的触发是配对的。这就是handlers的作用。相当于tag</div><div class="line">  handlers:</div><div class="line">    - name: restart apache</div><div class="line">      service: name=httpd state=restarted</div></pre></td></tr></table></figure>
+<p>如果有些系统做了相关的sudo限制，需要在playbook里面开启sodu，或者直接偷懒，权限直接为root ！</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">- hosts: web</div><div class="line">  remote_user: xiaorui</div><div class="line">  tasks:</div><div class="line">    - service: name=nginx state=started</div><div class="line">      sudo: yes</div></pre></td></tr></table></figure>
+<p>原文：<a href="http://rfyiamcool.blog.51cto.com/1030776/1413031" target="_blank" rel="external">http://rfyiamcool.blog.51cto.com/1030776/1413031</a></p>
+<p>官网的基本完事了，这里就直接实战吧。先说一个简单的ansible playbook的例子。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">- name: create user</div><div class="line">  hosts: web</div><div class="line">  user: root</div><div class="line">  gather_facts: false</div><div class="line">  vars:</div><div class="line">  - user: &quot;xiaorui&quot;</div><div class="line">  tasks:</div><div class="line">  - name: create &#123;&#123; user &#125;&#125;</div><div class="line">    user: name=&quot;&#123;&#123; user &#125;&#125;&quot;</div></pre></td></tr></table></figure>
+<p>然后我们执行一下，Playbook 采用 YAML 语法结构，因此它们一般比较易于阅读并加以配置。 上面的意思已经很简单明了了，就是创建一个xiaorui的用户，里面引用了一个user的变量，用jinja2模板给赋值进去了。</p>
+<p><img src="http://img0.tuicool.com/JnQjaa.jpg!web" alt="wKioL1N3fsaSHalzAAHTC0rzDIA835.jpg"></p>
+<p>下面的还用我说么？ 多了一个service的调用，nginx的状态保持为启动。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">- name: create user</div><div class="line">  hosts: web</div><div class="line">  user: root</div><div class="line">  gather_facts: false</div><div class="line">  vars:</div><div class="line">  - user: &quot;xiaorui&quot;</div><div class="line">  tasks:</div><div class="line">  - name: create &#123;&#123; user &#125;&#125;</div><div class="line">    user: name=&quot;&#123;&#123; user &#125;&#125;&quot;</div><div class="line">  tasks:</div><div class="line">  - service: name=nginx state=started</div></pre></td></tr></table></figure>
+<p><img src="http://img2.tuicool.com/rm6NBj.jpg!web" alt="wKioL1N3gIKy6A3FAALVbped54k491.jpg"></p>
+<p>使用copy传送文件的时候，经常出些问题，是ansible需要python-selinux包而已.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@67 ~]# ansible-playbook user.yaml</div><div class="line">PLAY [create user] ************************************************************</div><div class="line">TASK: [Copy file to client] ***************************************************</div><div class="line">failed: [10.10.10.66] =&gt; &#123;&quot;failed&quot;: true, &quot;md5sum&quot;: &quot;1f18348f32c9a4694f16426798937ae2&quot;&#125;</div><div class="line">msg: Aborting, target uses selinux but python bindings (libselinux-python) aren&apos;t installed!</div><div class="line">FATAL: all hosts have already failed -- aborting</div><div class="line">PLAY RECAP ********************************************************************</div><div class="line">           to retry, use: --limit @/root/user.yaml.retry</div><div class="line">10.10.10.66                : ok=0    changed=0    unreachable=0    failed=1</div></pre></td></tr></table></figure>
+<p>yum install -y libselinux-python 就可以行了</p>
+<p>copy是传送文件用的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">- name: create user</div><div class="line">  hosts: web</div><div class="line">  user: root</div><div class="line">  gather_facts: false</div><div class="line">  remote_user: root</div><div class="line">  vars:</div><div class="line">  - user: &quot;xiaorui&quot;</div><div class="line">  tasks:</div><div class="line">  - name: create &#123;&#123; user &#125;&#125;</div><div class="line">    user: name=&quot;&#123;&#123; user &#125;&#125;&quot;</div><div class="line">  tasks:</div><div class="line">  - service: name=nginx state=started</div><div class="line">  tasks:</div><div class="line">  - name: Copy file to client</div><div class="line">    copy: src=/root/rs.sh dest=/root/ccc</div></pre></td></tr></table></figure>
+<p><img src="http://img2.tuicool.com/BVra6b.jpg!web" alt="wKiom1N3hCzzIyC3AAFLhl8AHvo882.jpg"></p>
+<p>根据一些特殊的情况，可以做更多的模板，比如这样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">vars:</div><div class="line">  - user: &quot;xiaorui&quot;</div><div class="line">  - say: &quot;xiaorui&quot;</div><div class="line">  tasks:</div><div class="line">  - name: create &#123;&#123; user &#125;&#125;</div><div class="line">    user: name=&quot;&#123;&#123; user &#125;&#125;&quot;</div><div class="line">  tasks:</div><div class="line">  - service: name=nginx state=started</div><div class="line">  tasks:</div><div class="line">  - name: Copy file to client</div><div class="line">#    copy: src=/root/rs.sh dest=/root/ccc</div><div class="line">    template: src=/root/testfile dest=/root/&#123;&#123; say &#125;&#125;</div></pre></td></tr></table></figure>
+<p><img src="http://img1.tuicool.com/R3iMJ3.jpg!web" alt="wKioL1N3hTagsbsoAAJYvkUANGw451.jpg"></p>
+<p>不只是这样，我可以把刚才那个say变量传到文件里面。 爽吧?   其实和saltstack一样。。。。</p>
+<p><img src="http://img1.tuicool.com/iYVVRf.jpg!web" alt="wKiom1N3jQDiuj_bAAM_9w42TAg068.jpg"></p>
+<p>再来一个和puppet exec一样执行外部命令的模块</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">tasks:</div><div class="line">- name: &quot;cmd&quot;</div><div class="line">  action: command touch /root/1111</div></pre></td></tr></table></figure>
+<p>还有一种shell模块的使用方法 。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">tasks:</div><div class="line">- name: run this command and ignore the result</div><div class="line">  shell: /usr/bin/somecommand || /bin/true</div></pre></td></tr></table></figure>
+<p>ansible在多任务下，推荐使用多进程模式的。其实就是用multiprocess做的多进程池 ！  -f 10  就是limit 10个任务并发。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible-playbook user.yml -f 10</div></pre></td></tr></table></figure>
+<p>顺便讲解下，在ansible下，类似puppet的facter，saltstack grains的自定义变量。  -m setup 模块</p>
+<p>咱们可以在模板文件中，引用这些setup系统变量的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">#xiaorui.cc</div><div class="line">&#123;&#123; ansible_devices.sda.model &#125;&#125;</div><div class="line">&#123;&#123; ansible_hostname &#125;&#125;</div><div class="line">&#123;&#123; ansible_machine &#125;&#125;</div></pre></td></tr></table></figure>
+<p>看看我测试机的setup是啥样子的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div></pre></td><td class="code"><pre><div class="line">[root@67 ~]# ansible web   -m setup</div><div class="line">10.10.10.66 | success &gt;&gt; &#123;</div><div class="line">	&quot;ansible_facts&quot;: &#123;</div><div class="line">		&quot;ansible_all_ipv4_addresses&quot;: [</div><div class="line">			&quot;10.10.10.66&quot;</div><div class="line">		],</div><div class="line">		&quot;ansible_all_ipv6_addresses&quot;: [</div><div class="line">			&quot;fe80::20c:29ff:fe06:f2dc&quot;</div><div class="line">		],</div><div class="line">		&quot;ansible_architecture&quot;: &quot;i386&quot;,</div><div class="line">		&quot;ansible_bios_date&quot;: &quot;06/02/2011&quot;,</div><div class="line">		&quot;ansible_bios_version&quot;: &quot;6.00&quot;,</div><div class="line">		&quot;ansible_cmdline&quot;: &#123;</div><div class="line">			&quot;KEYBOARDTYPE&quot;: &quot;pc&quot;,</div><div class="line">			&quot;KEYTABLE&quot;: &quot;us&quot;,</div><div class="line">			&quot;LANG&quot;: &quot;zh_CN.UTF-8&quot;,</div><div class="line">			&quot;quiet&quot;: true,</div><div class="line">			&quot;rd_LVM_LV&quot;: &quot;vg_65/lv_swap&quot;,</div><div class="line">			&quot;rd_NO_DM&quot;: true,</div><div class="line">			&quot;rd_NO_LUKS&quot;: true,</div><div class="line">			&quot;rd_NO_MD&quot;: true,</div><div class="line">			&quot;rhgb&quot;: true,</div><div class="line">			&quot;ro&quot;: true,</div><div class="line">			&quot;root&quot;: &quot;/dev/mapper/vg_65-lv_root&quot;</div><div class="line">		&#125;,</div><div class="line">		&quot;ansible_date_time&quot;: &#123;</div><div class="line">			&quot;date&quot;: &quot;2014-05-18&quot;,</div><div class="line">			&quot;day&quot;: &quot;18&quot;,</div><div class="line">			&quot;epoch&quot;: &quot;1400373954&quot;,</div><div class="line">			&quot;hour&quot;: &quot;08&quot;,</div><div class="line">			&quot;iso8601&quot;: &quot;2014-05-18T00:45:54Z&quot;,</div><div class="line">			&quot;iso8601_micro&quot;: &quot;2014-05-18T00:45:54.840220Z&quot;,</div><div class="line">			&quot;minute&quot;: &quot;45&quot;,</div><div class="line">			&quot;month&quot;: &quot;05&quot;,</div><div class="line">			&quot;second&quot;: &quot;54&quot;,</div><div class="line">			&quot;time&quot;: &quot;08:45:54&quot;,</div><div class="line">			&quot;tz&quot;: &quot;CST&quot;,</div><div class="line">			&quot;tz_offset&quot;: &quot;+0800&quot;,</div><div class="line">			&quot;year&quot;: &quot;2014&quot;</div><div class="line">		&#125;,</div><div class="line">		&quot;ansible_default_ipv4&quot;: &#123;</div><div class="line">			&quot;address&quot;: &quot;10.10.10.66&quot;,</div><div class="line">			&quot;alias&quot;: &quot;eth0&quot;,</div><div class="line">			&quot;gateway&quot;: &quot;10.10.10.1&quot;,</div><div class="line">			&quot;interface&quot;: &quot;eth0&quot;,</div><div class="line">			&quot;macaddress&quot;: &quot;00:0c:29:06:f2:dc&quot;,</div><div class="line">			&quot;mtu&quot;: 1500,</div><div class="line">			&quot;netmask&quot;: &quot;255.255.255.0&quot;,</div><div class="line">			&quot;network&quot;: &quot;10.10.10.0&quot;,</div><div class="line">			&quot;type&quot;: &quot;ether&quot;</div><div class="line">		&#125;,</div><div class="line">		&quot;ansible_default_ipv6&quot;: &#123;&#125;,</div><div class="line">		&quot;ansible_devices&quot;: &#123;</div><div class="line">			&quot;sda&quot;: &#123;</div><div class="line">				&quot;holders&quot;: [],</div><div class="line">				&quot;host&quot;: &quot;SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 01)&quot;,</div><div class="line">				&quot;model&quot;: &quot;VMware Virtual S&quot;,</div><div class="line">				&quot;partitions&quot;: &#123;</div><div class="line">					&quot;sda1&quot;: &#123;</div><div class="line">						&quot;sectors&quot;: &quot;1024000&quot;,</div><div class="line">						&quot;sectorsize&quot;: 512,</div><div class="line">						&quot;size&quot;: &quot;500.00 MB&quot;,</div><div class="line">						&quot;start&quot;: &quot;2048&quot;</div><div class="line">					&#125;,</div><div class="line">					&quot;sda2&quot;: &#123;</div><div class="line">						&quot;sectors&quot;: &quot;418404352&quot;,</div><div class="line">						&quot;sectorsize&quot;: 512,</div><div class="line">						&quot;size&quot;: &quot;199.51 GB&quot;,</div><div class="line">						&quot;start&quot;: &quot;1026048&quot;</div><div class="line">					&#125;</div><div class="line">				&#125;,</div><div class="line">				&quot;removable&quot;: &quot;0&quot;,</div><div class="line">				&quot;rotational&quot;: &quot;1&quot;,</div><div class="line">				&quot;scheduler_mode&quot;: &quot;cfq&quot;,</div><div class="line">				&quot;sectors&quot;: &quot;419430400&quot;,</div><div class="line">				&quot;sectorsize&quot;: &quot;512&quot;,</div><div class="line">				&quot;size&quot;: &quot;200.00 GB&quot;,</div><div class="line">				&quot;support_discard&quot;: &quot;0&quot;,</div><div class="line">				&quot;vendor&quot;: &quot;VMware,&quot;</div><div class="line">			&#125;,</div><div class="line">			&quot;sr0&quot;: &#123;</div><div class="line">				&quot;holders&quot;: [],</div><div class="line">				&quot;host&quot;: &quot;IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)&quot;,</div><div class="line">				&quot;model&quot;: &quot;VMware IDE CDR10&quot;,</div><div class="line">				&quot;partitions&quot;: &#123;&#125;,</div><div class="line">				&quot;removable&quot;: &quot;1&quot;,</div><div class="line">				&quot;rotational&quot;: &quot;1&quot;,</div><div class="line">				&quot;scheduler_mode&quot;: &quot;cfq&quot;,</div><div class="line">				&quot;sectors&quot;: &quot;2097151&quot;,</div><div class="line">				&quot;sectorsize&quot;: &quot;512&quot;,</div><div class="line">				&quot;size&quot;: &quot;1024.00 MB&quot;,</div><div class="line">				&quot;support_discard&quot;: &quot;0&quot;,</div><div class="line">				&quot;vendor&quot;: &quot;NECVMWar&quot;</div><div class="line">			&#125;</div><div class="line">		&#125;,</div><div class="line">		&quot;ansible_distribution&quot;: &quot;CentOS&quot;,</div><div class="line">		&quot;ansible_distribution_release&quot;: &quot;Final&quot;,</div><div class="line">		&quot;ansible_distribution_version&quot;: &quot;6.4&quot;,</div><div class="line">		&quot;ansible_domain&quot;: &quot;ruifengyun.com&quot;,</div><div class="line">		&quot;ansible_env&quot;: &#123;</div><div class="line">			&quot;CVS_RSH&quot;: &quot;ssh&quot;,</div><div class="line">			&quot;G_BROKEN_FILENAMES&quot;: &quot;1&quot;,</div><div class="line">			&quot;HOME&quot;: &quot;/root&quot;,</div><div class="line">			&quot;LANG&quot;: &quot;C&quot;,</div><div class="line">			&quot;LESSOPEN&quot;: &quot;|/usr/bin/lesspipe.sh %s&quot;,</div><div class="line">			&quot;LOGNAME&quot;: &quot;root&quot;,</div><div class="line">			&quot;MAIL&quot;: &quot;/var/mail/root&quot;,</div><div class="line">			&quot;PATH&quot;: &quot;/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin&quot;,</div><div class="line">			&quot;PWD&quot;: &quot;/root&quot;,</div><div class="line">			&quot;SELINUX_LEVEL_REQUESTED&quot;: &quot;&quot;,</div><div class="line">			&quot;SELINUX_ROLE_REQUESTED&quot;: &quot;&quot;,</div><div class="line">			&quot;SELINUX_USE_CURRENT_RANGE&quot;: &quot;&quot;,</div><div class="line">			&quot;SHELL&quot;: &quot;/bin/bash&quot;,</div><div class="line">			&quot;SHLVL&quot;: &quot;2&quot;,</div><div class="line">			&quot;SSH_CLIENT&quot;: &quot;10.10.10.67 50278 22&quot;,</div><div class="line">			&quot;SSH_CONNECTION&quot;: &quot;10.10.10.67 50278 10.10.10.66 22&quot;,</div><div class="line">			&quot;USER&quot;: &quot;root&quot;,</div><div class="line">			&quot;_&quot;: &quot;/usr/bin/python&quot;</div><div class="line">		&#125;,</div><div class="line">		&quot;ansible_eth0&quot;: &#123;</div><div class="line">			&quot;active&quot;: true,</div><div class="line">			&quot;device&quot;: &quot;eth0&quot;,</div><div class="line">			&quot;ipv4&quot;: &#123;</div><div class="line">				&quot;address&quot;: &quot;10.10.10.66&quot;,</div><div class="line">				&quot;netmask&quot;: &quot;255.255.255.0&quot;,</div><div class="line">				&quot;network&quot;: &quot;10.10.10.0&quot;</div><div class="line">			&#125;,</div><div class="line">			&quot;ipv6&quot;: [</div><div class="line">				&#123;</div><div class="line">					&quot;address&quot;: &quot;fe80::20c:29ff:fe06:f2dc&quot;,</div><div class="line">					&quot;prefix&quot;: &quot;64&quot;,</div><div class="line">					&quot;scope&quot;: &quot;link&quot;</div><div class="line">				&#125;</div><div class="line">			],</div><div class="line">			&quot;macaddress&quot;: &quot;00:0c:29:06:f2:dc&quot;,</div><div class="line">			&quot;module&quot;: &quot;pcnet32&quot;,</div><div class="line">			&quot;mtu&quot;: 1500,</div><div class="line">			&quot;promisc&quot;: false,</div><div class="line">			&quot;type&quot;: &quot;ether&quot;</div><div class="line">		&#125;,</div><div class="line">		&quot;ansible_form_factor&quot;: &quot;Other&quot;,</div><div class="line">		&quot;ansible_fqdn&quot;: &quot;66.ruifengyun.com&quot;,</div><div class="line">		&quot;ansible_hostname&quot;: &quot;66&quot;,</div><div class="line">		&quot;ansible_interfaces&quot;: [</div><div class="line">			&quot;lo&quot;,</div><div class="line">			&quot;eth0&quot;</div><div class="line">		],</div><div class="line">		&quot;ansible_kernel&quot;: &quot;2.6.32-358.el6.i686&quot;,</div><div class="line">		&quot;ansible_lo&quot;: &#123;</div><div class="line">			&quot;active&quot;: true,</div><div class="line">			&quot;device&quot;: &quot;lo&quot;,</div><div class="line">			&quot;ipv4&quot;: &#123;</div><div class="line">				&quot;address&quot;: &quot;127.0.0.1&quot;,</div><div class="line">				&quot;netmask&quot;: &quot;255.0.0.0&quot;,</div><div class="line">				&quot;network&quot;: &quot;127.0.0.0&quot;</div><div class="line">			&#125;,</div><div class="line">			&quot;ipv6&quot;: [</div><div class="line">				&#123;</div><div class="line">					&quot;address&quot;: &quot;::1&quot;,</div><div class="line">					&quot;prefix&quot;: &quot;128&quot;,</div><div class="line">					&quot;scope&quot;: &quot;host&quot;</div><div class="line">				&#125;</div><div class="line">			],</div><div class="line">			&quot;mtu&quot;: 16436,</div><div class="line">			&quot;promisc&quot;: false,</div><div class="line">			&quot;type&quot;: &quot;loopback&quot;</div><div class="line">		&#125;,</div><div class="line">		&quot;ansible_machine&quot;: &quot;i686&quot;,</div><div class="line">		&quot;ansible_memfree_mb&quot;: 694,</div><div class="line">		&quot;ansible_memtotal_mb&quot;: 1006,</div><div class="line">		&quot;ansible_mounts&quot;: [</div><div class="line">			&#123;</div><div class="line">				&quot;device&quot;: &quot;/dev/mapper/vg_65-lv_root&quot;,</div><div class="line">				&quot;fstype&quot;: &quot;ext4&quot;,</div><div class="line">				&quot;mount&quot;: &quot;/&quot;,</div><div class="line">				&quot;options&quot;: &quot;rw&quot;,</div><div class="line">				&quot;size_available&quot;: 47512358912,</div><div class="line">				&quot;size_total&quot;: 52844687360</div><div class="line">			&#125;,</div><div class="line">			&#123;</div><div class="line">				&quot;device&quot;: &quot;/dev/sda1&quot;,</div><div class="line">				&quot;fstype&quot;: &quot;ext4&quot;,</div><div class="line">				&quot;mount&quot;: &quot;/boot&quot;,</div><div class="line">				&quot;options&quot;: &quot;rw&quot;,</div><div class="line">				&quot;size_available&quot;: 449800192,</div><div class="line">				&quot;size_total&quot;: 507744256</div><div class="line">			&#125;,</div><div class="line">			&#123;</div><div class="line">				&quot;device&quot;: &quot;/dev/mapper/vg_65-lv_home&quot;,</div><div class="line">				&quot;fstype&quot;: &quot;ext4&quot;,</div><div class="line">				&quot;mount&quot;: &quot;/home&quot;,</div><div class="line">				&quot;options&quot;: &quot;rw&quot;,</div><div class="line">				&quot;size_available&quot;: 145807802368,</div><div class="line">				&quot;size_total&quot;: 153817976832</div><div class="line">			&#125;</div><div class="line">		],</div><div class="line">		&quot;ansible_os_family&quot;: &quot;RedHat&quot;,</div><div class="line">		&quot;ansible_pkg_mgr&quot;: &quot;yum&quot;,</div><div class="line">		&quot;ansible_processor&quot;: [</div><div class="line">			&quot;Intel(R) Core(TM) i5-2430M CPU @ 2.40GHz&quot;</div><div class="line">		],</div><div class="line">		&quot;ansible_processor_cores&quot;: 1,</div><div class="line">		&quot;ansible_processor_count&quot;: 1,</div><div class="line">		&quot;ansible_processor_threads_per_core&quot;: 1,</div><div class="line">		&quot;ansible_processor_vcpus&quot;: 1,</div><div class="line">		&quot;ansible_product_name&quot;: &quot;VMware Virtual Platform&quot;,</div><div class="line">		&quot;ansible_product_serial&quot;: &quot;VMware-56 4d bf 2f b7 6c f2 9d-bb f1 a6 0b 1a 06 f2 dc&quot;,</div><div class="line">		&quot;ansible_product_uuid&quot;: &quot;564DBF2F-B76C-F29D-BBF1-A60B1A06F2DC&quot;,</div><div class="line">		&quot;ansible_product_version&quot;: &quot;None&quot;,</div><div class="line">		&quot;ansible_python_version&quot;: &quot;2.6.6&quot;,</div><div class="line">		&quot;ansible_selinux&quot;: &#123;</div><div class="line">			&quot;config_mode&quot;: &quot;enforcing&quot;,</div><div class="line">			&quot;mode&quot;: &quot;permissive&quot;,</div><div class="line">			&quot;policyvers&quot;: 24,</div><div class="line">			&quot;status&quot;: &quot;enabled&quot;,</div><div class="line">			&quot;type&quot;: &quot;targeted&quot;</div><div class="line">		&#125;,</div><div class="line">		&quot;ansible_ssh_host_key_dsa_public&quot;: &quot;AAAAB3NzaC1kc3MAAACBAOjq8+laDLF6/ly/BezPQONwHrIhRmAwYIDysQEIWvvZ4eq/2MJO6GNleSqHd/e6VH1T3SWO4wbPcgTXVRqoQLlT46RQ3hxCCIQ1Q3vThB+QPstMslYFVrtupzSqrRDbtwakEsdp1VlW5RSyBJ7JgzlQn8yQgQwmuS7IXSl2yX5LAAAAFQD+tvRyt+h7lJngeQc0AXWnN/Ij4QAAAIEAtD9SU4ZGmRSX5Ms8W8oqaTED5b/0VqLgT7ear6NkH0zHi0pRGs2kgf0KLqRjuBKqwlYdBj309Oc+Rip23cqb725BWHlrI4mEvVl2FLSOnTi8zd4esYeRga5od26g9VDjIbE0MGB/hUukH5od4dXjnK1zowADyz7jJkrkT+dFpkcAAACAH/0s0vagsSWR4EsXyR0lQsc/lBT1xSCiRFZbPtqMXxmq/3cqM1bbmyK7puQiJDy3ay/vrV/fmLk5RlgbFJB7n/ZVJnEoGfwXSoHJLRC+7tBJIKUm2jskZ1rl3o3ZxWQsSHPGy3sBDE9R1czKf8p1T8gM/EQrHDtTOqmDgrc287M=&quot;,</div><div class="line">		&quot;ansible_ssh_host_key_rsa_public&quot;: &quot;AAAAB3NzaC1yc2EAAAABIwAAAQEAltE2aPOjHIF9Jh79LAm5Dc31VylZk15CqXwnwlQTOqAmFRoPwqnMn+F1oKOTVZ52BAQvitMF4XvNyE0sveSb5hFQkKBsJpEfBPNkQjty1Hgk03HpwHgspu9sk7HmwoPht+qTTm2764YYXiIbDJXva458eWBZsMTPX8frIeNzz1XbwveGbQt+jTYPdqzywp1UEJ4+EwGx9l3zR1WFDqA4Kz3clJJgtoGWasMmNXybr3tHn/csYllWdG0+03fxBM6d4QuR0WmgR7kIxxXnQcvWk0ZNUC3x9dVMeuGPsIvUh2bQOIv1rGWfB24mzIZIjV17RgNXrM8qy2FBZ96Mrvkd3w==&quot;,</div><div class="line">		&quot;ansible_swapfree_mb&quot;: 4063,</div><div class="line">		&quot;ansible_swaptotal_mb&quot;: 4063,</div><div class="line">		&quot;ansible_system&quot;: &quot;Linux&quot;,</div><div class="line">		&quot;ansible_system_vendor&quot;: &quot;VMware, Inc.&quot;,</div><div class="line">		&quot;ansible_user_id&quot;: &quot;root&quot;,</div><div class="line">		&quot;ansible_userspace_architecture&quot;: &quot;i386&quot;,</div><div class="line">		&quot;ansible_userspace_bits&quot;: &quot;32&quot;,</div><div class="line">		&quot;ansible_virtualization_role&quot;: &quot;guest&quot;,</div><div class="line">		&quot;ansible_virtualization_type&quot;: &quot;VMware&quot;</div><div class="line">	&#125;,</div><div class="line">	&quot;changed&quot;: false</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果觉得信息太多，有些乱，可以用filter过滤下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">[root@67 ~]# ansible web   -m setup -a &quot;filter=ansible_mounts&quot;</div><div class="line">10.10.10.66 | success &gt;&gt; &#123;</div><div class="line">	&quot;ansible_facts&quot;: &#123;</div><div class="line">		&quot;ansible_mounts&quot;: [</div><div class="line">			&#123;</div><div class="line">				&quot;device&quot;: &quot;/dev/mapper/vg_65-lv_root&quot;,</div><div class="line">				&quot;fstype&quot;: &quot;ext4&quot;,</div><div class="line">				&quot;mount&quot;: &quot;/&quot;,</div><div class="line">				&quot;options&quot;: &quot;rw&quot;,</div><div class="line">				&quot;size_available&quot;: 47511494656,</div><div class="line">				&quot;size_total&quot;: 52844687360</div><div class="line">			&#125;,</div><div class="line">			&#123;</div><div class="line">				&quot;device&quot;: &quot;/dev/sda1&quot;,</div><div class="line">				&quot;fstype&quot;: &quot;ext4&quot;,</div><div class="line">				&quot;mount&quot;: &quot;/boot&quot;,</div><div class="line">				&quot;options&quot;: &quot;rw&quot;,</div><div class="line">				&quot;size_available&quot;: 449800192,</div><div class="line">				&quot;size_total&quot;: 507744256</div><div class="line">			&#125;,</div><div class="line">			&#123;</div><div class="line">				&quot;device&quot;: &quot;/dev/mapper/vg_65-lv_home&quot;,</div><div class="line">				&quot;fstype&quot;: &quot;ext4&quot;,</div><div class="line">				&quot;mount&quot;: &quot;/home&quot;,</div><div class="line">				&quot;options&quot;: &quot;rw&quot;,</div><div class="line">				&quot;size_available&quot;: 145807802368,</div><div class="line">				&quot;size_total&quot;: 153817976832</div><div class="line">			&#125;</div><div class="line">		]</div><div class="line">	&#125;,</div><div class="line">	&quot;changed&quot;: false</div><div class="line">&#125;</div><div class="line">[root@67 ~]#</div></pre></td></tr></table></figure>
+<p>如果想把这些 facts加入到template模板中，中途可能会遇到几处让人困扰的地方。</p>
+<p>这边需要开启facts变量功能， gather_facts: no 或者是false是关闭，gather_facts:yes 或者是true都是开启。 当时没注意，找到了官方的实例，直接就干，结果sx了。咋都不行，总是提示define为定义。。。 原来facts没有开。。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&#123;% for v in hostvars.iteritems() %&#125;</div><div class="line"> &#123;&#123; v[&apos;ansible_hostname&apos;] &#125;&#125;</div><div class="line">&#123;% endfor %&#125;</div></pre></td></tr></table></figure>
+<p><img src="http://img1.tuicool.com/veMrma.jpg!web" alt="wKioL1N3oJaz76H_AAGIIBeF-IU319.jpg"></p>
+<p>咱们在看看对端服务器的文件渲染情况。</p>
+<p><img src="http://img1.tuicool.com/vyAbIj.jpg!web" alt="wKiom1N3oTLCOVDzAApi8BbXKhQ529.jpg"></p>
+<p>用过puppet saltstack的朋友，知道Variables最后可以扩展什么东西，可以高度的定义每个配置文件。  可以根据ip地址，推送配置文件所需要的绑定的ip地址，根据内存大小，定义nginx缓存的内容大小，根据你的cpu核数，做nginx cpu的绑定，根据你的系统，我需要文件路径的判断等等。。。。。</p>
+<p>虽然这些fact够多了，貌似很全，但是如果还不够你用，还不足以让你标识定位一台服务器，咋办？ 赞一个 ansible不愧是比saltstack在国外更受欢迎的集群配置工具（据说。。。。 看了youtube的视频，几个老外说，他们热衷于去各种系统框架大会，ansible要比saltstack用的多点，其实我在有一篇文章说过，ansible为啥多？ 有兴趣翻翻看看）。 说回来，saltstack的框架确实相当的优秀，但由于更新太频繁，自己不幸又是那是yum epel的人，结果中枪了。。。。</p>
+<p>nima，扯远了，继续聊刚才自定义fact变量，官方说的很明白， 在控制机创建一个文件就行了。。。</p>
+<p><img src="http://img1.tuicool.com/mamAJj.jpg!web" alt="wKioL1N3p5KAA_rMAAJeeiqIkag935.jpg"></p>
+<p>看懂了吧。 我刚才测试的时候，方法有些土，直接创建的，你可以参照一个例子，copy文件。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">- hosts: web</div><div class="line">  tasks:</div><div class="line">    - name: create directory for ansible custom facts</div><div class="line">      file: state=directory recurse=yes path=/etc/ansible/facts.d</div><div class="line">    - name: install custom impi fact</div><div class="line">      copy: src=ipmi.fact dest=/etc/ansible/facts.d</div><div class="line">    - name: re-read facts after adding custom fact</div><div class="line">      setup: filter=ansible_local</div></pre></td></tr></table></figure>
+<p>ansbile还有一个有意思的功能，可以判断上个tasks的值，根据这个值在做判断。 </p>
+<p>里面的when ， foot_result。。。。 懂了吧</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">tasks:</div><div class="line">   - shell: /usr/bin/foo</div><div class="line">     register: foo_result</div><div class="line">     ignore_errors: True</div><div class="line">   - name: &quot;cmd&quot;</div><div class="line">     action: command touch /root/kkkkk</div><div class="line">     when: foo_result.rc == 127</div></pre></td></tr></table></figure>
+<p>这个是测试的过程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">#http://xiaorui.cc</div><div class="line">[root@67 facts.d]# ansible web -m shell -a &quot;ls /root/&quot;</div><div class="line">10.10.10.66 | success | rc=0 &gt;&gt;</div><div class="line">anaconda-ks.cfg</div><div class="line">date</div><div class="line">install.log</div><div class="line">install.log.syslog</div><div class="line">l.py</div><div class="line">nnn</div><div class="line">qpid-python-0.20</div><div class="line">qpid-python-0.20.tar.gz</div><div class="line">testfile</div><div class="line">urllib-post.py</div><div class="line">[root@67 facts.d]# ansible-playbook  cmd.yaml</div><div class="line">PLAY [web] ********************************************************************</div><div class="line">GATHERING FACTS ***************************************************************</div><div class="line">ok: [10.10.10.66]</div><div class="line">TASK: [shell /usr/bin/foo] ****************************************************</div><div class="line">failed: [10.10.10.66] =&gt; &#123;&quot;changed&quot;: true, &quot;cmd&quot;: &quot;/usr/bin/foo &quot;, &quot;delta&quot;: &quot;0:00:00.002429&quot;, &quot;end&quot;: &quot;2014-05-18 10:25:12.544151&quot;, &quot;rc&quot;: 127, &quot;start&quot;: &quot;2014-05-18 10:25:12.541722&quot;&#125;</div><div class="line">stderr: /bin/sh: /usr/bin/foo: No such file or directory</div><div class="line">...ignoring</div><div class="line">TASK: [cmd] *******************************************************************</div><div class="line">changed: [10.10.10.66]</div><div class="line">PLAY RECAP ********************************************************************</div><div class="line">10.10.10.66                : ok=3    changed=2    unreachable=0    failed=0</div><div class="line">[root@67 facts.d]# ansible web -m shell -a &quot;ls /root/&quot;</div><div class="line">10.10.10.66 | success | rc=0 &gt;&gt;</div><div class="line">anaconda-ks.cfg</div><div class="line">date</div><div class="line">install.log</div><div class="line">install.log.syslog</div><div class="line">kkkkk</div><div class="line">l.py</div><div class="line">nnn</div><div class="line">qpid-python-0.20</div><div class="line">qpid-python-0.20.tar.gz</div><div class="line">testfile</div><div class="line">urllib-post.py</div><div class="line">[root@67 facts.d]#</div></pre></td></tr></table></figure>
+<p>好了，先这么着吧。。。。 这两天再讲解下 用ansible如何多元配置nginx、lvs keepalived的环境。</p>
+<p>本文出自 “峰云，就她了。” 博客</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/ansible/" rel="tag"># ansible</a>
+          
+            <a href="/blog/tags/devops/" rel="tag"># devops</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/10/01/ansible_abc/" rel="next" title="自动化工具 ansible中文指南">
+                <i class="fa fa-chevron-left"></i> 自动化工具 ansible中文指南
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/10/08/ansible_09/" rel="prev" title="ansible playbook进阶">
+                ansible playbook进阶 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/uploads/avatar.png"
+               alt="曹淼" />
+          <p class="site-author-name" itemprop="name">曹淼</p>
+          <p class="site-description motion-element" itemprop="description">混迹互联网圈数载，潜心修行编程之道的码农</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/blog/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/plpcm" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/2738224607" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.chinaunix.net/uid/29580597" target="_blank" title="旧版博客">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  旧版博客
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://openresty.org/" title="OpenResty" target="_blank">OpenResty</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git-scm.com/book/zh/v2" title="git-book" target="_blank">git-book</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">曹淼</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/blog/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/blog/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/blog/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,835 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="ansible,devops," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="曹淼的“git博客”" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Ansible 是一个模型驱动的配置管理器，支持多节点发布、远程任务执行。默认使用 SSH 进行远程连接。无需在被管理节点上安装附加软件，可使用各种编程语言进行扩展。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ansible小结（二）ansible架构">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/10/22/ansible_02/index.html">
+<meta property="og:site_name" content="曹淼的“git博客”">
+<meta property="og:description" content="Ansible 是一个模型驱动的配置管理器，支持多节点发布、远程任务执行。默认使用 SSH 进行远程连接。无需在被管理节点上安装附加软件，可使用各种编程语言进行扩展。">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/05/ansible-framework.png">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/05/ansible-principle.png">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/05/ansible-principle2.png">
+<meta property="og:updated_time" content="2017-01-10T10:18:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ansible小结（二）ansible架构">
+<meta name="twitter:description" content="Ansible 是一个模型驱动的配置管理器，支持多节点发布、远程任务执行。默认使用 SSH 进行远程连接。无需在被管理节点上安装附加软件，可使用各种编程语言进行扩展。">
+<meta name="twitter:image" content="http://www.361way.com/wp-content/uploads/2015/05/ansible-framework.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/10/22/ansible_02/"/>
+
+
+
+
+
+  <title> ansible小结（二）ansible架构 | 曹淼的“git博客” </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">曹淼的“git博客”</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">道法自然</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/blog/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/blog/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/10/22/ansible_02/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="曹淼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/blog/uploads/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="曹淼的“git博客”">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="曹淼的“git博客”" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                ansible小结（二）ansible架构
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-22T10:30:16+08:00">
+                2016-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/devops/" itemprop="url" rel="index">
+                    <span itemprop="name">devops</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+              <div class="post-description">
+                  Ansible 是一个模型驱动的配置管理器，支持多节点发布、远程任务执行。默认使用 SSH 进行远程连接。无需在被管理节点上安装附加软件，可使用各种编程语言进行扩展。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="一、Ansible基本架构"><a href="#一、Ansible基本架构" class="headerlink" title="一、Ansible基本架构"></a>一、Ansible基本架构</h3><p><a href="http://www.361way.com/wp-content/uploads/2015/05/ansible-framework.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/05/ansible-framework.png" alt="ansible-framework"></a></p>
+<p>上图为ansible的基本架构，从上图可以了解到其由以下部分组成：</p>
+<ul>
+<li>核心：ansible</li>
+<li>核心模块（Core Modules）：这些都是ansible自带的模块 </li>
+<li>扩展模块（Custom Modules）：如果核心模块不足以完成某种功能，可以添加扩展模块</li>
+<li>插件（Plugins）：完成模块功能的补充</li>
+<li>剧本（Playbooks）：ansible的任务配置文件，将多个任务定义在剧本中，由ansible自动执行</li>
+<li>连接插件（Connectior Plugins）：ansible基于连接插件连接到各个主机上，虽然ansible是使用ssh连接到各个主机的，但是它还支持其他的连接方法，所以需要有连接插件</li>
+<li>主机群（Host Inventory）：定义ansible管理的主机</li>
+</ul>
+<h3 id="二、ansible工作原理"><a href="#二、ansible工作原理" class="headerlink" title="二、ansible工作原理"></a>二、ansible工作原理</h3><p><a href="http://www.361way.com/wp-content/uploads/2015/05/ansible-principle.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/05/ansible-principle.png" alt="ansible-principle"></a></p>
+<p><a href="http://www.361way.com/wp-content/uploads/2015/05/ansible-principle2.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/05/ansible-principle2.png" alt="ansible-principle2"></a></p>
+<p>以上是从网上找到的两张ansible工作原理图，两张图基本都是在架构图的基本上进行的拓展。从上面的图上可以了解到：</p>
+<p>1、管理端支持local 、ssh、zeromq 三种方式连接被管理端，默认使用基于ssh的连接－－－这部分对应基本架构图中的连接模块；</p>
+<p>2、可以按应用类型等方式进行Host Inventory（主机群）分类，管理节点通过各类模块实现相应的操作－－－单个模块，单条命令的批量执行，我们可以称之为ad-hoc；</p>
+<p>3、管理节点可以通过playbooks 实现多个task的集合实现一类功能，如web服务的安装部署、数据库服务器的批量备份等。playbooks我们可以简单的理解为，系统通过组合多条ad-hoc操作的配置文件 。</p>
+<h3 id="三、ansible的七个命令"><a href="#三、ansible的七个命令" class="headerlink" title="三、ansible的七个命令"></a>三、ansible的七个命令</h3><p>安装完ansible后，发现ansible一共为我们提供了七个指令：ansible、ansible-doc、ansible-galaxy、ansible-lint、ansible-playbook、ansible-pull、ansible-vault 。这里我们只查看usage部分，详细部分可以通过 “指令 -h”  的方式获取。</p>
+<h4 id="1、ansible"><a href="#1、ansible" class="headerlink" title="1、ansible"></a>1、ansible</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# ansible -h</div><div class="line">Usage: ansible &lt;host-pattern&gt; [options]</div></pre></td></tr></table></figure>
+<p>ansible是指令核心部分，其主要用于执行ad-hoc命令，即单条命令。默认后面需要跟主机和选项部分，默认不指定模块时，使用的是command模块。如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible 192.168.0.102 -a &apos;date&apos;</div><div class="line">192.168.0.102 | success | rc=0 &gt;&gt;</div><div class="line">Tue May 12 22:57:24 CST 2015</div></pre></td></tr></table></figure>
+<p>不过默认使用的模块是可以在ansible.cfg 中进行修改的。ansible命令下的参数部分解释如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">参数：</div><div class="line">  -a &apos;Arguments&apos;, --args=&apos;Arguments&apos; 命令行参数</div><div class="line">  -m NAME, --module-name=NAME 执行模块的名字，默认使用 command 模块，所以如果是只执行单一命令可以不用 -m参数</div><div class="line">  -i PATH, --inventory=PATH 指定库存主机文件的路径,默认为/etc/ansible/hosts.</div><div class="line">  -u Username， --user=Username 执行用户，使用这个远程用户名而不是当前用户</div><div class="line">  -U --sud-user=SUDO_User  sudo到哪个用户，默认为 root</div><div class="line">  -k --ask-pass  登录密码，提示输入SSH密码而不是假设基于密钥的验证</div><div class="line">  -K --ask-sudo-pass 提示密码使用sudo</div><div class="line">  -s --sudo sudo运行</div><div class="line">  -S --su 用 su 命令</div><div class="line">  -l  --list 显示所支持的所有模块</div><div class="line">  -s --snippet 指定模块显示剧本片段</div><div class="line">  -f  --forks=NUM 并行任务数。NUM被指定为一个整数,默认是5。 #ansible testhosts -a &quot;/sbin/reboot&quot; -f 10 重启testhosts组的所有机器，每次重启10台</div><div class="line">  --private-key=PRIVATE_KEY_FILE 私钥路径，使用这个文件来验证连接</div><div class="line">  -v --verbose 详细信息</div><div class="line">  all  针对hosts 定义的所有主机执行</div><div class="line">  -M MODULE_PATH, --module-path=MODULE_PATH 要执行的模块的路径，默认为/usr/share/ansible/</div><div class="line">  --list-hosts 只打印有哪些主机会执行这个 playbook 文件，不是实际执行该 playbook 文件</div><div class="line">  -o --one-line 压缩输出，摘要输出.尝试一切都在一行上输出。</div><div class="line">  -t Directory, --tree=Directory 将内容保存在该输出目录,结果保存在一个文件中在每台主机上。</div><div class="line">  -B 后台运行超时时间</div><div class="line">  -P 调查后台程序时间</div><div class="line">  -T Seconds, --timeout=Seconds 时间，单位秒s</div><div class="line">  -P NUM, --poll=NUM 调查背景工作每隔数秒。需要- b</div><div class="line">  -c Connection, --connection=Connection  连接类型使用。可能的选项是paramiko(SSH),SSH和地方。当地主要是用于crontab或启动。</div><div class="line">  --tags=TAGS 只执行指定标签的任务    例子:ansible-playbook test.yml --tags=copy  只执行标签为copy的那个任务</div><div class="line">  --list-hosts 只打印有哪些主机会执行这个 playbook 文件，不是实际执行该 playbook 文件</div><div class="line">  --list-tasks 列出所有将被执行的任务</div><div class="line">  -C, --check 只是测试一下会改变什么内容，不会真正去执行;相反,试图预测一些可能发生的变化</div><div class="line">  --syntax-check 执行语法检查的剧本,但不执行它</div><div class="line">  -l SUBSET, --limit=SUBSET 进一步限制所选主机/组模式  --limit=192.168.0.15 只对这个ip执行</div><div class="line">  --skip-tags=SKIP_TAGS 只运行戏剧和任务不匹配这些值的标签  --skip-tags=copy_start</div><div class="line">  -e EXTRA_VARS, --extra-vars=EXTRA_VARS  额外的变量设置为键=值或YAML / JSON</div><div class="line">        #cat update.yml</div><div class="line">        ---</div><div class="line">        - hosts: &#123;&#123; hosts &#125;&#125;</div><div class="line">          remote_user: &#123;&#123; user &#125;&#125;</div><div class="line">        ..............</div><div class="line">        #ansible-playbook update.yml --extra-vars &quot;hosts=vipers user=admin&quot;   传递&#123;&#123;hosts&#125;&#125;、&#123;&#123;user&#125;&#125;变量,hosts可以是 ip或组名</div><div class="line">  -l,--limit 对指定的 主机/组 执行任务  --limit=192.168.0.10，192.168.0.11 或 -l 192.168.0.10，192.168.0.11 只对这个2个ip执行任务</div></pre></td></tr></table></figure>
+<h4 id="2、ansible-doc"><a href="#2、ansible-doc" class="headerlink" title="2、ansible-doc"></a>2、ansible-doc</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># ansible-doc -h</div><div class="line">Usage: ansible-doc [options] [module...]</div></pre></td></tr></table></figure>
+<p>该指令用于查看模块信息，常用参数有两个-l 和 -s ，具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">//列出所有已安装的模块</div><div class="line"># ansible-doc  -l</div><div class="line">//查看具体某模块的用法，这里如查看command模块</div><div class="line"># ansible-doc  -s command</div></pre></td></tr></table></figure>
+<h4 id="3、ansible-galaxy"><a href="#3、ansible-galaxy" class="headerlink" title="3、ansible-galaxy"></a>3、ansible-galaxy</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># ansible-galaxy -h</div><div class="line">Usage: ansible-galaxy [init|info|install|list|remove] [--help] [options] ...</div></pre></td></tr></table></figure>
+<p>ansible-galaxy 指令用于方便的从<a href="https://galaxy.ansible.com/" target="_blank" rel="external">https://galaxy.ansible.com/</a> 站点下载第三方扩展模块，我们可以形象的理解其类似于centos下的yum、python下的pip或easy_install 。如下示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# ansible-galaxy install aeriscloud.docker</div><div class="line">- downloading role &apos;docker&apos;, owned by aeriscloud</div><div class="line">- downloading role from https://github.com/AerisCloud/ansible-docker/archive/v1.0.0.tar.gz</div><div class="line">- extracting aeriscloud.docker to /etc/ansible/roles/aeriscloud.docker</div><div class="line">- aeriscloud.docker was installed successfully</div></pre></td></tr></table></figure>
+<p>这个安装了一个aeriscloud.docker组件，前面aeriscloud是galaxy上创建该模块的用户名，后面对应的是其模块。在实际应用中也可以指定txt或yml 文件进行多个组件的下载安装。这部分可以参看<a href="http://docs.ansible.com/galaxy.html" target="_blank" rel="external">官方文档</a>。</p>
+<h4 id="4、ansible-lint"><a href="#4、ansible-lint" class="headerlink" title="4、ansible-lint"></a>4、ansible-lint</h4><p>ansible-lint是对playbook的语法进行检查的一个工具。用法是ansible-lint playbook.yml 。</p>
+<h4 id="5、ansible-playbook"><a href="#5、ansible-playbook" class="headerlink" title="5、ansible-playbook"></a>5、ansible-playbook</h4><p>该指令是使用最多的指令，其通过读取playbook 文件后，执行相应的动作，这个后面会做为一个重点来讲。</p>
+<h4 id="6、ansible-pull"><a href="#6、ansible-pull" class="headerlink" title="6、ansible-pull"></a>6、ansible-pull</h4><p>该指令使用需要谈到ansible的另一种模式－－－pull 模式，这和我们平常经常用的push模式刚好相反，其适用于以下场景：你有数量巨大的机器需要配置，即使使用非常高的线程还是要花费很多时间；你要在一个没有网络连接的机器上运行Anisble，比如在启动之后安装。这部分也会单独做一节来讲。</p>
+<h4 id="7、ansible-vault"><a href="#7、ansible-vault" class="headerlink" title="7、ansible-vault"></a>7、ansible-vault</h4><p>ansible-vault主要应用于配置文件中含有敏感信息，又不希望他能被人看到，vault可以帮你加密/解密这个配置文件，属高级用法。主要对于playbooks里比如涉及到配置密码或其他变量时，可以通过该指令加密，这样我们通过cat看到的会是一个密码串类的文件，编辑的时候需要输入事先设定的密码才能打开。这种playbook文件在执行时，需要加上 –ask-vault-pass参数，同样需要输入密码后才能正常执行。具体该部分可以参查<a href="http://www.ansible.com/blog/2014/02/19/ansible-vault" target="_blank" rel="external">官方博客</a>。</p>
+<p>注：上面七个指令，用的最多的只有两个ansible 和ansible-playbook ，这两个一定要掌握，其他五个属于拓展或高级部分。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/ansible/" rel="tag"># ansible</a>
+          
+            <a href="/blog/tags/devops/" rel="tag"># devops</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/10/22/ansible_01/" rel="next" title="ansible小结（一）ansible的安装">
+                <i class="fa fa-chevron-left"></i> ansible小结（一）ansible的安装
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/10/22/ansible_03/" rel="prev" title="ansible小结（三）Inventory与Patterns">
+                ansible小结（三）Inventory与Patterns <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/uploads/avatar.png"
+               alt="曹淼" />
+          <p class="site-author-name" itemprop="name">曹淼</p>
+          <p class="site-description motion-element" itemprop="description">混迹互联网圈数载，潜心修行编程之道的码农</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/blog/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/plpcm" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/2738224607" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.chinaunix.net/uid/29580597" target="_blank" title="旧版博客">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  旧版博客
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://openresty.org/" title="OpenResty" target="_blank">OpenResty</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git-scm.com/book/zh/v2" title="git-book" target="_blank">git-book</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、Ansible基本架构"><span class="nav-number">1.</span> <span class="nav-text">一、Ansible基本架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、ansible工作原理"><span class="nav-number">2.</span> <span class="nav-text">二、ansible工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、ansible的七个命令"><span class="nav-number">3.</span> <span class="nav-text">三、ansible的七个命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、ansible"><span class="nav-number">3.1.</span> <span class="nav-text">1、ansible</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、ansible-doc"><span class="nav-number">3.2.</span> <span class="nav-text">2、ansible-doc</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、ansible-galaxy"><span class="nav-number">3.3.</span> <span class="nav-text">3、ansible-galaxy</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、ansible-lint"><span class="nav-number">3.4.</span> <span class="nav-text">4、ansible-lint</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5、ansible-playbook"><span class="nav-number">3.5.</span> <span class="nav-text">5、ansible-playbook</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6、ansible-pull"><span class="nav-number">3.6.</span> <span class="nav-text">6、ansible-pull</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7、ansible-vault"><span class="nav-number">3.7.</span> <span class="nav-text">7、ansible-vault</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">曹淼</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/blog/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/blog/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/blog/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
