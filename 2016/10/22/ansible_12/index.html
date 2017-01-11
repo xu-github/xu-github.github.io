@@ -68,7 +68,7 @@
 <link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="ansible,devops," />
+  <meta name="keywords" content="devops,ansible," />
 
 
 
@@ -88,15 +88,15 @@
 
 <meta name="description" content="年底了虽然有各种告警，不过还是需要做一下全网巡检，这里以磁盘使用率为例。由于目前平台上使用的是商业版的自动化工具bmc，其在执行分发都方面非常不存，不过在取值返回上做的不好－－－当然也和其是商业化工具有关，很多东西不开源，用shell 的语法概念写nsh时又执行不通过，NND总是要问原厂支撑 。刚好在测试环境上有之前安装的ansible环境，也测试下用ansible 来实现该功能。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="2016年1月31日 admin发表评论阅读评论">
+<meta property="og:title" content="ansible小结（十 二）磁盘使用率筛选">
 <meta property="og:url" content="https://plpcm.github.io/blog/2016/10/22/ansible_12/index.html">
 <meta property="og:site_name" content="曹淼的“git博客”">
 <meta property="og:description" content="年底了虽然有各种告警，不过还是需要做一下全网巡检，这里以磁盘使用率为例。由于目前平台上使用的是商业版的自动化工具bmc，其在执行分发都方面非常不存，不过在取值返回上做的不好－－－当然也和其是商业化工具有关，很多东西不开源，用shell 的语法概念写nsh时又执行不通过，NND总是要问原厂支撑 。刚好在测试环境上有之前安装的ansible环境，也测试下用ansible 来实现该功能。">
 <meta property="og:image" content="http://www.361way.com/wp-content/uploads/2016/01/ansible-df-300x100.png">
 <meta property="og:image" content="http://www.361way.com/wp-content/uploads/2016/01/diskdf.png">
-<meta property="og:updated_time" content="2017-01-10T10:56:12.000Z">
+<meta property="og:updated_time" content="2017-01-11T01:36:37.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="2016年1月31日 admin发表评论阅读评论">
+<meta name="twitter:title" content="ansible小结（十 二）磁盘使用率筛选">
 <meta name="twitter:description" content="年底了虽然有各种告警，不过还是需要做一下全网巡检，这里以磁盘使用率为例。由于目前平台上使用的是商业版的自动化工具bmc，其在执行分发都方面非常不存，不过在取值返回上做的不好－－－当然也和其是商业化工具有关，很多东西不开源，用shell 的语法概念写nsh时又执行不通过，NND总是要问原厂支撑 。刚好在测试环境上有之前安装的ansible环境，也测试下用ansible 来实现该功能。">
 <meta name="twitter:image" content="http://www.361way.com/wp-content/uploads/2016/01/ansible-df-300x100.png">
 
@@ -132,7 +132,7 @@
 
 
 
-  <title> 2016年1月31日 admin发表评论阅读评论 | 曹淼的“git博客” </title>
+  <title> ansible小结（十 二）磁盘使用率筛选 | 曹淼的“git博客” </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -343,7 +343,7 @@
             
             
               
-                2016年1月31日 admin发表评论阅读评论
+                ansible小结（十 二）磁盘使用率筛选
               
             
           </h1>
@@ -467,9 +467,9 @@
       
         <div class="post-tags">
           
-            <a href="/blog/tags/ansible/" rel="tag"># ansible</a>
-          
             <a href="/blog/tags/devops/" rel="tag"># devops</a>
+          
+            <a href="/blog/tags/ansible/" rel="tag"># ansible</a>
           
         </div>
       
@@ -478,8 +478,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/blog/2016/10/22/ansible_04/" rel="next" title="ansible小结（四）ansible.cfg与默认配置">
-                <i class="fa fa-chevron-left"></i> ansible小结（四）ansible.cfg与默认配置
+              <a href="/blog/2016/10/22/ansible_11/" rel="next" title="ansible小结（十一）ansible普通用户su切换问题">
+                <i class="fa fa-chevron-left"></i> ansible小结（十一）ansible普通用户su切换问题
               </a>
             
           </div>
@@ -488,8 +488,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/blog/2016/10/22/ansible_05/" rel="prev" title="ansible小结（五）Dynamic Inventory">
-                ansible小结（五）Dynamic Inventory <i class="fa fa-chevron-right"></i>
+              <a href="/blog/2016/10/22/ansible_03/" rel="prev" title="ansible小结（三）Inventory与Patterns">
+                ansible小结（三）Inventory与Patterns <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
