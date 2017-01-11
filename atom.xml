@@ -281,7 +281,7 @@
     <link href="https://plpcm.github.io/blog/2016/10/22/ansible_12/"/>
     <id>https://plpcm.github.io/blog/2016/10/22/ansible_12/</id>
     <published>2016-10-22T02:55:16.000Z</published>
-    <updated>2017-01-11T01:46:54.000Z</updated>
+    <updated>2017-01-11T01:49:03.000Z</updated>
     
     <content type="html"><![CDATA[<h3 id="一、实现目标"><a href="#一、实现目标" class="headerlink" title="一、实现目标"></a>一、实现目标</h3><p>将所有主机的磁盘大于75%的主机获取到，并输出为下面的格式：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">主机IP    主机名      磁盘挂载点信息     磁盘使用率</div></pre></td></tr></table></figure>
@@ -335,7 +335,7 @@
     <link href="https://plpcm.github.io/blog/2016/10/22/ansible_11/"/>
     <id>https://plpcm.github.io/blog/2016/10/22/ansible_11/</id>
     <published>2016-10-22T02:50:16.000Z</published>
-    <updated>2017-01-11T01:46:51.000Z</updated>
+    <updated>2017-01-11T01:49:01.000Z</updated>
     
     <content type="html"><![CDATA[<h3 id="一、ansible-hosts配置文件"><a href="#一、ansible-hosts配置文件" class="headerlink" title="一、ansible hosts配置文件"></a>一、ansible hosts配置文件</h3><p>在之前的系列文章中我们提到，可以把密码写到hosts配置文件，通过查询官网的相关信息了解了，其除了ansible_ssh_user、ansible_ssh_pass变量外，还为su切换提供了ansible_su_pass变量，通过该变量我们可以把root密码直接写到配置文件中。具体如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# cat /etc/ansible/hosts</div><div class="line">[test01]</div><div class="line">10.212.52.14 ansible_ssh_user=test ansible_ssh_pass=111111 ansible_su_pass=*I2145</div><div class="line">10.212.52.16 ansible_ssh_user=test ansible_ssh_pass=xyz123  ansible_su_pass=mn1Pokm</div><div class="line">10.212.52.252 ansible_ssh_user=amos ansible_ssh_pass=asdf ansible_su_pass=xyzp)okm</div></pre></td></tr></table></figure>
@@ -374,7 +374,7 @@
     <link href="https://plpcm.github.io/blog/2016/10/22/ansible_10/"/>
     <id>https://plpcm.github.io/blog/2016/10/22/ansible_10/</id>
     <published>2016-10-22T02:40:16.000Z</published>
-    <updated>2017-01-11T01:46:49.000Z</updated>
+    <updated>2017-01-11T01:48:55.000Z</updated>
     
     <content type="html"><![CDATA[<h3 id="一、ansible-api"><a href="#一、ansible-api" class="headerlink" title="一、ansible api"></a>一、ansible api</h3><p>ansible api 的使用非常强大，也非常简单，只不过把模块需要使用的参数写到了脚本中，这里先来看下官方给的示例，不过同于官方的是，我这里增我将结果进行了json美化输出。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@361way api]# cat test_api.py</div><div class="line">#!/usr/bin/env python</div><div class="line"># coding=utf-8</div><div class="line">import ansible.runner</div><div class="line">import json</div><div class="line">runner = ansible.runner.Runner(</div><div class="line">       module_name=&apos;ping&apos;,</div><div class="line">       module_args=&apos;&apos;,</div><div class="line">       pattern=&apos;all&apos;,</div><div class="line">       forks=10</div><div class="line">    )</div><div class="line">datastructure = runner.run()</div><div class="line">data = json.dumps(datastructure,indent=4)</div><div class="line">print data</div></pre></td></tr></table></figure>
@@ -405,6 +405,153 @@
     <summary type="html">
     
       ansible api 与ansible-playbook api 本应该是后面放在 ansible条件与循环、ansible变量篇之后讲的，不过使用过后实在按捺不住提前写的冲动，这个插个队先讲讲API 部分。
+    
+    </summary>
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
+    
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
+    
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ansible小结（九）playbook进阶</title>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_09/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_09/</id>
+    <published>2016-10-22T02:39:16.000Z</published>
+    <updated>2017-01-11T01:48:48.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>到目前为止,我们只是简单的运行了几个模块.其实ansible运行更多控制去执行playbook.使用这些技术,你能够执行更加复杂的部署.</p>
+<h2 id="并发运行"><a href="#并发运行" class="headerlink" title="并发运行"></a>并发运行</h2><p>ansible默认只会创建5个进程,所以一次任务只能同时控制5台机器执行.那如果你有大量的机器需要控制,或者你希望减少进程数,那你可以采取异步执行.ansible的模块可以把task放进后台,然后轮询它.这使得在一定进程数下能让大量需要的机器同时运作起来.</p>
+<p>使用async和poll这两个关键字便可以并行运行一个任务. async这个关键字触发ansible并行运作任务,而async的值是ansible等待运行这个任务的最大超时值,而poll就是ansible检查这个任务是否完成的频率时间.</p>
+<p>如果你希望在整个集群里面平行的执行一下updatedb这个命令.使用下面的配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">- hosts: all</div><div class="line">    tasks:</div><div class="line">      - name: Install mlocate</div><div class="line">        yum: name=mlocate state=installed</div><div class="line"></div><div class="line">      - name: Run updatedb</div><div class="line">        command: /usr/bin/updatedb</div><div class="line">        async: 300</div><div class="line">        poll: 10</div></pre></td></tr></table></figure>
+<p>你会发现当你使用上面的例子控制超过5台机器的时候,command.在上面yum模块会先在5台机器上跑,完成后再继续下面的机器.而上面command模块的任务会一次性在所有机器上都执行了,然后监听它的回调结果</p>
+<p>如果你的command是控制机器开启一个进程放到后台,那就不需要检查这个任务是否完成了.你只需要继续其他的动作,最后再使用wait_for这个模块去检查之前的进程是否按预期中开启了便可.只需要把poll这个值设置为0,便可以按上面的要求配置ansible不等待job的完成.</p>
+<p>最后,或者你还有一种需求是有一个task它是需要运行很长的时间,那你需要设置一直等待这个job完成.这个时候你把async的值设成0便可.</p>
+<p>总结来说,大概有以下的一些场景你是需要使用到ansible的polling特性的</p>
+<ol>
+<li>你有一个task需要运行很长的时间,这个task很可能会达到timeout.</li>
+<li>你有一个任务需要在大量的机器上面运行</li>
+<li>你有一个任务是不需要等待它完成的</li>
+</ol>
+<p>当然也有一些场景是不适合使用polling特性的</p>
+<ol>
+<li>你的这个任务是需要运行完后才能继续另外的任务的</li>
+<li>你的这个任务能很快的完成</li>
+</ol>
+<h2 id="Looping"><a href="#Looping" class="headerlink" title="Looping"></a>Looping</h2><p>在ansible你能够通过不同的输入去重复的执行同一个模块,举个例子,你需要管理几个具有相同权限的文件.你能够用一个for循环迭代一个facts或者variables去减少你的重复劳动.</p>
+<p>使用with_items这个关键字就可以完成迭代一个列表.列表里面的每个变量都叫做item.有一些模块譬如yum,它就支持使用with_items去安装一列表的包,而不需要写好多个yum的task</p>
+<p>下面来一个with_items的例子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">tasks:</div><div class="line">  - name: Secure config files</div><div class="line">    file: path=/etc/&#123;&#123; item &#125;&#125; mode=0600 owner=root group=root</div><div class="line">    with_items:</div><div class="line">     - my.cnf</div><div class="line">     - shadow</div><div class="line">     - fstab</div></pre></td></tr></table></figure>
+<p>除了使用items轮训,ansible还有一种方式是lookup插件.这些插件可以让ansible从外部取得数据,例如,你或许希望可以通过一种特定模式去上传你的文件.</p>
+<p>在这个例子里面,我们会上传所有的public keys到一个目录,然后聚合它们到一个authorized_keys文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">tasks:     #1</div><div class="line">    - name: Make key directory     #2</div><div class="line">      file: path=/root/.sshkeys ensure=directory mode=0700</div><div class="line">      owner=root group=root     #3</div><div class="line">    - name: Upload public keys     #4</div><div class="line">      copy: src=&#123;&#123;item&#125;&#125; dest=/root/.sshkeys mode=0600</div><div class="line">      owner=root group=root     #5</div><div class="line">      with_fileglob:     #6</div><div class="line">       - keys/*.pub     #7</div><div class="line">    - name: Assemble keys into authorized_keys file     #8</div><div class="line">      assemble: src=/root/.sshkeys dest=/root/.ssh/authorized_keys</div><div class="line">      mode=0600 owner=root group=root     #9</div></pre></td></tr></table></figure>
+<p>loop模块一般在下面的场景中使用</p>
+<ol>
+<li>类似的配置模块重复了多遍</li>
+<li>fact是一个列表</li>
+<li>创建多个文件,然后使用assemble聚合成一个大文件</li>
+<li>使用with_fileglob匹配特定的文件管理</li>
+</ol>
+<h2 id="条件语句"><a href="#条件语句" class="headerlink" title="条件语句"></a>条件语句</h2><p>有一些模块,例如copy这个模块有一些机制能跳过本次模块的运行.其实我们也可以使用自己的条件语句去配置跳过模块,这样方便你服务能够选择使用不同的包管理(apt,yum)和不同的文件系统.并且你还可以使用set_fact这个模块做成更多的差异配置</p>
+<p>你能够使用when这个关键字去达到跳过本次模块运行的效果,when关键字后面跟着的是python的表达式,在表达式中你能够使用任何的变量或者fact,当表达式的结果返回的是false,便会跳过本次的模块</p>
+<p>下面一段配置就说明了如何在debian和redhat系统中选择apt还是yum包管理,并且如果不是以上两个系统,会用debug模块把系统打印出来</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Install VIM</div><div class="line">  hosts: all</div><div class="line">  tasks:    </div><div class="line">    - name: Install VIM via yum   </div><div class="line">      yum: name=vim-enhanced state=installed </div><div class="line">      when: ansible_os_family == &quot;RedHat&quot;</div><div class="line">    - name: Install VIM via apt</div><div class="line">      apt: name=vim state=installed </div><div class="line">      when: ansible_os_family == &quot;Debian&quot;</div><div class="line">    - name: Unexpected OS family</div><div class="line">      debug: msg=&quot;OS Family &#123;&#123; ansible_os_family &#125;&#125; is not supported&quot; fail=yes </div><div class="line">      when: not ansible_os_family == &quot;RedHat&quot; or ansible_os_family == &quot;Debian&quot;</div></pre></td></tr></table></figure>
+<p>条件语句还有一种用法,它还可以让你当达到一定的条件的时候暂停下来,等待你的输入确认.一般情况下,当ansible遭遇到error时,它会直接结束运行.那其实你可以当遭遇到不是预期的情况的时候给使用pause模块,这样可以让用户自己决定是否继续运行任务</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">name: pause for unexpected conditions</div><div class="line">pause: prompt=&quot;Unexpected OS&quot;</div><div class="line">when: ansible_os_family != &quot;RedHat&quot;</div></pre></td></tr></table></figure>
+<p>下面一些情景建议你使用条件语句做跳过动作</p>
+<ol>
+<li>job里面有不同操作系统的机器</li>
+<li>提示用户,然后再执行操作请求</li>
+<li>提高性能,避免运行一个需要执行一段时间模块,而且你知道这个模块不会返回changed</li>
+</ol>
+<h2 id="task委托"><a href="#task委托" class="headerlink" title="task委托"></a>task委托</h2><p>默认ansible的所有task是在我们的配置的管理机器上面运行的,当在一个独立的群集里面配置,那是适用的.而有一些情况是,某些任务运行的状态是需要传递给其他机器的,在同一个任务你需要在其他机器上执行,这时候你就许多要用task委托</p>
+<p>使用delegate_to关键字便可以配置任务在其他机器上执行.其他模块还是在所有配置的管理机器上运行的,当到了这个关键字的任务就是使用委托的机器上运行.而facts还是适用于当前的host,下面我们演示一个例子,使用get_url模块去下载一个web集群的配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">  - name: Fetch configuration from all webservers</div><div class="line">￼￼￼￼hosts: webservers</div><div class="line">    tasks:</div><div class="line">      - name: Get config</div><div class="line">        get_url: dest=configs/&#123;&#123; ansible_hostname &#125;&#125; force=yes url=http://&#123;&#123; ansible_hostname &#125;&#125;/diagnostic/config</div><div class="line">        delegate_to: localhost</div></pre></td></tr></table></figure>
+<p>如果需要委托loaclhost执行任务,这里提供一个快捷的方式,只要使用local_action作为task的key便行.我们尝试使用这种方式来配置上面的例子,会更加简洁.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">---    #1</div><div class="line">   - name: Fetch configuration from all webservers     #2</div><div class="line">     hosts: webservers     #3</div><div class="line">     tasks:     #4</div><div class="line">￼       - name: Get config</div><div class="line">          local_action: get_url dest=configs/&#123;&#123; ansible_hostname &#125;&#125;.cfg url=http://&#123;&#123; ansible_hostname &#125;&#125;/diagnostic/config</div></pre></td></tr></table></figure>
+<p>委托不限于localhost,可以在你的inventory里面的任何host.下列一些场景适用使用委托</p>
+<ol>
+<li>部署之前你希望从负载均衡里面把host移除</li>
+<li>更改你的server时候更改dns的指向</li>
+<li>创建一个iSCSI卷存储设备</li>
+<li>使用一个外部服务器去检测一下服务</li>
+</ol>
+<h2 id="额外的变量"><a href="#额外的变量" class="headerlink" title="额外的变量"></a>额外的变量</h2><p>大家应该在之前的章节的例子里面有看到group_names这个变量.这个是ansible提供的一个很神奇变量.直至写本书的时候,有7个这样的变量,我会在下面的章节介绍</p>
+<h3 id="a-hostvars变量"><a href="#a-hostvars变量" class="headerlink" title="a.hostvars变量"></a>a.hostvars变量</h3><p>hostvars允许你在当前的任务中应用所有host的变量.当setup模块没有运行的时候,只有这些变量将是可用.例如你配置 ${hostvars.hostname.fact}可以访问其他复杂的变量.例如你可以配置${hostvars.ns1.ansible_ distribution}得到ns1这个server的linux发型版本.</p>
+<p>下面的例子设置了一个dns_master变量,这是ns1 server的ip.然后这个变量能够在所有机器上调用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Setup DNS Servers</div><div class="line">   hosts: allnameservers</div><div class="line">   tasks:</div><div class="line">     - name: Install BIND</div><div class="line">       yum: name=named state=installed</div><div class="line"></div><div class="line">- name: Setup Slaves     #7</div><div class="line">  hosts: slavenamesservers     #8</div><div class="line">  tasks:     #9</div><div class="line">    - name: Get the masters IP</div><div class="line">      set_fact: dns_master=&quot;&#123;&#123; hostvars.ns1.ansible_default_ipv4.address &#125;&#125;&quot;</div><div class="line">    - name: Configure BIND</div><div class="line">      template: dest=/etc/named.conf src/templates/named.conf.j2</div></pre></td></tr></table></figure>
+<h3 id="b-groups变量"><a href="#b-groups变量" class="headerlink" title="b.groups变量"></a>b.groups变量</h3><p>groups变量是inventory里面的group分组列表.这个是一个非常强大的工具,能够让你迭代你配置的所有的hosts.看下面的例子.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Configure the database</div><div class="line">  hosts: dbservers</div><div class="line">  user: root</div><div class="line">  tasks:</div><div class="line">    - name: Install mysql</div><div class="line">      yum: name=&#123;&#123; item &#125;&#125; state=installed</div><div class="line">￼￼    with_items:</div><div class="line">        - mysql-server</div><div class="line">        - MySQL-python</div><div class="line">    - name: Start mysql</div><div class="line">      service: name=mysqld state=started enabled=true</div><div class="line"></div><div class="line">    - name: Create a user for all app servers</div><div class="line">      with_items: groups.appservers</div><div class="line">      mysql_user: name=kate password=test host=&#123;&#123; hostvars[item].ansible_eth0.ipv4.address &#125;&#125; state=present</div></pre></td></tr></table></figure>
+<p>groups变量实际不是你的hosts变量的列表.它只是你hosts的name的列表.如果你需要调用host里面的变量还需要配合hostvars使用</p>
+<p>下面的例子配置创建known_hosts文件</p>
+<p>playbook配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">   hosts: all</div><div class="line">   tasks:</div><div class="line">   - name: Setup known hosts</div><div class="line">     hosts: all</div><div class="line">     tasks:</div><div class="line">       - name: Create known_hosts</div><div class="line">         template: src=templates/known_hosts.j2 dest=/etc/ssh/ssh_known_hosts owner=root group=root mode=0644</div></pre></td></tr></table></figure>
+<p>template模板</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;% for host in groups[&apos;all&apos;] %&#125;</div><div class="line">&#123;&#123; hostvars[host][&apos;ansible_hostname&apos;] &#125;&#125;</div><div class="line">&#123;&#123; hostvars[host][&apos;ansible_ssh_host_key_rsa_public&apos;] &#125;&#125;</div><div class="line">&#123;% endfor %&#125;</div></pre></td></tr></table></figure>
+<h3 id="c-group-names变量"><a href="#c-group-names变量" class="headerlink" title="c.group_names变量"></a>c.group_names变量</h3><p>group_names是当前host所属的组的列表.这可以用于在条件语句中调用成员的group关系,或者用于debugging.通常来说这变量大部分用于跳过一些task或者在模板中用于条件语句的变量.在下面的例子中,如果你有两套sshd的配置文件,一套用于安全性更加严谨的,一个安全性普通的.然后我们根据group名来配分host到哪个sshd配置下.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Setup SSH</div><div class="line">  hosts: sshservers</div><div class="line">  tasks:</div><div class="line">    - name: For secure machines</div><div class="line">      set_fact: sshconfig=files/ssh/sshd_config_secure</div><div class="line">      when: &quot;&apos;secure&apos; in group_names&quot;</div><div class="line">    - name: For non-secure machines</div><div class="line">      set_fact: sshconfig=files/ssh/sshd_config_default</div><div class="line">      when: &quot;&apos;secure&apos; not in group_names&quot;</div><div class="line">    - name: Copy over the config</div><div class="line">      copy: src=&#123;&#123; sshconfig &#125;&#125; dest=/tmp/sshd_config</div></pre></td></tr></table></figure>
+<h3 id="d-inventory-hostname变量"><a href="#d-inventory-hostname变量" class="headerlink" title="d.inventory_hostname变量"></a>d.inventory_hostname变量</h3><p>inventory_hostname是机器的hostname,当你没有使用setup模块,或者由于各种原因导致setup的变量是错误的,你可以选择使用这个变量.此变量可以帮助你初始化你的机器和改变hostname</p>
+<h3 id="e-inventory-hostname-short"><a href="#e-inventory-hostname-short" class="headerlink" title="e.inventory_hostname_short"></a>e.inventory_hostname_short</h3><p>inventory_hostname_short类似与上面的inventory_hostname变量,只是它是截取第一个句点的前面的字符,例如hostname是host.example.com,就会只截取到host</p>
+<h3 id="f-inventory-dir"><a href="#f-inventory-dir" class="headerlink" title="f.inventory_dir"></a>f.inventory_dir</h3><p>此变量是inventory文件的路径,包括目录与文件名</p>
+<h3 id="g-inventory-file"><a href="#g-inventory-file" class="headerlink" title="g.inventory_file"></a>g.inventory_file</h3><p>类似上面的变量,只是它只有文件名</p>
+<h2 id="使用变量来查找文件"><a href="#使用变量来查找文件" class="headerlink" title="使用变量来查找文件"></a>使用变量来查找文件</h2><p>所有的模块都可以把变量作为参数的一部分,通过使用””符号扩起来.譬如变量test就是””.这样你就可以通过变量加载特定的文件.例如,你希望根据不同的机器architecture选择不同的NRPE(nagios的客户端)配置文件,那可以像这样的配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Configure NRPE for the right architecture</div><div class="line"> hosts: ansibletest</div><div class="line"> user: root</div><div class="line"> tasks:</div><div class="line">   - name: Copy in the correct NRPE config file</div><div class="line">     copy: src=files/nrpe.&#123;&#123; ansible_architecture &#125;&#125;.conf dest=/etc/nagios/nrpe.cfg</div></pre></td></tr></table></figure>
+<p>在copy和tempalate模块里面,你能够使用ansible去查找一组的文件.然后默认使用第一个文件.这能够让你达到效果是,当第一个文件不存在时,会查找第二个文件,如此类推知道最后一个文件还不存在就报fail.使用first_available_file这个关键字便可以到上述效果.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Install an Apache config file</div><div class="line">  hosts: ansibletest</div><div class="line">  user: root</div><div class="line">  tasks:</div><div class="line">   - name: Get the best match for the machine</div><div class="line">     copy: dest=/etc/apache.conf src=&#123;&#123; item &#125;&#125;</div><div class="line">     first_available_file:</div><div class="line">      - files/apache/&#123;&#123; ansible_os_family &#125;&#125;-&#123;&#123; ansible_architecture &#125;&#125;.cfg</div><div class="line">      - files/apache/default-&#123;&#123; ansible_architecture &#125;&#125;.cfg</div><div class="line">      - files/apache/default.cfg</div></pre></td></tr></table></figure>
+<h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><p>unix命令经常需要依赖环境变量,例如C makefiles,installers,和aws cli工具.很幸运,ansible很容易实现,譬如你现在需要控制远程的机器一个文件到s3,那你许多要配置aws的access key.下面我们的例子演示,安装pip,用pip安装aws cli,并且通过cli上传文件到s3</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Upload a remote file via S3</div><div class="line">  hosts: ansibletest</div><div class="line">  user: root</div><div class="line">  tasks:</div><div class="line">   - name: Setup EPEL</div><div class="line">     command: rpm -ivh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm creates=/etc/yum.repos.d/epel.repo</div><div class="line">   - name: Install pip</div><div class="line">     yum: name=python-pip state=installed</div><div class="line">   - name: Install the AWS tools</div><div class="line">     pip: name=awscli state=present</div><div class="line">   - name: Upload the file</div><div class="line">     shell: aws s3 put-object --bucket=my-test-bucket --key=&#123;&#123; ansible_hostname &#125;&#125;/fstab --body=/etc/fstab --region=eu-west-1</div><div class="line">  environment:</div><div class="line">    AWS_ACCESS_KEY_ID: XXXXXXXXXXXXXXXXXXX</div><div class="line">    AWS_SECRET_ACCESS_KEY: XXXXXXXXXXXXXXXXXXXXX</div></pre></td></tr></table></figure>
+<p>一些模块例如get_url,yum,和apt是需要使用环境变量配置proxy的.下面一些场景也是需要配置环境变量的</p>
+<ol>
+<li>运行application installers</li>
+<li>当运行shell的时候需要添加一些额外的的变量在path里</li>
+<li>需要load的一些库不在系统的library路径中</li>
+<li>在运行模块时使用LD_PRELOAD hack</li>
+</ol>
+<h2 id="External-data-lookups"><a href="#External-data-lookups" class="headerlink" title="External data lookups"></a>External data lookups</h2><p>ansible在0.9版本开始引进了lookup插件,这些插件运行ansible在外围获取数据.ansible已经提供了几个插件,但它还是支持自己编写插件.这真的让你使用ansible配置更加伸缩自如</p>
+<p>lookup是在master机器运行的python程序.下面一个例子是使用lookup插件获取环境变量里面的http_proxy,然后配置在远端机器,确保远端机器使用相同的proxy下载文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">---     #1</div><div class="line">- name: Downloads a file using the same proxy as the controlling machine</div><div class="line">  hosts: all</div><div class="line">  tasks:</div><div class="line">    - name: Download file</div><div class="line">      get_url: dest=/var/tmp/file.tar.gz url=http://server/file.tar.gz</div><div class="line">      environment:</div><div class="line">       http_proxy: &quot;&#123;&#123; lookup(&apos;env&apos;, &apos;http_proxy&apos;) &#125;&#125;&quot;</div></pre></td></tr></table></figure>
+<p>使用with_*能够使用lookup插件迭代出特别的东西.您可以使用任何这样的插件,但最好是返回一个列表.下面的例子让你自动注册webapp,使用下面的例子会创建出虚拟机并配置它</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Registers the app server farm</div><div class="line">  hosts: localhost</div><div class="line">  connection: local</div><div class="line">  vars:</div><div class="line">    hostcount: 5</div><div class="line">  tasks:</div><div class="line">    - name: Register the webapp farm</div><div class="line">      local_action: add_host name=&#123;&#123; item &#125;&#125; groupname=webapp</div><div class="line">      with_sequence: start=1 end=&#123;&#123; hostcount &#125;&#125; format=webapp%02x</div></pre></td></tr></table></figure>
+<p>在下面的场景,lookup非常有用</p>
+<ol>
+<li>复制整个目录的apache配置到conf.d</li>
+<li>使用环境变量调整playbook的运行</li>
+<li>从DNS TXT记录中获取配置</li>
+<li>获取一个命令的输出到一个变量中</li>
+</ol>
+<h2 id="保存结果"><a href="#保存结果" class="headerlink" title="保存结果"></a>保存结果</h2><p>几乎所有的模块都是会outputs一些东西,甚至debug模块也会.大多数我们会使用的结果变量是changed.这个changed变量决定了是否要直接handlers和输出的颜色是什么.然而,结果变量还有其他的用途,譬如我需要保存我的结果变量,然后咋我的playbook的其他地方给使用.在下面的例子我们创建了一个/tmp目录,然后在后面我们创建一个/tmp/subtmp使用和前面目录一样的权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Using register</div><div class="line">  hosts: ansibletest</div><div class="line">  user: root</div><div class="line">  tasks:</div><div class="line">   - name: Get /tmp info</div><div class="line">     file: dest=/tmp state=directory</div><div class="line">     register: tmp</div><div class="line">   - name: Set mode on /var/tmp</div><div class="line">     file: dest=/tmp/subtmp mode=&#123;&#123; tmp.mode &#125;&#125; state=directory</div></pre></td></tr></table></figure>
+<p>一些模块,例如上面的file模块,是能够获取到一些简单的信息.结合register这个功能,可以让你在playbook里面检查你的环境和计算如何进行</p>
+<p>register对于数多场景是很有用的</p>
+<ol>
+<li>在一台远端的服务器获取一个目录下的一列表的文件,然后下载这些文件</li>
+<li>在handler执行之前,发现前面一个task发生了changed,然后执行一个指定的task</li>
+<li>获取远端服务器的ssh key的内容,构建出known_hosts文件</li>
+</ol>
+<h2 id="debugging-playbook"><a href="#debugging-playbook" class="headerlink" title="debugging playbook"></a>debugging playbook</h2><p>有好几种方法去debug我们的playbook.ansible有verbose模式和debug模式,也可以使用例如fetch和get_url模块来协助debug.当你想学习怎样使用一些模块时,这些debugging技术能够帮助你.</p>
+<h3 id="a-debug模块"><a href="#a-debug模块" class="headerlink" title="a.debug模块"></a>a.debug模块</h3><p>debug模块使用很简单.它具有两个参数,msg和fail.msg就是打印出来的信息,而当fail参数设置为yes时,会发送失败通知给ansible,然后ansible会停止运行任务.</p>
+<p>在下面的例子,配置了使用debug模块去显示远端机器所有的network interface.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Demonstrate the debug module</div><div class="line">  hosts: ansibletest</div><div class="line">  user: root</div><div class="line">  vars:</div><div class="line">    hostcount: 5</div><div class="line">  tasks:</div><div class="line">    - name: Print interface</div><div class="line">      debug: msg=&quot;&#123;&#123; item &#125;&#125;&quot;</div><div class="line">      with_items: ansible_interfaces</div></pre></td></tr></table></figure>
+<p>运行上面的配置会出现这样的输出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">PLAY [Demonstrate the debug module] *********************************</div><div class="line">GATHERING FACTS *****************************************************</div><div class="line">ok: [ansibletest]</div><div class="line">TASK: [Print IP address] ********************************************</div><div class="line">ok: [ansibletest] =&gt; (item=lo) =&gt; &#123;&quot;item&quot;: &quot;lo&quot;, &quot;msg&quot;: &quot;lo&quot;&#125;</div><div class="line">ok: [ansibletest] =&gt; (item=eth0) =&gt; &#123;&quot;item&quot;: &quot;eth0&quot;, &quot;msg&quot;: &quot;eth0&quot;&#125;</div><div class="line">PLAY RECAP **********************************************************</div><div class="line">ansibletest                : ok=2    changed=0    unreachable=0 failed=0</div></pre></td></tr></table></figure>
+<p>如你说见,debug模块可以让你很容易看到在playbook运行期间一些变量</p>
+<h3 id="b-verbose模式"><a href="#b-verbose模式" class="headerlink" title="b.verbose模式"></a>b.verbose模式</h3><p>另外的debug选择是verbose模式.当运行verbose模式时,会打印出所有模块运行后的变量.这对于你要使用register功能时候很重要.只需要在执行playbook命令时加上参数–verbose便可以.ansible-playbook –verbose playbook.yml</p>
+<h3 id="c-check模式"><a href="#c-check模式" class="headerlink" title="c.check模式"></a>c.check模式</h3><p>除了verbose模式外,ansible还提供了check模式和diff模式.只需要执行playbook时添加参数–check和–diff.check模式运行时,ansible不会真正控制远程机器发生变更.这能够让你获得这次playbook任务中,将会发生changed事件的列表.</p>
+<p>很重要的一点是check模式不是完美的.有一些模块是会跳过check模式的.尤其明显的限制是在运行command和shell模块</p>
+<p>在diff模式下,当文件发现更变,会打印出变更文件的变更部分.配合check模式使用效果更好</p>
+<h3 id="d-pause模块"><a href="#d-pause模块" class="headerlink" title="d.pause模块"></a>d.pause模块</h3><p>另外一个debug技巧是使用pause模块,它可以让你需要在某个地方需要检查远程机器的配置的时候暂停playbook的执行.这样可以让先观察一下运行到这里为止的效果,再判断是否继续运行下去.</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在这个章节我们更加深入探索了编写playbook的一些细节.现在你应该可以使用一些ansible的特性.例如delegation,looping,conditionals,和fact,registration等等,让你能够更容易的编写和维护你的playbook.我们也看到了如何获取其他host的信息,如何配置环境变量,如何从外围获取到数据.最后我们展示了一些debug技巧,让playbook能按你的预期来执行.</p>
+<p>下一章节,我们会学习如何在大规模环境中使用ansible,也会讲到一些方法让你在一些需要运行很久的任务中提高你的性能.我们也会介绍一些特性让你的playbook如何更加可维护,更加解藕,让它们按目的分配到不同的地方.</p>
+]]></content>
+    
+    <summary type="html">
+    
+      ansbile playbook 的一些高级功能
     
     </summary>
     
@@ -1017,153 +1164,6 @@
     <summary type="html">
     
       ansible 使用主机IP批量修改机器名
-    
-    </summary>
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
-    
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
-    
-      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ansible小结（九）playbook进阶</title>
-    <link href="https://plpcm.github.io/blog/2016/10/08/ansible_09/"/>
-    <id>https://plpcm.github.io/blog/2016/10/08/ansible_09/</id>
-    <published>2016-10-08T02:39:16.000Z</published>
-    <updated>2017-01-11T01:46:43.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>到目前为止,我们只是简单的运行了几个模块.其实ansible运行更多控制去执行playbook.使用这些技术,你能够执行更加复杂的部署.</p>
-<h2 id="并发运行"><a href="#并发运行" class="headerlink" title="并发运行"></a>并发运行</h2><p>ansible默认只会创建5个进程,所以一次任务只能同时控制5台机器执行.那如果你有大量的机器需要控制,或者你希望减少进程数,那你可以采取异步执行.ansible的模块可以把task放进后台,然后轮询它.这使得在一定进程数下能让大量需要的机器同时运作起来.</p>
-<p>使用async和poll这两个关键字便可以并行运行一个任务. async这个关键字触发ansible并行运作任务,而async的值是ansible等待运行这个任务的最大超时值,而poll就是ansible检查这个任务是否完成的频率时间.</p>
-<p>如果你希望在整个集群里面平行的执行一下updatedb这个命令.使用下面的配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">- hosts: all</div><div class="line">    tasks:</div><div class="line">      - name: Install mlocate</div><div class="line">        yum: name=mlocate state=installed</div><div class="line"></div><div class="line">      - name: Run updatedb</div><div class="line">        command: /usr/bin/updatedb</div><div class="line">        async: 300</div><div class="line">        poll: 10</div></pre></td></tr></table></figure>
-<p>你会发现当你使用上面的例子控制超过5台机器的时候,command.在上面yum模块会先在5台机器上跑,完成后再继续下面的机器.而上面command模块的任务会一次性在所有机器上都执行了,然后监听它的回调结果</p>
-<p>如果你的command是控制机器开启一个进程放到后台,那就不需要检查这个任务是否完成了.你只需要继续其他的动作,最后再使用wait_for这个模块去检查之前的进程是否按预期中开启了便可.只需要把poll这个值设置为0,便可以按上面的要求配置ansible不等待job的完成.</p>
-<p>最后,或者你还有一种需求是有一个task它是需要运行很长的时间,那你需要设置一直等待这个job完成.这个时候你把async的值设成0便可.</p>
-<p>总结来说,大概有以下的一些场景你是需要使用到ansible的polling特性的</p>
-<ol>
-<li>你有一个task需要运行很长的时间,这个task很可能会达到timeout.</li>
-<li>你有一个任务需要在大量的机器上面运行</li>
-<li>你有一个任务是不需要等待它完成的</li>
-</ol>
-<p>当然也有一些场景是不适合使用polling特性的</p>
-<ol>
-<li>你的这个任务是需要运行完后才能继续另外的任务的</li>
-<li>你的这个任务能很快的完成</li>
-</ol>
-<h2 id="Looping"><a href="#Looping" class="headerlink" title="Looping"></a>Looping</h2><p>在ansible你能够通过不同的输入去重复的执行同一个模块,举个例子,你需要管理几个具有相同权限的文件.你能够用一个for循环迭代一个facts或者variables去减少你的重复劳动.</p>
-<p>使用with_items这个关键字就可以完成迭代一个列表.列表里面的每个变量都叫做item.有一些模块譬如yum,它就支持使用with_items去安装一列表的包,而不需要写好多个yum的task</p>
-<p>下面来一个with_items的例子</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">tasks:</div><div class="line">  - name: Secure config files</div><div class="line">    file: path=/etc/&#123;&#123; item &#125;&#125; mode=0600 owner=root group=root</div><div class="line">    with_items:</div><div class="line">     - my.cnf</div><div class="line">     - shadow</div><div class="line">     - fstab</div></pre></td></tr></table></figure>
-<p>除了使用items轮训,ansible还有一种方式是lookup插件.这些插件可以让ansible从外部取得数据,例如,你或许希望可以通过一种特定模式去上传你的文件.</p>
-<p>在这个例子里面,我们会上传所有的public keys到一个目录,然后聚合它们到一个authorized_keys文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">tasks:     #1</div><div class="line">    - name: Make key directory     #2</div><div class="line">      file: path=/root/.sshkeys ensure=directory mode=0700</div><div class="line">      owner=root group=root     #3</div><div class="line">    - name: Upload public keys     #4</div><div class="line">      copy: src=&#123;&#123;item&#125;&#125; dest=/root/.sshkeys mode=0600</div><div class="line">      owner=root group=root     #5</div><div class="line">      with_fileglob:     #6</div><div class="line">       - keys/*.pub     #7</div><div class="line">    - name: Assemble keys into authorized_keys file     #8</div><div class="line">      assemble: src=/root/.sshkeys dest=/root/.ssh/authorized_keys</div><div class="line">      mode=0600 owner=root group=root     #9</div></pre></td></tr></table></figure>
-<p>loop模块一般在下面的场景中使用</p>
-<ol>
-<li>类似的配置模块重复了多遍</li>
-<li>fact是一个列表</li>
-<li>创建多个文件,然后使用assemble聚合成一个大文件</li>
-<li>使用with_fileglob匹配特定的文件管理</li>
-</ol>
-<h2 id="条件语句"><a href="#条件语句" class="headerlink" title="条件语句"></a>条件语句</h2><p>有一些模块,例如copy这个模块有一些机制能跳过本次模块的运行.其实我们也可以使用自己的条件语句去配置跳过模块,这样方便你服务能够选择使用不同的包管理(apt,yum)和不同的文件系统.并且你还可以使用set_fact这个模块做成更多的差异配置</p>
-<p>你能够使用when这个关键字去达到跳过本次模块运行的效果,when关键字后面跟着的是python的表达式,在表达式中你能够使用任何的变量或者fact,当表达式的结果返回的是false,便会跳过本次的模块</p>
-<p>下面一段配置就说明了如何在debian和redhat系统中选择apt还是yum包管理,并且如果不是以上两个系统,会用debug模块把系统打印出来</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Install VIM</div><div class="line">  hosts: all</div><div class="line">  tasks:    </div><div class="line">    - name: Install VIM via yum   </div><div class="line">      yum: name=vim-enhanced state=installed </div><div class="line">      when: ansible_os_family == &quot;RedHat&quot;</div><div class="line">    - name: Install VIM via apt</div><div class="line">      apt: name=vim state=installed </div><div class="line">      when: ansible_os_family == &quot;Debian&quot;</div><div class="line">    - name: Unexpected OS family</div><div class="line">      debug: msg=&quot;OS Family &#123;&#123; ansible_os_family &#125;&#125; is not supported&quot; fail=yes </div><div class="line">      when: not ansible_os_family == &quot;RedHat&quot; or ansible_os_family == &quot;Debian&quot;</div></pre></td></tr></table></figure>
-<p>条件语句还有一种用法,它还可以让你当达到一定的条件的时候暂停下来,等待你的输入确认.一般情况下,当ansible遭遇到error时,它会直接结束运行.那其实你可以当遭遇到不是预期的情况的时候给使用pause模块,这样可以让用户自己决定是否继续运行任务</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">name: pause for unexpected conditions</div><div class="line">pause: prompt=&quot;Unexpected OS&quot;</div><div class="line">when: ansible_os_family != &quot;RedHat&quot;</div></pre></td></tr></table></figure>
-<p>下面一些情景建议你使用条件语句做跳过动作</p>
-<ol>
-<li>job里面有不同操作系统的机器</li>
-<li>提示用户,然后再执行操作请求</li>
-<li>提高性能,避免运行一个需要执行一段时间模块,而且你知道这个模块不会返回changed</li>
-</ol>
-<h2 id="task委托"><a href="#task委托" class="headerlink" title="task委托"></a>task委托</h2><p>默认ansible的所有task是在我们的配置的管理机器上面运行的,当在一个独立的群集里面配置,那是适用的.而有一些情况是,某些任务运行的状态是需要传递给其他机器的,在同一个任务你需要在其他机器上执行,这时候你就许多要用task委托</p>
-<p>使用delegate_to关键字便可以配置任务在其他机器上执行.其他模块还是在所有配置的管理机器上运行的,当到了这个关键字的任务就是使用委托的机器上运行.而facts还是适用于当前的host,下面我们演示一个例子,使用get_url模块去下载一个web集群的配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">  - name: Fetch configuration from all webservers</div><div class="line">￼￼￼￼hosts: webservers</div><div class="line">    tasks:</div><div class="line">      - name: Get config</div><div class="line">        get_url: dest=configs/&#123;&#123; ansible_hostname &#125;&#125; force=yes url=http://&#123;&#123; ansible_hostname &#125;&#125;/diagnostic/config</div><div class="line">        delegate_to: localhost</div></pre></td></tr></table></figure>
-<p>如果需要委托loaclhost执行任务,这里提供一个快捷的方式,只要使用local_action作为task的key便行.我们尝试使用这种方式来配置上面的例子,会更加简洁.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">---    #1</div><div class="line">   - name: Fetch configuration from all webservers     #2</div><div class="line">     hosts: webservers     #3</div><div class="line">     tasks:     #4</div><div class="line">￼       - name: Get config</div><div class="line">          local_action: get_url dest=configs/&#123;&#123; ansible_hostname &#125;&#125;.cfg url=http://&#123;&#123; ansible_hostname &#125;&#125;/diagnostic/config</div></pre></td></tr></table></figure>
-<p>委托不限于localhost,可以在你的inventory里面的任何host.下列一些场景适用使用委托</p>
-<ol>
-<li>部署之前你希望从负载均衡里面把host移除</li>
-<li>更改你的server时候更改dns的指向</li>
-<li>创建一个iSCSI卷存储设备</li>
-<li>使用一个外部服务器去检测一下服务</li>
-</ol>
-<h2 id="额外的变量"><a href="#额外的变量" class="headerlink" title="额外的变量"></a>额外的变量</h2><p>大家应该在之前的章节的例子里面有看到group_names这个变量.这个是ansible提供的一个很神奇变量.直至写本书的时候,有7个这样的变量,我会在下面的章节介绍</p>
-<h3 id="a-hostvars变量"><a href="#a-hostvars变量" class="headerlink" title="a.hostvars变量"></a>a.hostvars变量</h3><p>hostvars允许你在当前的任务中应用所有host的变量.当setup模块没有运行的时候,只有这些变量将是可用.例如你配置 ${hostvars.hostname.fact}可以访问其他复杂的变量.例如你可以配置${hostvars.ns1.ansible_ distribution}得到ns1这个server的linux发型版本.</p>
-<p>下面的例子设置了一个dns_master变量,这是ns1 server的ip.然后这个变量能够在所有机器上调用</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Setup DNS Servers</div><div class="line">   hosts: allnameservers</div><div class="line">   tasks:</div><div class="line">     - name: Install BIND</div><div class="line">       yum: name=named state=installed</div><div class="line"></div><div class="line">- name: Setup Slaves     #7</div><div class="line">  hosts: slavenamesservers     #8</div><div class="line">  tasks:     #9</div><div class="line">    - name: Get the masters IP</div><div class="line">      set_fact: dns_master=&quot;&#123;&#123; hostvars.ns1.ansible_default_ipv4.address &#125;&#125;&quot;</div><div class="line">    - name: Configure BIND</div><div class="line">      template: dest=/etc/named.conf src/templates/named.conf.j2</div></pre></td></tr></table></figure>
-<h3 id="b-groups变量"><a href="#b-groups变量" class="headerlink" title="b.groups变量"></a>b.groups变量</h3><p>groups变量是inventory里面的group分组列表.这个是一个非常强大的工具,能够让你迭代你配置的所有的hosts.看下面的例子.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Configure the database</div><div class="line">  hosts: dbservers</div><div class="line">  user: root</div><div class="line">  tasks:</div><div class="line">    - name: Install mysql</div><div class="line">      yum: name=&#123;&#123; item &#125;&#125; state=installed</div><div class="line">￼￼    with_items:</div><div class="line">        - mysql-server</div><div class="line">        - MySQL-python</div><div class="line">    - name: Start mysql</div><div class="line">      service: name=mysqld state=started enabled=true</div><div class="line"></div><div class="line">    - name: Create a user for all app servers</div><div class="line">      with_items: groups.appservers</div><div class="line">      mysql_user: name=kate password=test host=&#123;&#123; hostvars[item].ansible_eth0.ipv4.address &#125;&#125; state=present</div></pre></td></tr></table></figure>
-<p>groups变量实际不是你的hosts变量的列表.它只是你hosts的name的列表.如果你需要调用host里面的变量还需要配合hostvars使用</p>
-<p>下面的例子配置创建known_hosts文件</p>
-<p>playbook配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">   hosts: all</div><div class="line">   tasks:</div><div class="line">   - name: Setup known hosts</div><div class="line">     hosts: all</div><div class="line">     tasks:</div><div class="line">       - name: Create known_hosts</div><div class="line">         template: src=templates/known_hosts.j2 dest=/etc/ssh/ssh_known_hosts owner=root group=root mode=0644</div></pre></td></tr></table></figure>
-<p>template模板</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&#123;% for host in groups[&apos;all&apos;] %&#125;</div><div class="line">&#123;&#123; hostvars[host][&apos;ansible_hostname&apos;] &#125;&#125;</div><div class="line">&#123;&#123; hostvars[host][&apos;ansible_ssh_host_key_rsa_public&apos;] &#125;&#125;</div><div class="line">&#123;% endfor %&#125;</div></pre></td></tr></table></figure>
-<h3 id="c-group-names变量"><a href="#c-group-names变量" class="headerlink" title="c.group_names变量"></a>c.group_names变量</h3><p>group_names是当前host所属的组的列表.这可以用于在条件语句中调用成员的group关系,或者用于debugging.通常来说这变量大部分用于跳过一些task或者在模板中用于条件语句的变量.在下面的例子中,如果你有两套sshd的配置文件,一套用于安全性更加严谨的,一个安全性普通的.然后我们根据group名来配分host到哪个sshd配置下.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Setup SSH</div><div class="line">  hosts: sshservers</div><div class="line">  tasks:</div><div class="line">    - name: For secure machines</div><div class="line">      set_fact: sshconfig=files/ssh/sshd_config_secure</div><div class="line">      when: &quot;&apos;secure&apos; in group_names&quot;</div><div class="line">    - name: For non-secure machines</div><div class="line">      set_fact: sshconfig=files/ssh/sshd_config_default</div><div class="line">      when: &quot;&apos;secure&apos; not in group_names&quot;</div><div class="line">    - name: Copy over the config</div><div class="line">      copy: src=&#123;&#123; sshconfig &#125;&#125; dest=/tmp/sshd_config</div></pre></td></tr></table></figure>
-<h3 id="d-inventory-hostname变量"><a href="#d-inventory-hostname变量" class="headerlink" title="d.inventory_hostname变量"></a>d.inventory_hostname变量</h3><p>inventory_hostname是机器的hostname,当你没有使用setup模块,或者由于各种原因导致setup的变量是错误的,你可以选择使用这个变量.此变量可以帮助你初始化你的机器和改变hostname</p>
-<h3 id="e-inventory-hostname-short"><a href="#e-inventory-hostname-short" class="headerlink" title="e.inventory_hostname_short"></a>e.inventory_hostname_short</h3><p>inventory_hostname_short类似与上面的inventory_hostname变量,只是它是截取第一个句点的前面的字符,例如hostname是host.example.com,就会只截取到host</p>
-<h3 id="f-inventory-dir"><a href="#f-inventory-dir" class="headerlink" title="f.inventory_dir"></a>f.inventory_dir</h3><p>此变量是inventory文件的路径,包括目录与文件名</p>
-<h3 id="g-inventory-file"><a href="#g-inventory-file" class="headerlink" title="g.inventory_file"></a>g.inventory_file</h3><p>类似上面的变量,只是它只有文件名</p>
-<h2 id="使用变量来查找文件"><a href="#使用变量来查找文件" class="headerlink" title="使用变量来查找文件"></a>使用变量来查找文件</h2><p>所有的模块都可以把变量作为参数的一部分,通过使用””符号扩起来.譬如变量test就是””.这样你就可以通过变量加载特定的文件.例如,你希望根据不同的机器architecture选择不同的NRPE(nagios的客户端)配置文件,那可以像这样的配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Configure NRPE for the right architecture</div><div class="line"> hosts: ansibletest</div><div class="line"> user: root</div><div class="line"> tasks:</div><div class="line">   - name: Copy in the correct NRPE config file</div><div class="line">     copy: src=files/nrpe.&#123;&#123; ansible_architecture &#125;&#125;.conf dest=/etc/nagios/nrpe.cfg</div></pre></td></tr></table></figure>
-<p>在copy和tempalate模块里面,你能够使用ansible去查找一组的文件.然后默认使用第一个文件.这能够让你达到效果是,当第一个文件不存在时,会查找第二个文件,如此类推知道最后一个文件还不存在就报fail.使用first_available_file这个关键字便可以到上述效果.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Install an Apache config file</div><div class="line">  hosts: ansibletest</div><div class="line">  user: root</div><div class="line">  tasks:</div><div class="line">   - name: Get the best match for the machine</div><div class="line">     copy: dest=/etc/apache.conf src=&#123;&#123; item &#125;&#125;</div><div class="line">     first_available_file:</div><div class="line">      - files/apache/&#123;&#123; ansible_os_family &#125;&#125;-&#123;&#123; ansible_architecture &#125;&#125;.cfg</div><div class="line">      - files/apache/default-&#123;&#123; ansible_architecture &#125;&#125;.cfg</div><div class="line">      - files/apache/default.cfg</div></pre></td></tr></table></figure>
-<h2 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h2><p>unix命令经常需要依赖环境变量,例如C makefiles,installers,和aws cli工具.很幸运,ansible很容易实现,譬如你现在需要控制远程的机器一个文件到s3,那你许多要配置aws的access key.下面我们的例子演示,安装pip,用pip安装aws cli,并且通过cli上传文件到s3</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Upload a remote file via S3</div><div class="line">  hosts: ansibletest</div><div class="line">  user: root</div><div class="line">  tasks:</div><div class="line">   - name: Setup EPEL</div><div class="line">     command: rpm -ivh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm creates=/etc/yum.repos.d/epel.repo</div><div class="line">   - name: Install pip</div><div class="line">     yum: name=python-pip state=installed</div><div class="line">   - name: Install the AWS tools</div><div class="line">     pip: name=awscli state=present</div><div class="line">   - name: Upload the file</div><div class="line">     shell: aws s3 put-object --bucket=my-test-bucket --key=&#123;&#123; ansible_hostname &#125;&#125;/fstab --body=/etc/fstab --region=eu-west-1</div><div class="line">  environment:</div><div class="line">    AWS_ACCESS_KEY_ID: XXXXXXXXXXXXXXXXXXX</div><div class="line">    AWS_SECRET_ACCESS_KEY: XXXXXXXXXXXXXXXXXXXXX</div></pre></td></tr></table></figure>
-<p>一些模块例如get_url,yum,和apt是需要使用环境变量配置proxy的.下面一些场景也是需要配置环境变量的</p>
-<ol>
-<li>运行application installers</li>
-<li>当运行shell的时候需要添加一些额外的的变量在path里</li>
-<li>需要load的一些库不在系统的library路径中</li>
-<li>在运行模块时使用LD_PRELOAD hack</li>
-</ol>
-<h2 id="External-data-lookups"><a href="#External-data-lookups" class="headerlink" title="External data lookups"></a>External data lookups</h2><p>ansible在0.9版本开始引进了lookup插件,这些插件运行ansible在外围获取数据.ansible已经提供了几个插件,但它还是支持自己编写插件.这真的让你使用ansible配置更加伸缩自如</p>
-<p>lookup是在master机器运行的python程序.下面一个例子是使用lookup插件获取环境变量里面的http_proxy,然后配置在远端机器,确保远端机器使用相同的proxy下载文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">---     #1</div><div class="line">- name: Downloads a file using the same proxy as the controlling machine</div><div class="line">  hosts: all</div><div class="line">  tasks:</div><div class="line">    - name: Download file</div><div class="line">      get_url: dest=/var/tmp/file.tar.gz url=http://server/file.tar.gz</div><div class="line">      environment:</div><div class="line">       http_proxy: &quot;&#123;&#123; lookup(&apos;env&apos;, &apos;http_proxy&apos;) &#125;&#125;&quot;</div></pre></td></tr></table></figure>
-<p>使用with_*能够使用lookup插件迭代出特别的东西.您可以使用任何这样的插件,但最好是返回一个列表.下面的例子让你自动注册webapp,使用下面的例子会创建出虚拟机并配置它</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Registers the app server farm</div><div class="line">  hosts: localhost</div><div class="line">  connection: local</div><div class="line">  vars:</div><div class="line">    hostcount: 5</div><div class="line">  tasks:</div><div class="line">    - name: Register the webapp farm</div><div class="line">      local_action: add_host name=&#123;&#123; item &#125;&#125; groupname=webapp</div><div class="line">      with_sequence: start=1 end=&#123;&#123; hostcount &#125;&#125; format=webapp%02x</div></pre></td></tr></table></figure>
-<p>在下面的场景,lookup非常有用</p>
-<ol>
-<li>复制整个目录的apache配置到conf.d</li>
-<li>使用环境变量调整playbook的运行</li>
-<li>从DNS TXT记录中获取配置</li>
-<li>获取一个命令的输出到一个变量中</li>
-</ol>
-<h2 id="保存结果"><a href="#保存结果" class="headerlink" title="保存结果"></a>保存结果</h2><p>几乎所有的模块都是会outputs一些东西,甚至debug模块也会.大多数我们会使用的结果变量是changed.这个changed变量决定了是否要直接handlers和输出的颜色是什么.然而,结果变量还有其他的用途,譬如我需要保存我的结果变量,然后咋我的playbook的其他地方给使用.在下面的例子我们创建了一个/tmp目录,然后在后面我们创建一个/tmp/subtmp使用和前面目录一样的权限</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Using register</div><div class="line">  hosts: ansibletest</div><div class="line">  user: root</div><div class="line">  tasks:</div><div class="line">   - name: Get /tmp info</div><div class="line">     file: dest=/tmp state=directory</div><div class="line">     register: tmp</div><div class="line">   - name: Set mode on /var/tmp</div><div class="line">     file: dest=/tmp/subtmp mode=&#123;&#123; tmp.mode &#125;&#125; state=directory</div></pre></td></tr></table></figure>
-<p>一些模块,例如上面的file模块,是能够获取到一些简单的信息.结合register这个功能,可以让你在playbook里面检查你的环境和计算如何进行</p>
-<p>register对于数多场景是很有用的</p>
-<ol>
-<li>在一台远端的服务器获取一个目录下的一列表的文件,然后下载这些文件</li>
-<li>在handler执行之前,发现前面一个task发生了changed,然后执行一个指定的task</li>
-<li>获取远端服务器的ssh key的内容,构建出known_hosts文件</li>
-</ol>
-<h2 id="debugging-playbook"><a href="#debugging-playbook" class="headerlink" title="debugging playbook"></a>debugging playbook</h2><p>有好几种方法去debug我们的playbook.ansible有verbose模式和debug模式,也可以使用例如fetch和get_url模块来协助debug.当你想学习怎样使用一些模块时,这些debugging技术能够帮助你.</p>
-<h3 id="a-debug模块"><a href="#a-debug模块" class="headerlink" title="a.debug模块"></a>a.debug模块</h3><p>debug模块使用很简单.它具有两个参数,msg和fail.msg就是打印出来的信息,而当fail参数设置为yes时,会发送失败通知给ansible,然后ansible会停止运行任务.</p>
-<p>在下面的例子,配置了使用debug模块去显示远端机器所有的network interface.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">---</div><div class="line">- name: Demonstrate the debug module</div><div class="line">  hosts: ansibletest</div><div class="line">  user: root</div><div class="line">  vars:</div><div class="line">    hostcount: 5</div><div class="line">  tasks:</div><div class="line">    - name: Print interface</div><div class="line">      debug: msg=&quot;&#123;&#123; item &#125;&#125;&quot;</div><div class="line">      with_items: ansible_interfaces</div></pre></td></tr></table></figure>
-<p>运行上面的配置会出现这样的输出</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">PLAY [Demonstrate the debug module] *********************************</div><div class="line">GATHERING FACTS *****************************************************</div><div class="line">ok: [ansibletest]</div><div class="line">TASK: [Print IP address] ********************************************</div><div class="line">ok: [ansibletest] =&gt; (item=lo) =&gt; &#123;&quot;item&quot;: &quot;lo&quot;, &quot;msg&quot;: &quot;lo&quot;&#125;</div><div class="line">ok: [ansibletest] =&gt; (item=eth0) =&gt; &#123;&quot;item&quot;: &quot;eth0&quot;, &quot;msg&quot;: &quot;eth0&quot;&#125;</div><div class="line">PLAY RECAP **********************************************************</div><div class="line">ansibletest                : ok=2    changed=0    unreachable=0 failed=0</div></pre></td></tr></table></figure>
-<p>如你说见,debug模块可以让你很容易看到在playbook运行期间一些变量</p>
-<h3 id="b-verbose模式"><a href="#b-verbose模式" class="headerlink" title="b.verbose模式"></a>b.verbose模式</h3><p>另外的debug选择是verbose模式.当运行verbose模式时,会打印出所有模块运行后的变量.这对于你要使用register功能时候很重要.只需要在执行playbook命令时加上参数–verbose便可以.ansible-playbook –verbose playbook.yml</p>
-<h3 id="c-check模式"><a href="#c-check模式" class="headerlink" title="c.check模式"></a>c.check模式</h3><p>除了verbose模式外,ansible还提供了check模式和diff模式.只需要执行playbook时添加参数–check和–diff.check模式运行时,ansible不会真正控制远程机器发生变更.这能够让你获得这次playbook任务中,将会发生changed事件的列表.</p>
-<p>很重要的一点是check模式不是完美的.有一些模块是会跳过check模式的.尤其明显的限制是在运行command和shell模块</p>
-<p>在diff模式下,当文件发现更变,会打印出变更文件的变更部分.配合check模式使用效果更好</p>
-<h3 id="d-pause模块"><a href="#d-pause模块" class="headerlink" title="d.pause模块"></a>d.pause模块</h3><p>另外一个debug技巧是使用pause模块,它可以让你需要在某个地方需要检查远程机器的配置的时候暂停playbook的执行.这样可以让先观察一下运行到这里为止的效果,再判断是否继续运行下去.</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在这个章节我们更加深入探索了编写playbook的一些细节.现在你应该可以使用一些ansible的特性.例如delegation,looping,conditionals,和fact,registration等等,让你能够更容易的编写和维护你的playbook.我们也看到了如何获取其他host的信息,如何配置环境变量,如何从外围获取到数据.最后我们展示了一些debug技巧,让playbook能按你的预期来执行.</p>
-<p>下一章节,我们会学习如何在大规模环境中使用ansible,也会讲到一些方法让你在一些需要运行很久的任务中提高你的性能.我们也会介绍一些特性让你的playbook如何更加可维护,更加解藕,让它们按目的分配到不同的地方.</p>
-]]></content>
-    
-    <summary type="html">
-    
-      ansbile playbook 的一些高级功能
     
     </summary>
     
