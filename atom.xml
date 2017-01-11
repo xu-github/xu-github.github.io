@@ -132,6 +132,48 @@
   </entry>
   
   <entry>
+    <title>浅谈CLOSE_WAIT</title>
+    <link href="https://plpcm.github.io/blog/2016/12/02/tcp_CLOSE_WAIT/"/>
+    <id>https://plpcm.github.io/blog/2016/12/02/tcp_CLOSE_WAIT/</id>
+    <published>2016-12-02T02:30:16.000Z</published>
+    <updated>2017-01-05T07:41:44.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>发表于<a href="http://huoding.com/2016/01/19/488" target="_blank" rel="external">2016-01-19</a></p>
+<p>TCP 有很多连接状态，每一个都够聊十块钱儿的，比如我们以前讨论过 <a href="http://huoding.com/2013/12/31/316" target="_blank" rel="external">TIME_WAIT</a> 和 <a href="http://huoding.com/2014/11/06/383" target="_blank" rel="external">FIN_WAIT1</a>，最近时不时听人提起 CLOSE_WAIT，感觉有必要梳理一下。</p>
+<p>所谓 CLOSE_WAIT，借用某位大牛的话来说应该倒过来叫做 WAIT_CLOSE，也就是说「等待关闭」，如果你还不理解其含义，可以看看 TCP 关闭连接时的图例：</p>
+<p><a href="http://huoding.com/2013/12/31/316/tcp_close" target="_blank" rel="external"><img src="http://huoding.com/wp-content/uploads/2013/12/tcp_close.png" alt="TCP Close"></a>TCP Close</p>
+<p>不要被图中的 client 和 server 所迷惑，你只要记住：主动关闭的一方发出 FIN 包，被动关闭的一方响应 ACK 包，此时，被动关闭的一方就进入了 CLOSE_WAIT 状态。如果一切正常，稍后被动关闭的一方也会发出 FIN 包，然后迁移到 LAST_ACK 状态。</p>
+<p>通常，CLOSE_WAIT 状态在服务器停留时间很短，如果你发现大量的 CLOSE_WAIT 状态，那么就意味着被动关闭的一方没有及时发出 FIN 包，一般有如下几种可能：</p>
+<ul>
+<li>程序问题：如果代码层面忘记了 close 相应的 socket 连接，那么自然不会发出 FIN 包，从而导致 CLOSE_WAIT 累积；或者代码不严谨，出现死循环之类的问题，导致即便后面写了 close 也永远执行不到。</li>
+<li>响应太慢或者超时设置过小：如果连接双方不和谐，一方不耐烦直接 timeout，另一方却还在忙于耗时逻辑，就会导致 close 被延后。响应太慢是首要问题，不过换个角度看，也可能是 timeout 设置过小。</li>
+<li>BACKLOG 太大：此处的 backlog 不是 syn backlog，而是 accept 的 backlog，如果 backlog 太大的话，设想突然遭遇大访问量的话，即便响应速度不慢，也可能出现来不及消费的情况，导致多余的请求还在<a href="http://jaseywang.me/2014/07/20/tcp-queue-%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/" target="_blank" rel="external">队列</a>里就被对方关闭了。</li>
+</ul>
+<p>如果你通过「netstat -ant」或者「ss -ant」命令发现了很多 CLOSE_WAIT 连接，请注意结果中的「Recv-Q」和「Local Address」字段，通常「Recv-Q」会不为空，它表示应用还没来得及接收数据，而「Local Address」表示哪个地址和端口有问题，我们可以通过「lsof -i:<port>」来确认端口对应运行的是什么程序以及它的进程号是多少。</port></p>
+<p>如果是我们自己写的一些程序，比如用 HttpClient 自定义的蜘蛛，那么八九不离十是程序问题，如果是一些使用广泛的程序，比如 Tomcat 之类的，那么更可能是响应速度太慢或者 timeout 设置太小或者 BACKLOG 设置过大导致的故障。</p>
+<p>此外还有一点需要说明：按照前面图例所示，当被动关闭的一方处于 CLOSE_WAIT 状态时，主动关闭的一方处于 FIN_WAIT2 状态。 那么为什么我们总听说 CLOSE_WAIT 状态过多的故障，但是却相对少听说 FIN_WAIT2 状态过多的故障呢？这是因为 Linux 有一个「tcp_fin_timeout」设置，控制了 FIN_WAIT2 的最大生命周期。坏消息是 CLOSE_WAIT 没有类似的设置，如果不重启进程，那么 CLOSE_WAIT 状态很可能会永远持续下去；好消息是如果 socket 开启了 <a href="http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/" target="_blank" rel="external">keepalive</a> 机制，那么可以通过相应的设置来清理无效连接，不过 keepalive 是治标不治本的方法，还是应该找到问题的症结才对。</p>
+<p>本来想多写点的，但是着急回家，就写到这吧，推荐两个案例：</p>
+<ul>
+<li><a href="http://mp.weixin.qq.com/s?__biz=MjM5NzUwNDA5MA==&amp;mid=200667929&amp;idx=1&amp;sn=67cada895ac100115fded319b6b23a21&amp;3rd=MzA3MDU4NTYzMw==&amp;scene=6#rd" target="_blank" rel="external">PHP升级导致系统负载过高问题分析</a></li>
+<li><a href="http://mp.weixin.qq.com/s?__biz=MzI4MjA4ODU0Ng==&amp;mid=402163560&amp;idx=1&amp;sn=5269044286ce1d142cca1b5fed3efab1&amp;3rd=MzA3MDU4NTYzMw==&amp;scene=6#rd" target="_blank" rel="external">又见CLOSE_WAIT</a></li>
+</ul>
+<p>写得都比我好，建议大家仔细阅读。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      tcp CLOSE_WAIT 过多的分析
+    
+    </summary>
+    
+      <category term="tcp" scheme="https://plpcm.github.io/blog/categories/tcp/"/>
+    
+    
+      <category term="tcp" scheme="https://plpcm.github.io/blog/tags/tcp/"/>
+    
+  </entry>
+  
+  <entry>
     <title>PYTHON FABRIC实现远程操作和部署</title>
     <link href="https://plpcm.github.io/blog/2016/12/02/fabric/"/>
     <id>https://plpcm.github.io/blog/2016/12/02/fabric/</id>
@@ -235,109 +277,47 @@
   </entry>
   
   <entry>
-    <title>浅谈CLOSE_WAIT</title>
-    <link href="https://plpcm.github.io/blog/2016/12/02/tcp_CLOSE_WAIT/"/>
-    <id>https://plpcm.github.io/blog/2016/12/02/tcp_CLOSE_WAIT/</id>
-    <published>2016-12-02T02:30:16.000Z</published>
-    <updated>2017-01-05T07:41:44.000Z</updated>
+    <title>ansible小结（十 二）磁盘使用率筛选</title>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_12/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_12/</id>
+    <published>2016-10-22T02:55:16.000Z</published>
+    <updated>2017-01-11T01:40:33.000Z</updated>
     
-    <content type="html"><![CDATA[<p>发表于<a href="http://huoding.com/2016/01/19/488" target="_blank" rel="external">2016-01-19</a></p>
-<p>TCP 有很多连接状态，每一个都够聊十块钱儿的，比如我们以前讨论过 <a href="http://huoding.com/2013/12/31/316" target="_blank" rel="external">TIME_WAIT</a> 和 <a href="http://huoding.com/2014/11/06/383" target="_blank" rel="external">FIN_WAIT1</a>，最近时不时听人提起 CLOSE_WAIT，感觉有必要梳理一下。</p>
-<p>所谓 CLOSE_WAIT，借用某位大牛的话来说应该倒过来叫做 WAIT_CLOSE，也就是说「等待关闭」，如果你还不理解其含义，可以看看 TCP 关闭连接时的图例：</p>
-<p><a href="http://huoding.com/2013/12/31/316/tcp_close" target="_blank" rel="external"><img src="http://huoding.com/wp-content/uploads/2013/12/tcp_close.png" alt="TCP Close"></a>TCP Close</p>
-<p>不要被图中的 client 和 server 所迷惑，你只要记住：主动关闭的一方发出 FIN 包，被动关闭的一方响应 ACK 包，此时，被动关闭的一方就进入了 CLOSE_WAIT 状态。如果一切正常，稍后被动关闭的一方也会发出 FIN 包，然后迁移到 LAST_ACK 状态。</p>
-<p>通常，CLOSE_WAIT 状态在服务器停留时间很短，如果你发现大量的 CLOSE_WAIT 状态，那么就意味着被动关闭的一方没有及时发出 FIN 包，一般有如下几种可能：</p>
-<ul>
-<li>程序问题：如果代码层面忘记了 close 相应的 socket 连接，那么自然不会发出 FIN 包，从而导致 CLOSE_WAIT 累积；或者代码不严谨，出现死循环之类的问题，导致即便后面写了 close 也永远执行不到。</li>
-<li>响应太慢或者超时设置过小：如果连接双方不和谐，一方不耐烦直接 timeout，另一方却还在忙于耗时逻辑，就会导致 close 被延后。响应太慢是首要问题，不过换个角度看，也可能是 timeout 设置过小。</li>
-<li>BACKLOG 太大：此处的 backlog 不是 syn backlog，而是 accept 的 backlog，如果 backlog 太大的话，设想突然遭遇大访问量的话，即便响应速度不慢，也可能出现来不及消费的情况，导致多余的请求还在<a href="http://jaseywang.me/2014/07/20/tcp-queue-%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/" target="_blank" rel="external">队列</a>里就被对方关闭了。</li>
-</ul>
-<p>如果你通过「netstat -ant」或者「ss -ant」命令发现了很多 CLOSE_WAIT 连接，请注意结果中的「Recv-Q」和「Local Address」字段，通常「Recv-Q」会不为空，它表示应用还没来得及接收数据，而「Local Address」表示哪个地址和端口有问题，我们可以通过「lsof -i:<port>」来确认端口对应运行的是什么程序以及它的进程号是多少。</port></p>
-<p>如果是我们自己写的一些程序，比如用 HttpClient 自定义的蜘蛛，那么八九不离十是程序问题，如果是一些使用广泛的程序，比如 Tomcat 之类的，那么更可能是响应速度太慢或者 timeout 设置太小或者 BACKLOG 设置过大导致的故障。</p>
-<p>此外还有一点需要说明：按照前面图例所示，当被动关闭的一方处于 CLOSE_WAIT 状态时，主动关闭的一方处于 FIN_WAIT2 状态。 那么为什么我们总听说 CLOSE_WAIT 状态过多的故障，但是却相对少听说 FIN_WAIT2 状态过多的故障呢？这是因为 Linux 有一个「tcp_fin_timeout」设置，控制了 FIN_WAIT2 的最大生命周期。坏消息是 CLOSE_WAIT 没有类似的设置，如果不重启进程，那么 CLOSE_WAIT 状态很可能会永远持续下去；好消息是如果 socket 开启了 <a href="http://www.tldp.org/HOWTO/html_single/TCP-Keepalive-HOWTO/" target="_blank" rel="external">keepalive</a> 机制，那么可以通过相应的设置来清理无效连接，不过 keepalive 是治标不治本的方法，还是应该找到问题的症结才对。</p>
-<p>本来想多写点的，但是着急回家，就写到这吧，推荐两个案例：</p>
-<ul>
-<li><a href="http://mp.weixin.qq.com/s?__biz=MjM5NzUwNDA5MA==&amp;mid=200667929&amp;idx=1&amp;sn=67cada895ac100115fded319b6b23a21&amp;3rd=MzA3MDU4NTYzMw==&amp;scene=6#rd" target="_blank" rel="external">PHP升级导致系统负载过高问题分析</a></li>
-<li><a href="http://mp.weixin.qq.com/s?__biz=MzI4MjA4ODU0Ng==&amp;mid=402163560&amp;idx=1&amp;sn=5269044286ce1d142cca1b5fed3efab1&amp;3rd=MzA3MDU4NTYzMw==&amp;scene=6#rd" target="_blank" rel="external">又见CLOSE_WAIT</a></li>
-</ul>
-<p>写得都比我好，建议大家仔细阅读。</p>
+    <content type="html"><![CDATA[<h3 id="一、实现目标"><a href="#一、实现目标" class="headerlink" title="一、实现目标"></a>一、实现目标</h3><p>将所有主机的磁盘大于75%的主机获取到，并输出为下面的格式：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">主机IP    主机名      磁盘挂载点信息     磁盘使用率</div></pre></td></tr></table></figure>
+<p>假如 host1上有多个分区都大于75% ，则写多条。当主机上没有一台符合时，则什么都不输出。</p>
+<p>注：现网主机上有两个 bond 网卡，其中一个配置的是10段的IP，另一个配置的是192段的IP。这里要获取的是10段的IP。</p>
+<h3 id="二、-ansible-awk-简单输出"><a href="#二、-ansible-awk-简单输出" class="headerlink" title="二、 ansible + awk 简单输出"></a>二、 ansible + awk 简单输出</h3><p>该问题我处理的结果是使用ansible api 写的一个python脚本实现的。先看下我在一个技术群和一个大牛的讨论的结果(点击图片看大图)。</p>
+<p><a href="http://www.361way.com/wp-content/uploads/2016/01/ansible-df.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2016/01/ansible-df-300x100.png" alt="ansible-df"></a></p>
+<p>如上图，大牛的做法用的是awk 的next方法进行的处理，awk 的next功能我也做过记录，具体参看<a href="http://www.361way.com/awk-next-merge-lines/4923.html" target="_blank" rel="external">awk next多行合并</a> 。</p>
+<p>这里有几个注意点需要说明下：</p>
+<p>1、大牛的写法中在筛选上写的不严谨，$5前应该有int转化，不过不能正确的取到值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# df -hP|awk &apos;NR&gt;1 &amp;&amp; $5 &gt; 20&apos;</div><div class="line">/dev/xvda1       20G  4.6G   15G  25% /</div><div class="line">/dev/xvdb        20G  645M   18G   4% /data1</div><div class="line">[root@361way ~]# df -hP|awk &apos;NR&gt;1 &amp;&amp; int($5) &gt; 20&apos;</div><div class="line">/dev/xvda1       20G  4.6G   15G  25% /</div></pre></td></tr></table></figure>
+<p>有没有看到，如果不做int格式转换取的结果是所有分区的信息，而加上int后获取的才是我们想要的结果</p>
+<p>2、在ansible执行时$5前面要加上转义</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># ansible all -m shell -a &quot;df -hP|awk &apos;NR&gt;1 &amp;&amp; int($5) &gt; 50&apos;&quot;</div><div class="line">10.212.52.252 | FAILED | rc=2 &gt;&gt;</div><div class="line">awk: fatal: 0 is invalid as number of arguments for int</div><div class="line">[root@361way ~]# df -hP|awk &apos;NR&gt;1 &amp;&amp; int(\$5) &gt; 20&apos;</div><div class="line">awk: NR&gt;1 &amp;&amp; int(\$5) &gt; 20</div><div class="line">awk:             ^ backslash not last character on line</div></pre></td></tr></table></figure>
+<p>如上面的结果，如果在ansible执行时不加转义时会有报错提示，如果加上转义在主机端执行时会自动是将转义符去掉的结果。而在主机端执行时，如果加上了转义也会报错。所以主机端一定不能加上转义。</p>
+<p>3、在实际应用时，输出结果可能和大牛的输出有差距</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# ansible all -m shell -a &quot;df -hP|awk &apos;NR&gt;1 &amp;&amp; int(\$5) &gt; 30&apos;&quot;|awk &apos;/success/&#123;ip=$1;next&#125;&#123;print ip,$0&#125;&apos;</div><div class="line">10.212.52.252 /dev/sda9       9.9G  2.9G  6.5G  31% /opt</div><div class="line">10.212.52.252 /dev/sda6       5.0G  1.9G  2.8G  41% /tmp</div><div class="line">10.212.52.252 /dev/sda5       9.9G  3.9G  5.5G  42% /usr</div><div class="line">10.212.52.252</div><div class="line">10.212.52.14 /dev/cciss/c0d0p5  9.9G  3.2G  6.3G  34% /usr</div><div class="line">10.212.52.14</div><div class="line">10.212.52.16 /dev/cciss/c0d0p7  9.9G  4.0G  5.4G  43% /tmp</div><div class="line">10.212.52.16 /dev/cciss/c0d0p5  9.9G  2.9G  6.5G  31% /usrdf: `/root/.gvfs&apos;: Permission denied</div><div class="line">10.212.52.16</div></pre></td></tr></table></figure>
+<p>上面的结果是我在自己的测试环境上执行的结果。可以看到多出的空行也打印了主机的IP 。还会需要注意的，我这里ansible输出的success是小写的。</p>
+<p>不知道以上的问题是不是使用的环境不同造成的。我运行的环境是ansible主机为redhat6，ansible版本为1.9，被取数据主机有redhat6和suse11 。不过这都是小问题，同样可以通过处理获取到正常的结果。</p>
+<p>4、ansible api 执行</p>
+<p>上面的大牛的结果，我使用ansible api 执行，如下，可以对比下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# cat /tmp/test.py</div><div class="line">#!/usr/bin/env python</div><div class="line"># coding=utf-8</div><div class="line"># author ： www.361way.com</div><div class="line"># mail : itybku@139.com</div><div class="line">import ansible.runner</div><div class="line">#import json</div><div class="line">runner = ansible.runner.Runner(</div><div class="line">           module_name=&apos;shell&apos;,</div><div class="line">           module_args=&quot;df -hP|awk &apos;NR&gt;1 &amp;&amp; int($5)&gt;30&apos;&quot;,</div><div class="line">           pattern=&apos;all&apos;,</div><div class="line">           forks=10</div><div class="line">        )</div><div class="line">results = runner.run()</div><div class="line">#print  results</div><div class="line">for (hostname, result) in results[&apos;contacted&apos;].items():</div><div class="line">    if not &apos;failed&apos; in result:</div><div class="line">        for line in  result[&apos;stdout&apos;].split(&apos;\n&apos;):</div><div class="line">            print &quot;%s  %s&quot; % (hostname, line)</div><div class="line"># 执行结果如下</div><div class="line">[root@localhost ~]# python /tmp/test.py</div><div class="line">10.212.52.16  /dev/cciss/c0d0p7  9.9G  4.0G  5.4G  43% /tmp</div><div class="line">10.212.52.16  /dev/cciss/c0d0p5  9.9G  2.9G  6.5G  31% /usr</div><div class="line">10.212.52.252  /dev/sda9       9.9G  2.9G  6.5G  31% /opt</div><div class="line">10.212.52.252  /dev/sda6       5.0G  1.9G  2.8G  41% /tmp</div><div class="line">10.212.52.252  /dev/sda5       9.9G  3.9G  5.5G  42% /usr</div><div class="line">10.212.52.14  /dev/cciss/c0d0p5  9.9G  3.2G  6.3G  34% /usr</div></pre></td></tr></table></figure>
+<h3 id="三、还是ansible-api-获取磁盘信息"><a href="#三、还是ansible-api-获取磁盘信息" class="headerlink" title="三、还是ansible api 获取磁盘信息"></a>三、还是ansible api 获取磁盘信息</h3><p>上面的方法中实际执行时，比我们预期需要的效果少了主机名一项。这里我换做执行脚本实现，实现效果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">#/bin/bash</div><div class="line"># author : www.361way.com</div><div class="line">IP=`ip add show|grep inet|grep 10|awk &apos;&#123;print $2&#125;&apos;`</div><div class="line">df -hl|grep &apos;^/&apos;|sed &apos;s/%//g&apos;|awk &apos;&#123;if($5&gt;30) print $0&#125;&apos;|while read line</div><div class="line">do</div><div class="line">    echo $IP `hostname` $line</div><div class="line">done</div><div class="line"># 执行结果如下</div><div class="line"># sh aa.sh</div><div class="line">10.212.52.253/24 localhost /dev/sda3 9.5G 5.7G 3.4G 64 /</div><div class="line">10.212.52.253/24 localhost /dev/sda2 39G 19G 18G 52 /home</div><div class="line">10.212.52.253/24 localhost /dev/sda6 9.5G 7.1G 2.0G 78 /usr</div></pre></td></tr></table></figure>
+<p>使用ansible api 执行该脚本的结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"># python dfscript.py</div><div class="line">df: `/root/.gvfs&apos;: Permission denied</div><div class="line">df: `/root/.gvfs&apos;: Permission denied</div><div class="line">10.212.52.16/24 linux /dev/cciss/c0d0p7 9.9G 4.0G 5.4G 43 /tmp</div><div class="line">10.212.52.16/24 linux /dev/cciss/c0d0p5 9.9G 2.9G 6.5G 31 /usr</div><div class="line">10.212.52.252/24 zjhz-bmc-test /dev/sda9 9.9G 2.9G 6.5G 31 /opt</div><div class="line">10.212.52.252/24 zjhz-bmc-test /dev/sda6 5.0G 1.9G 2.8G 41 /tmp</div><div class="line">10.212.52.252/24 zjhz-bmc-test /dev/sda5 9.9G 3.9G 5.5G 42 /usr</div><div class="line">10.212.52.14/24 linux /dev/cciss/c0d0p5 9.9G 3.2G 6.3G 34 /usr</div></pre></td></tr></table></figure>
+<p>dfscript.py脚本内容如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"># cat dfscript.py</div><div class="line">#!/usr/bin/env python</div><div class="line"># coding=utf-8</div><div class="line"># author ： www.361way.com</div><div class="line"># mail : itybku@139.com</div><div class="line">import ansible.runner</div><div class="line">#import json</div><div class="line">runner = ansible.runner.Runner(</div><div class="line">           module_name=&apos;script&apos;,</div><div class="line">           module_args=&quot;aa.sh&quot;,</div><div class="line">           pattern=&apos;all&apos;,</div><div class="line">           forks=10</div><div class="line">        )</div><div class="line">results = runner.run()</div><div class="line">#print  results</div><div class="line">for (hostname, result) in results[&apos;contacted&apos;].items():</div><div class="line">    if not &apos;failed&apos; in result:</div><div class="line">        for line in  result[&apos;stdout&apos;].split(&apos;\r\n&apos;):</div><div class="line">            #print &quot;%s  %s&quot; % (hostname, line)</div><div class="line">            print line</div></pre></td></tr></table></figure>
+<p>直接对该脚本执行后的结果进行grep 标准输出时，会发现其行与行之间是以\r\n这样的方式分行的。</p>
+<p><img src="http://www.361way.com/wp-content/uploads/2016/01/diskdf.png" alt="img"></p>
+<p>所以在数据获取方面，尽量以ansible api 的方式进行获取，而api 的使用非常简单，无法是几个参数的替换后面再调用run方法，最终在对结果进行处理。而涉及多项信息获取时，建议使用自定义模块的方法，先将所需数据取回来，以json方式返回－－－ansible自定义模块所要求的格式。返回后可以再以api 或其他方式处理返回的数据即可。</p>
 ]]></content>
     
     <summary type="html">
     
-      tcp CLOSE_WAIT 过多的分析
-    
-    </summary>
-    
-      <category term="tcp" scheme="https://plpcm.github.io/blog/categories/tcp/"/>
-    
-    
-      <category term="tcp" scheme="https://plpcm.github.io/blog/tags/tcp/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ansible小结（六）Ad-hoc与commands模块</title>
-    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_06/"/>
-    <id>https://plpcm.github.io/blog/2016/10/22/ansible_06/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:36:55.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="一、Ad-hoc"><a href="#一、Ad-hoc" class="headerlink" title="一、Ad-hoc"></a>一、Ad-hoc</h3><h4 id="1、直接执行"><a href="#1、直接执行" class="headerlink" title="1、直接执行"></a>1、直接执行</h4><p>这里还是先来一个上几篇幅经常用到的一个例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -a &apos;uptime&apos; -kSSH password:10.212.52.252 | success | rc=0 &gt;&gt; 10:10am  up 27 days 19:33,  2 users,  load average: 0.39, 0.34, 0.33</div></pre></td></tr></table></figure>
-<p>一个ad-hoc命令的执行，需要按以下格式进行执行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible 主机或组  -m 模块名 -a &apos;模块参数&apos;  ansible参数</div></pre></td></tr></table></figure>
-<ul>
-<li>主机和组，是在/etc/ansible/hosts 里进行指定的部分，当然动态Inventory 使用的是脚本从外部应用里获取的主机，这部分具体可以参考<a href="http://www.361way.com/ansible-dynamic-inventory/4403.html" target="_blank" rel="external">ansible小结（五）Dynamic Inventory </a>；</li>
-<li>模块名，可以通过ansible-doc -l 查看目前安装的模块，默认不指定时，使用的是command模块，具体可以查看/etc/ansible/ansible.cfg 的“#module_name = command ” 部分，默认模块可以在该配置文件中进行修改；</li>
-<li>模块参数，可以通过 “ansible-doc 模块名” 查看具体的用法及后面的参数；</li>
-<li>ansible参数，可以通过ansible命令的帮忙信息里查看到，这里有很多参数可以供选择，如是否需要输入密码、是否sudo等。</li>
-</ul>
-<h4 id="2、后台执行"><a href="#2、后台执行" class="headerlink" title="2、后台执行"></a>2、后台执行</h4><p>当命令执行时间比较长时，也可以放到后台执行，这里会用到-B、-P参数，如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible all -B 3600 -a &quot;/usr/bin/long_running_operation --do-stuff&quot; \\后台执行命令 3600s，-B 表示后台执行的时间ansible all -m async_status -a &quot;jid=123456789&quot;  \\检查任务的状态ansible all -B 1800 -P 60 -a &quot;/usr/bin/long_running_operation --do-stuff&quot; \\后台执行命令最大时间是 1800s 即 30 分钟，-P 每 60s 检查下状态默认 15s</div></pre></td></tr></table></figure>
-<p>示例如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -B 3600 -P 0 -a &apos;watch ls&apos;background launch...10.212.52.252 | success &gt;&gt; &#123;    &quot;ansible_job_id&quot;: &quot;411650646689.13501&quot;,    &quot;results_file&quot;: &quot;/root/.ansible_async/411650646689.13501&quot;,    &quot;started&quot;: 1&#125;[root@361way ~]# ansible 10.212.52.252 -m async_status -a &apos;jid=411650646689.13501&apos;10.212.52.252 | success &gt;&gt; &#123;    &quot;ansible_job_id&quot;: &quot;411650646689.13501&quot;,    &quot;changed&quot;: false,    &quot;finished&quot;: 0,    &quot;results_file&quot;: &quot;/root/.ansible_async/411650646689.13501&quot;,    &quot;started&quot;: 1&#125;</div></pre></td></tr></table></figure>
-<p>不指定-P或-P参数为非0时，该任务就会按-P直接的参数一直刷新下去，直到超出-B参数指定的时间或命令执行完成：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -B 3600  -a &apos;watch ls&apos;background launch...10.212.52.252 | success &gt;&gt; &#123;    &quot;ansible_job_id&quot;: &quot;397200656414.15008&quot;,    &quot;results_file&quot;: &quot;/root/.ansible_async/397200656414.15008&quot;,    &quot;started&quot;: 1&#125;10.212.52.252 | success &gt;&gt; &#123;    &quot;ansible_job_id&quot;: &quot;397200656414.15008&quot;,    &quot;changed&quot;: false,    &quot;finished&quot;: 0,    &quot;results_file&quot;: &quot;/root/.ansible_async/397200656414.15008&quot;,    &quot;started&quot;: 1&#125;&lt;job 397200656414.15008&gt; polling on 10.212.52.252, 3585s remaining…………………………………………略</div></pre></td></tr></table></figure>
-<h3 id="二、commands模块"><a href="#二、commands模块" class="headerlink" title="二、commands模块"></a>二、commands模块</h3><p>上面已经提到，ansbile自身已经自带了很多模块，可以通过ansible-doc -l 进行查看。这里就结合command、shell、raw、script模块了解下其用法。</p>
-<p>上面四个模块都属于<a href="http://docs.ansible.com/list_of_commands_modules.html" target="_blank" rel="external">commands 类</a>。</p>
-<ul>
-<li><a href="http://docs.ansible.com/command_module.html" target="_blank" rel="external">command模块</a>，该模块通过-a跟上要执行的命令可以直接执行，不过命令里如果有带有如下字符部分则执行不成功 “ so variables like $HOME and operations like “&lt;”, “&gt;”, “|”, and “&amp;” will not work (use the shell module if you need these features).”；</li>
-<li><a href="http://docs.ansible.com/shell_module.html" target="_blank" rel="external">shell 模块</a>，用法其本和command一样，不过的是其是通过/bin/sh进行执行，所以shell 模块可以执行任何命令，就像在本机执行一样，“ It is almost exactly like the command module but runs the command through a shell (/bin/sh) on the remote node.”；</li>
-<li><a href="http://docs.ansible.com/raw_module.html" target="_blank" rel="external">raw模块</a>，用法和shell 模块一样 ，其也可以执行任意命令，就像在本机执行一样，“Executes a low-down and dirty SSH command, not going through the module subsystem. There is no change handler support for this module. This module does not require python on the remote system”</li>
-<li><a href="http://docs.ansible.com/script_module.html" target="_blank" rel="external">script模块</a>，其是将管理端的shell 在被管理主机上执行，其原理是先将shell 复制到远程主机，再在远程主机上执行，原理类似于raw模块，“This module does not require python on the remote system, much like the raw module.” 。</li>
-</ul>
-<p>注：raw模块和comand、shell 模块不同的是其没有chdir、creates、removes参数，chdir参数的作用就是先切到chdir指定的目录后，再执行后面的命令，这在后面很多模块里都会有该参数 。</p>
-<p>command模块包含如下选项： </p>
-<ul>
-<li>creates：一个文件名，当该文件存在，则该命令不执行 </li>
-<li>free_form：要执行的linux指令 </li>
-<li>chdir：在执行指令之前，先切换到该指定的目录 </li>
-<li>removes：一个文件名，当该文件不存在，则该选项不执行</li>
-<li>executable：切换shell来执行指令，该执行路径必须是一个绝对路径</li>
-</ul>
-<p><strong>command模块、raw模块、shell模块示例：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -m command -a &apos;ps auxf|grep snmp&apos;</div><div class="line">10.212.52.252 | FAILED | rc=1 &gt;&gt;</div><div class="line">ERROR: Unsupported option (BSD syntax)</div><div class="line">********* simple selection *********  ********* selection by list *********</div><div class="line">-A all processes                      -C by command name</div><div class="line">-N negate selection                   -G by real group ID (supports names)</div><div class="line">-a all w/ tty except session leaders  -U by real user ID (supports names)</div><div class="line">-d all except session leaders         -g by session OR by effective group name</div><div class="line">-e all processes                      -p by process ID</div><div class="line">T  all processes on this terminal     -s processes in the sessions given</div><div class="line">a  all w/ tty, including other users  -t by tty</div><div class="line">g  OBSOLETE -- DO NOT USE             -u by effective user ID (supports names)</div><div class="line">r  only running processes             U  processes for specified users</div><div class="line">x  processes w/o controlling ttys     t  by tty</div><div class="line">*********** output format **********  *********** long options ***********</div><div class="line">-o,o user-defined  -f full            --Group --User --pid --cols --ppid</div><div class="line">-j,j job control   s  signal          --group --user --sid --rows --info</div><div class="line">-O,O preloaded -o  v  virtual memory  --cumulative --format --deselect</div><div class="line">-l,l long          u  user-oriented   --sort --tty --forest --version</div><div class="line">-F   extra full    X  registers       --heading --no-heading --context</div><div class="line">                    ********* misc options *********</div><div class="line">-V,V  show version      L  list format codes  f  ASCII art forest</div><div class="line">-m,m,-L,-T,H  threads   S  children in sum    -y change -l format</div><div class="line">-M,Z  security data     c  true command name  -c scheduling class</div><div class="line">-w,w  wide output       n  numeric WCHAN,UID  -H process hierarchy</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m raw -a &apos;ps auxf|grep snmp&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">root      5580 25.0  0.0  12876  1792 pts/2    Ss+  12:36   0:00      \_ bash -c ps auxf|grep snmp</div><div class="line">root      5607  0.0  0.0   5720   832 pts/2    S+   12:36   0:00          \_ grep snmp</div><div class="line">root     24364  0.0  0.0  70416  6696 ?        SNl  May15   0:22 /usr/sbin/snmpd -r -A -LF i /var/log/net-snmpd.log -p /var/run/snmpd.pid</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m shell -a &apos;ps auxf|grep snmp&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">root      5803  0.0  0.0  11308  1308 pts/2    S+   12:36   0:00              \_ /bin/sh -c ps auxf|grep snmp</div><div class="line">root      5805  0.0  0.0   4260   572 pts/2    S+   12:36   0:00                  \_ grep snmp</div><div class="line">root     24364  0.0  0.0  70416  6696 ?        SNl  May15   0:22 /usr/sbin/snmpd -r -A -LF i /var/log/net-snmpd.log -p /var/run/snmpd.pid</div></pre></td></tr></table></figure>
-<p>上面的执行结果可以看到，我这里加了管道，command模块执行时出错，而使用raw模块和shell 模块都正常。</p>
-<p><strong>使用chdir的示例：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -m command -a &apos;chdir=/tmp/361way touch test.file&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m shell -a &apos;chdir=/tmp/361way touch test2.file&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m raw -a &apos;chdir=/tmp/361way touch test3.file&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div></pre></td></tr></table></figure>
-<p>从上面执行结果来看，三个命令都执行成功了。不过通过在远程主机上查看，前两个文件被成功创建：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">linux-wdh1:/tmp/361way # ls /tmp/361way</div><div class="line">test.file  test2.file</div></pre></td></tr></table></figure>
-<p>使用raw模块的执行的结果文件也被正常创建了，不过不是在chdir 指定的目录，而是在当前执行用户的家目录。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">linux-wdh1:~ # ls ~/test3.file</div><div class="line">/root/test3.file</div></pre></td></tr></table></figure>
-<p><strong>creates与removes示例：</strong></p>
-<p>这里我在测试主机上创建/tmp/361way/server.txt文件，执行结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -a &apos;creates=/tmp/361way/server.txt uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">skipped, since /tmp/361way/server.txt exists</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -a &apos;removes=/tmp/361way/server.txt uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 15:11pm  up 28 days  0:34,  2 users,  load average: 0.75, 0.46, 0.39</div></pre></td></tr></table></figure>
-<p><strong>script模块示例：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# cat script.sh</div><div class="line">#!/bin/bash</div><div class="line">df -hl</div><div class="line">ifconfig</div><div class="line">ps auxf|grep snmp</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m script -a &apos;scrip.sh&apos;</div><div class="line">10.212.52.252 | FAILED =&gt; file or module does not exist: /root/scrip.sh</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m script -a &apos;script.sh&apos;</div><div class="line">10.212.52.252 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: true,</div><div class="line">    &quot;rc&quot;: 0,</div><div class="line">    &quot;stderr&quot;: &quot;OpenSSH_5.3p1, OpenSSL 1.0.1e-fips 11 Feb 2013\ndebug1: Reading configuration data /etc/ssh/ssh_config\r\ndebug1: Applying options for *\r\ndebug1: auto-mux: Trying existing master\r\nControl socket connect(/root/.ansible/cp/ansible-ssh-10.212.52.252-22-root): Connection refused\r\ndebug1: Connecting to 10.212.52.252 [10.212.52.252] port 22.\r\ndebug1: fd 3 clearing O_NONBLOCK\r\ndebug1: Connection established.\r\ndebug1: permanently_set_uid: 0/0\r\ndebug1: identity file /root/.ssh/identity type -1\r\ndebug1: identity file /root/.ssh/identity-cert type -1\r\ndebug1: identity file /root/.ssh/id_rsa type -1\r\ndebug1: identity file /root/.ssh/id_rsa-cert type -1\r\ndebug1: identity file /root/.ssh/id_dsa type -1\r\ndebug1: identity file /root/.ssh/id_dsa-cert type -1\r\ndebug1: identity file /root/.ssh/id_ecdsa type -1\r\ndebug1: identity file /root/.ssh/id_ecdsa-cert type -1\r\ndebug1: Remote protocol version 2.0, remote software version OpenSSH_6.2\r\ndebug1: match: OpenSSH_6.2 pat OpenSSH*\r\ndebug1: Enabling compatibility mode for protocol 2.0\r\ndebug1: Local version string SSH-2.0-OpenSSH_5.3\r\ndebug1: SSH2_MSG_KEXINIT sent\r\ndebug1: SSH2_MSG_KEXINIT received\r\ndebug1: kex: server-&gt;client aes128-ctr hmac-md5 zlib@openssh.com\r\ndebug1: kex: client-&gt;server aes128-ctr hmac-md5 zlib@openssh.com\r\ndebug1: SSH2_MSG_KEX_DH_GEX_REQUEST(1024&lt;1024&lt;8192) sent\r\ndebug1: expecting SSH2_MSG_KEX_DH_GEX_GROUP\r\ndebug1: SSH2_MSG_KEX_DH_GEX_INIT sent\r\ndebug1: expecting SSH2_MSG_KEX_DH_GEX_REPLY\r\ndebug1: Host &apos;10.212.52.252&apos; is known and matches the RSA host key.\r\ndebug1: Found key in /root/.ssh/known_hosts:1\r\ndebug1: ssh_rsa_verify: signature correct\r\ndebug1: SSH2_MSG_NEWKEYS sent\r\ndebug1: expecting SSH2_MSG_NEWKEYS\r\ndebug1: SSH2_MSG_NEWKEYS received\r\ndebug1: SSH2_MSG_SERVICE_REQUEST sent\r\ndebug1: SSH2_MSG_SERVICE_ACCEPT received\r\ndebug1: Authentications that can continue: publickey,password,keyboard-interactive\r\ndebug1: Next authentication method: keyboard-interactive\r\ndebug1: Enabling compression at level 6.\r\ndebug1: Authentication succeeded (keyboard-interactive).\r\ndebug1: setting up multiplex master socket\r\nControlSocket /root/.ansible/cp/ansible-ssh-10.212.52.252-22-root already exists, disabling multiplexing\r\ndebug1: channel 0: new [client-session]\r\ndebug1: Requesting no-more-sessions@openssh.com\r\ndebug1: Entering interactive session.\r\ndebug1: Sending environment.\r\ndebug1: Sending env LANG = en_US.UTF-8\r\ndebug1: Sending command: LANG=C LC_CTYPE=C /root/.ansible/tmp/ansible-tmp-1431924855.88-242473611260231/script.sh \r\ndebug1: client_input_channel_req: channel 0 rtype exit-status reply 0\r\ndebug1: client_input_channel_req: channel 0 rtype eow@openssh.com reply 0\r\ndebug1: channel 0: free: client-session, nchannels 1\r\ndebug1: fd 1 clearing O_NONBLOCK\r\ndebug1: fd 2 clearing O_NONBLOCK\r\nConnection to 10.212.52.252 closed.\r\nTransferred: sent 1928, received 3920 bytes, in 0.1 seconds\r\nBytes per second: sent 37017.0, received 75262.7\r\ndebug1: Exit status 0\r\ndebug1: compress outgoing: raw data 537, compressed 375, factor 0.70\r\ndebug1: compress incoming: raw data 1837, compressed 1019, factor 0.55\r\n&quot;,</div><div class="line">    &quot;stdout&quot;: &quot;Filesystem      Size  Used Avail Use% Mounted on\r\n/dev/sda2       9.9G  872M  8.5G  10% /\r\nudev            3.9G  128K  3.9G   1% /dev\r\ntmpfs           3.9G   76K  3.9G   1% /dev/shm\r\n/dev/sda3       5.0G  219M  4.5G   5% /boot\r\n/dev/sda8        40G   15G   23G  40% /home\r\n/dev/sda9       9.9G  5.2G  4.3G  55% /opt\r\n/dev/sda6       5.0G  2.7G  2.1G  57% /tmp\r\n/dev/sda5       9.9G  3.4G  6.0G  36% /usr\r\n/dev/sda7       9.9G  823M  8.6G   9% /var\r\neth0      Link encap:Ethernet  HWaddr 00:50:56:A8:65:7E  \r\n          inet addr:10.212.52.252  Bcast:10.212.52.255  Mask:255.255.255.0\r\n          inet6 addr: fe80::250:56ff:fea8:657e/64 Scope:Link\r\n          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1\r\n          RX packets:24112135 errors:0 dropped:792372 overruns:0 frame:0\r\n          TX packets:10697339 errors:0 dropped:0 overruns:0 carrier:0\r\n          collisions:0 txqueuelen:1000 \r\n          RX bytes:17137233328 (16343.3 Mb)  TX bytes:13390377826 (12770.0 Mb)\r\n\r\nlo        Link encap:Local Loopback  \r\n          inet addr:127.0.0.1  Mask:255.0.0.0\r\n          inet6 addr: ::1/128 Scope:Host\r\n          UP LOOPBACK RUNNING  MTU:16436  Metric:1\r\n          RX packets:3407332 errors:0 dropped:0 overruns:0 frame:0\r\n          TX packets:3407332 errors:0 dropped:0 overruns:0 carrier:0\r\n          collisions:0 txqueuelen:0 \r\n          RX bytes:262675450 (250.5 Mb)  TX bytes:262675450 (250.5 Mb)\r\n\r\nroot     25332  0.0  0.0   4260   568 pts/2    S+   12:54   0:00          \\_ grep snmp\r\nroot     24364  0.0  0.0  70416  6696 ?        SNl  May15   0:22 /usr/sbin/snmpd -r -A -LF i /var/log/net-snmpd.log -p /var/run/snmpd.pid\r\n&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>输出结果很多，看起来也很乱，不过查下stdout部分，这个部分是实际上执行后的结果。这里可以配合管道一起使用，可以如下使用：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -m script -a &apos;script.sh&apos; |egrep &apos;&gt;&gt;|stdout&apos;</div></pre></td></tr></table></figure>
-<p>篇幅所限，本来想把常用模块都放在该篇来写，感觉太冗长，后面再单独分开相应的篇幅做模块的介绍。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      Ad-Hoc 是指ansible下临时执行的一条命令，并且不需要保存的命令，对于复杂的命令后面会说playbook。讲到Ad-hoc 就要提到模块，所有的命令执行都要依赖于事先写好的模块，默认安装好的ansible 里面已经自带了很多模块，如：command、raw、shell、file、cron等，具体可以通过ansible-doc -l 进行查看 。
+      年底了虽然有各种告警，不过还是需要做一下全网巡检，这里以磁盘使用率为例。由于目前平台上使用的是商业版的自动化工具bmc，其在执行分发都方面非常不存，不过在取值返回上做的不好－－－当然也和其是商业化工具有关，很多东西不开源，用shell 的语法概念写nsh时又执行不通过，NND总是要问原厂支撑 。刚好在测试环境上有之前安装的ansible环境，也测试下用ansible 来实现该功能。
     
     </summary>
     
@@ -351,106 +331,32 @@
   </entry>
   
   <entry>
-    <title>ansible小结（五）Dynamic Inventory</title>
-    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_05/"/>
-    <id>https://plpcm.github.io/blog/2016/10/22/ansible_05/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:33:13.000Z</updated>
+    <title>ansible小结（十一）ansible普通用户su切换问题</title>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_11/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_11/</id>
+    <published>2016-10-22T02:50:16.000Z</published>
+    <updated>2017-01-11T01:40:23.000Z</updated>
     
-    <content type="html"><![CDATA[<p>Ansible Inventory实际上是包含静态Inventory和动态Inventory两部分，静态Inventory指的是在文件/etc/ansible/hosts中指定的主机和组，Dynamic Inventory指通过外部脚本获取主机列表，并按照ansible 所要求的格式返回给ansilbe命令的。这部分一般会结合CMDB资管系统、zabbix 监控系统、crobble安装系统、云计算平台等获取主机信息。由于主机资源一般会动态的进行增减，而这些系统一般会智能更新。我们可以通过这些工具提供的API 或者接入库查询等方式返回主机列表。</p>
-<h3 id="一、最简单示例"><a href="#一、最简单示例" class="headerlink" title="一、最简单示例"></a>一、最简单示例</h3><p>由于Ansible在接受脚本动态获取主机信息时支持的是json格式，这里我也不从其他系统中取了，向通过一段代码打印一个段json格式的主机信息：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/env python</div><div class="line"># coding=utf-8</div><div class="line">import json</div><div class="line">host1ip = [&apos;10.212.52.252&apos;,&apos;10.212.52.14&apos;]</div><div class="line">host2ip = [&apos;10.212.52.16&apos;]</div><div class="line">group = &apos;test1&apos;</div><div class="line">group2 = &apos;test2&apos;</div><div class="line">hostdata = &#123;group:&#123;&quot;hosts&quot;:host1ip&#125;,group2:&#123;&quot;hosts&quot;:host2ip&#125;&#125;</div><div class="line">print json.dumps(hostdata,indent=4)</div></pre></td></tr></table></figure>
-<p>注：</p>
-<p>1、主机部分必须是列表格式的；</p>
-<p>2、hostdata行，其中的”hosts” 部分可以省略，但如果使用时，必须是”hosts” ，不能是其他如‘‘hostlist’’ 等字符串。</p>
-<p>省略后可以这样写：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hostdata = &#123;group:host1ip,group2:host2ip&#125;</div></pre></td></tr></table></figure>
-<p>直接执行该段代码结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# python twogroup.py</div><div class="line">&#123;</div><div class="line">    &quot;test1&quot;: &#123;</div><div class="line">        &quot;hosts&quot;: [</div><div class="line">            &quot;10.212.52.252&quot;,</div><div class="line">            &quot;10.212.52.14&quot;</div><div class="line">        ]</div><div class="line">    &#125;,</div><div class="line">    &quot;test2&quot;: &#123;</div><div class="line">        &quot;hosts&quot;: [</div><div class="line">            &quot;10.212.52.16&quot;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>上面定义了两个主机组，test1组内包含主机10.212.52.252、10.212.52.14，test2组内包含主机10.212.52.16 。ansible可以通过如下方法调用：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible -i twogroup.py test1 -m command -a &apos;uptime&apos; -k</div><div class="line">SSH password:</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 23:01pm  up 24 days  8:24,  2 users,  load average: 0.21, 0.35, 0.39</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 23:08pm  up 332 days  5:23,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">[root@361way.com ~]# ansible -i twogroup.py test2 -m command -a &apos;uptime&apos; -k</div><div class="line">SSH password:</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 23:09pm  up 332 days  6:00,  2 users,  load average: 0.08, 0.06, 0.05</div></pre></td></tr></table></figure>
-<h3 id="二、复杂示例"><a href="#二、复杂示例" class="headerlink" title="二、复杂示例"></a>二、复杂示例</h3><p>在静态主机配置文件示例中，会有组变量（vars），组之间的包含，如下图（点击图片看大图）：</p>
-<p><a href="http://www.361way.com/wp-content/uploads/2015/05/ansible-host-static.jpg" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/05/ansible-host-static-188x300.jpg" alt="ansible-host-static"></a></p>
-<p>如果以上部分想要，通过脚本获取实现，实现后返回的json格式应该如下图：</p>
-<p><a href="http://www.361way.com/wp-content/uploads/2015/05/ansible-hosts-json.jpg" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/05/ansible-hosts-json-1024x574.jpg" alt="ansible-hosts-json"></a></p>
-<p>像上面这种复杂的返回格式，一般不会用在ad-hoc环境中，多数会用在ansible-playbook 中，应为playbook文件中有时假会涉及到vars 参数的传参。</p>
-<h3 id="三、从第三方平台获取主机示例"><a href="#三、从第三方平台获取主机示例" class="headerlink" title="三、从第三方平台获取主机示例"></a>三、从第三方平台获取主机示例</h3><p>这个在本篇一开头就提到了，我们从如cobbler、cmdb等平台上获取的示例。由于ansible 的发起者（作者）同时又是cobbler软件的创建者，所以官方文档给了我们cobbler的示例，同时给出了一个从AWS 去上获取主机信息的示例 。如下：</p>
-<p><a href="https://raw.githubusercontent.com/ansible/ansible/devel/plugins/inventory/cobbler.py" target="_blank" rel="external">cobbler 上获取主机信息代码</a></p>
-<p><a href="https://raw.githubusercontent.com/ansible/ansible/devel/plugins/inventory/ec2.py" target="_blank" rel="external">aws 云上获取主机信息代码</a></p>
-<p>关于如何从aws上获取主机信息并入库，这个我之前也写过相关的篇章，具体也可以参看我之前的博文－－－－<a href="http://www.361way.com/python-boto-aws-inventory/3672.html" target="_blank" rel="external">AWS主机资产管理 </a> （该篇也是纯python实现的）。</p>
-<p>通过zabbix api 获取主机信息，我也写过一篇<a href="http://www.361way.com/zabbix-api/3577.html" target="_blank" rel="external">zabbix小结（八）Zabbix api</a> ，想要通过zabbix平台上获取主机列表信息也可以参考下。</p>
-<h3 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a>四、其他</h3><p><strong>1、ansible -i 参数后调用的脚本并非一定是py文件</strong>，也可以是其他脚本输出的结果，这里做了个简单的测试：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">[root@361way.com yaml]# ansible -i group.sh test1 -m command -a &apos;uptime&apos; -k</div><div class="line">SSH password:</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 00:18am  up 332 days  7:10,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 00:17am  up 332 days  6:32,  2 users,  load average: 0.01, 0.03, 0.05</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 00:11am  up 24 days  9:33,  2 users,  load average: 0.49, 0.42, 0.41</div><div class="line">[root@localhost yaml]# cat group.sh</div><div class="line">#!/bin/bash</div><div class="line">groups=&apos;&apos;&apos;</div><div class="line">&#123;</div><div class="line">    &quot;test1&quot;: &#123;</div><div class="line">        &quot;hosts&quot;: [</div><div class="line">            &quot;10.212.52.252&quot;,</div><div class="line">            &quot;10.212.52.14&quot;,</div><div class="line">            &quot;10.212.52.16&quot;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">&apos;&apos;&apos;</div><div class="line">echo $groups</div></pre></td></tr></table></figure>
-<p><strong>2、-i 参数指定的脚本需要有可执行权限</strong> ，不然会报错，如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@361way.com yaml]# ansible -i hostjson.py  AA  -a &apos;uptime&apos;</div><div class="line">ERROR: The file hostjson.py looks like it should be an executable inventory script, but is not marked executable. Perhaps you want to correct this with `chmod +x hostjson.py`?</div></pre></td></tr></table></figure>
+    <content type="html"><![CDATA[<h3 id="一、ansible-hosts配置文件"><a href="#一、ansible-hosts配置文件" class="headerlink" title="一、ansible hosts配置文件"></a>一、ansible hosts配置文件</h3><p>在之前的系列文章中我们提到，可以把密码写到hosts配置文件，通过查询官网的相关信息了解了，其除了ansible_ssh_user、ansible_ssh_pass变量外，还为su切换提供了ansible_su_pass变量，通过该变量我们可以把root密码直接写到配置文件中。具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# cat /etc/ansible/hosts</div><div class="line">[test01]</div><div class="line">10.212.52.14 ansible_ssh_user=test ansible_ssh_pass=111111 ansible_su_pass=*I2145</div><div class="line">10.212.52.16 ansible_ssh_user=test ansible_ssh_pass=xyz123  ansible_su_pass=mn1Pokm</div><div class="line">10.212.52.252 ansible_ssh_user=amos ansible_ssh_pass=asdf ansible_su_pass=xyzp)okm</div></pre></td></tr></table></figure>
+<p>注：我测试使用的ansible版本是1.9版的，在新的2.0版本中，变量也做了变化ansible_become_pass替换了之前的ansible_sudo_pass or ansible_su_pass ，具体可以参看<a href="http://docs.ansible.com/ansible/become.html" target="_blank" rel="external">官方文档</a>。</p>
+<h3 id="二、ansible命令参数"><a href="#二、ansible命令参数" class="headerlink" title="二、ansible命令参数"></a>二、ansible命令参数</h3><p>在执行ansible -h查看时，会看到如下条目：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">-S, --su              run operations with su (deprecated, use become)</div><div class="line">-R SU_USER, --su-user=SU_USER</div><div class="line">                      run operations with su as this user (default=root)</div><div class="line">                      (deprecated, use become)</div></pre></td></tr></table></figure>
+<h3 id="三、su切换执行"><a href="#三、su切换执行" class="headerlink" title="三、su切换执行"></a>三、su切换执行</h3><p>所以结合上面两块，我们做下简单的测试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible all  -S -R root -m shell -a &quot;uptime&quot;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 16:13pm  up 34 days  5:40,  2 users,  load average: 0.08, 0.21, 0.30</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 16:26pm  up 538 days 23:17,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 16:24pm  up 538 days 22:39,  2 users,  load average: 0.00, 0.01, 0.05</div></pre></td></tr></table></figure>
+<p>这里需要注意的是，普通用户的家目录是要存在，并切该普通用户要有写的权限的，不然会出现类似如下的报错：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">10.212.52.252 | FAILED =&gt; Authentication or permission failure.</div><div class="line">In some cases, you may have been able to authenticate and did not have permissions on the remote directory.</div><div class="line">Consider changing the remote temp path in ansible.cfg to a path rooted in &quot;/tmp&quot;.</div><div class="line">Failed command was: mkdir -p $HOME/.ansible/tmp/ansible-tmp-1449456070.96-212322517029279 &amp;&amp; echo $HOME/.ansible/tmp/ansible-tmp-1449456070.96-212322517029279,</div><div class="line">exited with result 1: mkdir: cannot create directory `/home/amos/.ansible&apos;: Permission denied</div></pre></td></tr></table></figure>
+<p>当然，如果这个普通用户没有家目录或者家目录没有写权限在不修改远端主机也有办法可以搞定，修改ansible主机的ansible.cfg配置文件，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# vim /etc/ansible/ansible.cfg</div><div class="line">找到如下行：</div><div class="line">remote_tmp     = $HOME/.ansible/tmp</div><div class="line">修改为</div><div class="line">remote_tmp     = /tmp/.ansible/tmp</div></pre></td></tr></table></figure>
+<p>tmp目录一般都有写的权限吧，改成临时目录为/tmp下即可。</p>
+<p>再下为我们再看看远程主机的message日志文件确认下是否真的是通过普通用户切换的：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Dec  3 11:36:20 linux su: (to root) test on /dev/pts/1     //由普通用户test切换为su切换为root的日志</div><div class="line">Dec  3 11:36:20 linux ansible-command: Invoked with creates=None executable=None chdir=None args=uptime removes=None NO_LOG=None shell=True warn=True  //ansible执行的内容</div></pre></td></tr></table></figure>
+<p>功能实现了，最后要说的是，由于该配置文件中涉及到多台主机的用户名密码，所以该文件的安全工作一定要做好。</p>
 ]]></content>
     
     <summary type="html">
     
-      Ansible Inventory实际上是包含静态Inventory和动态Inventory两部分，静态Inventory指的是在文件/etc/ansible/hosts中指定的主机和组，Dynamic Inventory指通过外部脚本获取主机列表，并按照ansible 所要求的格式返回给ansilbe命令的。
-    
-    </summary>
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
-    
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
-    
-      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ansible小结（一）ansible的安装</title>
-    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_01/"/>
-    <id>https://plpcm.github.io/blog/2016/10/22/ansible_01/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:09:44.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h3><p>Ansible 是一个配置管理和应用部署工具，功能类似于目前业界的配置管理工具 Chef,Puppet,Saltstack。Ansible 是通过 Python 语言开发。Ansible 平台由 Michael DeHaan 创建，他同时也是知名软件 Cobbler 与 Func 的作者。Ansible 的第一个版本发布于 2012 年 2 月。Ansible 默认通过 SSH 协议管理机器，所以 Ansible 不需要安装客户端程序在服务器上。您只需要将 Ansible 安装在一台服务器，在 Ansible 安装完后，您就可以去管理控制其它服务器。不需要为它配置数据库，Ansible 不会以 daemons 方式来启动或保持运行状态。Ansible 可以实现以下目标：</p>
-<ul>
-<li>自动化部署应用</li>
-<li>自动化管理配置</li>
-<li>自动化的持续交付</li>
-<li>自动化的（AWS）云服务管理。</li>
-</ul>
-<p>根据 Ansible 官方提供的信息，当前使用 Ansible 的用户有：evernote、rackspace、NASA、Atlassian、twitter 等。</p>
-<p>注：以上简介来自于ibm developerworks 中国的介绍。</p>
-<h3 id="二、Ansible的安装"><a href="#二、Ansible的安装" class="headerlink" title="二、Ansible的安装"></a>二、Ansible的安装</h3><h4 id="1、yum源安装"><a href="#1、yum源安装" class="headerlink" title="1、yum源安装"></a>1、yum源安装</h4><p>以centos为例，默认在源里没有ansible，不过在<a href="http://fedoraproject.org/wiki/EPEL" target="_blank" rel="external">fedora epel源</a>里有ansible，配置完epel 源后，可以直接通过yum 进行安装。这里以centos6.8为例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># yum install http://mirrors.sohu.com/fedora-epel/6/x86_64/epel-release-6-8.noarch.rpm</div><div class="line"># yum install ansible</div></pre></td></tr></table></figure>
-<h4 id="2、apt-get安装"><a href="#2、apt-get安装" class="headerlink" title="2、apt-get安装"></a>2、apt-get安装</h4><p>在ubuntu及其衍生版中，可以通过增加ppa源进行apt-get安装，具体如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install software-properties-common</div><div class="line">$ sudo apt-add-repository ppa:ansible/ansible</div><div class="line">$ sudo apt-get update</div><div class="line">$ sudo apt-get install ansible</div></pre></td></tr></table></figure>
-<h4 id="3、源码安装"><a href="#3、源码安装" class="headerlink" title="3、源码安装"></a>3、源码安装</h4><p>源码安装需要python2.6以上版本，其依赖模块paramiko、PyYAML、Jinja2、httplib2、simplejson、pycrypto模块，以上模块可以通过pip或easy_install 进行安装，不过本部分既然提到的是源码安装，主要针对的无法上外网的情况下，可以通过<a href="https://pypi.python.org/" target="_blank" rel="external">pypi 站点</a>搜索以上包，下载后通过python setup.py install 进行安装。</p>
-<p>最后通过<a href="https://github.com/ansible/ansible" target="_blank" rel="external">github</a>或<a href="https://pypi.python.org/pypi/ansible/1.9.1" target="_blank" rel="external">pypi上</a>下载ansible源码包，通过python setup.py install 安装即可。由于安装过程相对简单，这里略过，主要介绍安装后，可能遇到的问题。</p>
-<p>a、安装PyYAML时，报错如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># python setup.py install</div><div class="line">libyaml is not found or a compiler error: forcing --without-libyaml(if libyaml is installed correctly, you may need to specify the option --include-dirs or uncomment and modify the parameter include_dirs in setup.cfg)</div><div class="line">running install_lib</div><div class="line">running install_egg_info</div><div class="line">Removing /usr/lib64/python2.6/site-packages/PyYAML-3.11-py2.6.egg-info</div><div class="line">Writing /usr/lib64/python2.6/site-packages/PyYAML-3.11-py2.6.egg-info</div></pre></td></tr></table></figure>
-<p>在centos6.8系统中，可以通过yum -y install libyaml 包解决，或者从ISO文件中提供该包，通过rpm -ivh进行安装。</p>
-<p>b、安装完ansible是，报错如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ansible-1.9.1]# ansible -h</div><div class="line">Traceback (most recent call last):</div><div class="line">File &quot;/usr/local/src/ansible-devel/bin/ansible&quot;, line 36, in &lt;module&gt;    </div><div class="line">from ansible.runner import Runner</div><div class="line">File &quot;/usr/local/src/ansible-devel/lib/ansible/runner/__init__.py&quot;, line 62, in &lt;module&gt;</div><div class="line">from Crypto.Random import atfork</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/__init__.py&quot;, line 29, in &lt;module&gt;</div><div class="line">from Crypto.Random import _UserFriendlyRNG</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/_UserFriendlyRNG.py&quot;, line 38, in &lt;module&gt;</div><div class="line">from Crypto.Random.Fortuna import FortunaAccumulator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaAccumulator.py&quot;, line 39, in &lt;module&gt;</div><div class="line">import FortunaGenerator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaGenerator.py&quot;, line 34, in &lt;module&gt; </div><div class="line">from Crypto.Util.number import ceil_shift, exact_log2, exact_div</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Util/number.py&quot;, line 56, in &lt;module&gt;</div><div class="line">if _fastmath is not None and not _fastmath.HAVE_DECL_MPZ_POWM_SEC:</div><div class="line">AttributeError: &apos;module&apos; object has no attribute &apos;HAVE_DECL_MPZ_POWM_SEC&apos;</div></pre></td></tr></table></figure>
-<p>import paramiko包时，报错如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; import paramiko</div><div class="line">Traceback (most recent call last):</div><div class="line">File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;  File &quot;/usr/lib/python2.6/site-packages/paramiko/__init__.py&quot;, line 69, in &lt;module&gt;</div><div class="line">from transport import randpool, SecurityOptions, Transport</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/transport.py&quot;, line 32, in &lt;module&gt;</div><div class="line">from paramiko import util</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/util.py&quot;, line 32, in &lt;module&gt;</div><div class="line">from paramiko.common import *</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/common.py&quot;, line 98, in &lt;module&gt;</div><div class="line">from rng import StrongLockingRandomPool</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/rng.py&quot;, line 22, in &lt;module&gt;</div><div class="line">from Crypto.Util.randpool import RandomPool as _RandomPool</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Util/randpool.py&quot;, line 30, in &lt;module&gt;</div><div class="line">import Crypto.Random</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/__init__.py&quot;, line 29, in &lt;module&gt;</div><div class="line">from Crypto.Random import _UserFriendlyRNG</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/_UserFriendlyRNG.py&quot;, line 38, in &lt;module&gt;</div><div class="line">from Crypto.Random.Fortuna import FortunaAccumulator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaAccumulator.py&quot;, line 39, in &lt;module&gt;</div><div class="line">import FortunaGenerator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaGenerator.py&quot;, line 34, in &lt;module&gt; </div><div class="line">from Crypto.Util.number import ceil_shift, exact_log2, exact_div</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Util/number.py&quot;, line 56, in &lt;module&gt;</div><div class="line">if _fastmath is not None and not _fastmath.HAVE_DECL_MPZ_POWM_SEC:</div><div class="line">AttributeError: &apos;module&apos; object has no attribute &apos;HAVE_DECL_MPZ_POWM_SEC&apos;</div></pre></td></tr></table></figure>
-<p>经网上查找，确认为pycrypto包安装时依赖的GMP版本不对的问题，具体可以通过以下步骤验证：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@361way.com pycrypto-2.6.1]# python setup.py build</div><div class="line">running build</div><div class="line">running build_py</div><div class="line">running build_ext</div><div class="line">running build_configure</div><div class="line">warning: GMP or MPIR library not found; Not building Crypto.PublicKey._fastmath.</div></pre></td></tr></table></figure>
-<p><strong>解决方法：</strong></p>
-<p>打开 /usr/lib64/python2.6/site-packages/Crypto/Util/number.py 文件，可以 看到 56 行上的注释说明，要求 libgmp 为 v5 以上版本。而系统现有版本为 4.1.4，把以下两行暂时注释掉，Ansible 执行正常。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">if _fastmath is not None and not _fastmath.HAVE_DECL_MPZ_POWM_SEC:     </div><div class="line">_warn(&quot;Not using mpz_powm_sec.  You should rebuild using libgmp &gt;= 5 to avoid timing attack vulnerability.&quot;, PowmInsecureWarning)</div></pre></td></tr></table></figure>
-<p>不过，此方法只是临时加以解决，更好的方式是去将 libgmp 升级到符合要求的版本。</p>
-<p>c、执行时报错</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@361way.com src]# ansible test -m raw -a &apos;uptime&apos;</div><div class="line">10.212.52.14 | FAILED =&gt; to use the &apos;ssh&apos; connection type with passwords, you must install the sshpass program</div><div class="line">10.212.52.16 | FAILED =&gt; to use the &apos;ssh&apos; connection type with passwords, you must install the sshpass program</div></pre></td></tr></table></figure>
-<p>安装<a href="http://mirrors.sohu.com/fedora-epel/6/x86_64/sshpass-1.05-1.el6.x86_64.rpm" target="_blank" rel="external">sshpass程序</a>。默认源里没有，我这里选择直接从sohu源里下载安装。</p>
-<h3 id="三、Ansible的配置与验证"><a href="#三、Ansible的配置与验证" class="headerlink" title="三、Ansible的配置与验证"></a>三、Ansible的配置与验证</h3><p>这里以pypi上下载的源码内有一个examles包，可以将使用该示例文件做为默认配置，具体如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ansible-1.9.1]# mkdir -p /etc/ansible</div><div class="line">[root@361way.com ansible-1.9.1]# cp -rp examples/*  /etc/ansible/</div><div class="line">[root@361way.com ansible-1.9.1]# cd /etc/ansible/</div></pre></td></tr></table></figure>
-<p>使用默认示例配置文件后，编辑/etc/ansible/hosts文件，通过以下方式验证ansible是否可用：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# cat /etc/ansible/hosts</div><div class="line">[test]</div><div class="line">10.212.52.252 ansible_ssh_user=root ansible_ssh_pass=361way.com</div><div class="line">10.212.52.14 ansible_ssh_user=root ansible_ssh_pass=abc123</div><div class="line">10.212.52.16 ansible_ssh_user=root ansible_ssh_pass=91it.org</div></pre></td></tr></table></figure>
-<p>以上的配置中，我配置了一个test组，该组下有三台主机，三台都使用root验证，三台的密码分别是361way.com、abc123、91it.org 。</p>
-<p>注：后面的用户和密码项是非必须的，在配置key认证的情况下，不使用密码也可以直接操作 。未使用key的，也可以在ansible通过 -k参数在操作前询问手动输入密码。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible test -a &apos;uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 18:01pm  up 21 days  3:24,  3 users,  load average: 0.39, 0.38, 0.35</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 18:09pm  up 329 days  1:01,  2 users,  load average: 0.08, 0.03, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 18:08pm  up 329 days  0:23,  2 users,  load average: 0.06, 0.06, 0.05</div></pre></td></tr></table></figure>
-<p>执行以上指令后，有结果输出，证明安装成功。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      Ansible 是一个配置管理和应用部署工具，功能类似于目前业界的配置管理工具 Chef,Puppet,Saltstack。Ansible 是通过 Python 语言开发。Ansible 平台由 Michael DeHaan 创建，他同时也是知名软件 Cobbler 与 Func 的作者。Ansible 的第一个版本发布于 2012 年 2 月。Ansible 默认通过 SSH 协议管理机器，所以 Ansible 不需要安装客户端程序在服务器上。您只需要将 Ansible 安装在一台服务器，在 Ansible 安装完后，您就可以去管理控制其它服务器。不需要为它配置数据库，Ansible 不会以 daemons 方式来启动或保持运行状态。Ansible 可以实现以下目标：
+      在现网应用中，安全加固后的主机是不允许直接以root用户登陆的，而很多命令又需要root用户来执行，在不改造现网的情况下。希望通过一个普通用户先登陆，再su切到root执行。而且每台主机的普通用户和root用户的密码又不同。希望在通过ansible执行的时候不需要交互输入密码，而是直接执行后输出结果。
     
     </summary>
     
@@ -465,10 +371,10 @@
   
   <entry>
     <title>ansible小结（八）ansible-playbook简单使用</title>
-    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_08/"/>
-    <id>https://plpcm.github.io/blog/2016/10/22/ansible_08/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:46:01.000Z</updated>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_10/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_10/</id>
+    <published>2016-10-22T02:40:16.000Z</published>
+    <updated>2017-01-11T01:40:14.000Z</updated>
     
     <content type="html"><![CDATA[<p>playbook通过ansible-playbook命令使用,它的参数和ansible命令类似,如参数-k(–ask-pass) 和 -K (–ask-sudo) 来询问ssh密码和sudo密码,-u指定用户,这些指令也可以通过规定的单元写在playbook 。ansible-playbook的简单使用方法: ansible-playbook example-play.yml 。</p>
 <h3 id="一、一个简单的示例"><a href="#一、一个简单的示例" class="headerlink" title="一、一个简单的示例"></a>一、一个简单的示例</h3><p>下面给出一个简单的ansible-playbook示例，了解下其构成。</p>
@@ -527,221 +433,11 @@
   </entry>
   
   <entry>
-    <title>ansible小结（三）Inventory与Patterns</title>
-    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_03/"/>
-    <id>https://plpcm.github.io/blog/2016/10/22/ansible_03/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:26:31.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="一、Hosts-and-Groups（主机与组）"><a href="#一、Hosts-and-Groups（主机与组）" class="headerlink" title="一、Hosts and Groups（主机与组）"></a>一、Hosts and Groups（主机与组）</h3><p>对于/etc/ansible/hosts最简单的定义格式像下面：</p>
-<h4 id="1、简单的主机和组"><a href="#1、简单的主机和组" class="headerlink" title="1、简单的主机和组"></a>1、简单的主机和组</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mail.361way.com</div><div class="line">[webservers]</div><div class="line">web1.361way.com</div><div class="line">web2.361way.com </div><div class="line">[dbservers]</div><div class="line">db1.361way.com</div><div class="line">db2.361way.com</div></pre></td></tr></table></figure>
-<p>a、中括号中的名字代表组名，你可以根据你自己的需求将庞大的主机分成具有标识的组，如上面我分了两个组webservers和dbservers组；</p>
-<p>b、主机(hosts)部分可以使用域名、主机名、IP地址表示；当然使用前两者时，也需要主机能反解析到相应的IP地址，一般此类配置中多使用IP地址；</p>
-<h4 id="2、端口与别名"><a href="#2、端口与别名" class="headerlink" title="2、端口与别名"></a>2、端口与别名</h4><p>如果某些主机的SSH运行在自定义的端口上，ansible使用Paramiko进行ssh连接时，不会使用你SSH配置文件中列出的端口，但是如果修改ansible使用openssh进行ssh连接时将会使用：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">192.168.0.10:5309</div></pre></td></tr></table></figure>
-<p>假如你想要为某些静态IP设置一些别名，类似于SaltStack中minion配置文件中id的参数配置。你可以这样做：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">jumper ansible_ssh_port = 5555 ansible_ssh_host = 192.168.1.50</div></pre></td></tr></table></figure>
-<p>上面的 jumper 别名就指代了IP为192.168.1.50，ssh连接端口为5555的主机。</p>
-<h4 id="3、指定主机范围"><a href="#3、指定主机范围" class="headerlink" title="3、指定主机范围"></a>3、指定主机范围</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[webservers]</div><div class="line">www[01:50].361way.com</div><div class="line">[databases]</div><div class="line">db-[a:f].91it.org</div></pre></td></tr></table></figure>
-<p>上面指定了从web1到web50，webservers组共计50台主机；databases组有db-a到db-f共6台主机。</p>
-<h4 id="4、使用主机变量"><a href="#4、使用主机变量" class="headerlink" title="4、使用主机变量"></a>4、使用主机变量</h4><p>以下是Hosts部分中经常用到的变量部分</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">ansible_ssh_host # 要连接的主机名</div><div class="line">ansible_ssh_port # 端口号默认是22</div><div class="line">ansible_ssh_user # ssh连接时默认使用的用户名</div><div class="line">ansible_ssh_pass # ssh连接时的密码</div><div class="line">ansible_sudo_pass # 使用sudo连接用户是的密码</div><div class="line">ansible_ssh_private_key_file # 秘钥文件如果不想使用ssh-agent管理时可以使用此选项</div><div class="line">ansible_shell_type # shell的类型默认sh</div><div class="line">ansible_connection # SSH 连接的类型： local , ssh , paramiko在 ansible 1.2 之前默认是 paramiko ，后来智能选择，优先使用基于 ControlPersist 的 ssh （支持的前提）</div><div class="line">ansible_python _ interpreter #用来指定 python 解释器的路径，同样可以指定ruby 、perl 的路径</div></pre></td></tr></table></figure>
-<p>示例如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[test]</div><div class="line">10.212.52.252 ansible_ssh_user=root ansible_ssh_pass=&apos;361way.com&apos;</div><div class="line">10.212.52.14 ansible_ssh_user=test1 ansible_ssh_pass=&apos;91it.org&apos;</div><div class="line">10.212.52.16 ansible_ssh_user=test2 ansible_ssh_port=7788 ansible_ssh_pass=&apos;123456&apos;</div></pre></td></tr></table></figure>
-<p>上面的示例中指定了三台主机，三台主机的用密码分别是361way.com、91it.org、123456，指定的ssh连接的用户名分别为root、test1、test2，ssh 端口分别为22、22、7788 ，这样在ansible命令执行的时候就不用再指令用户和密码等了，执行结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible test -a &apos;uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">01:34am  up 23 days 10:57,  2 users,  load average: 0.42, 0.39, 0.41</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line">01:41am  up 331 days  8:33,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line">01:40am  up 331 days  7:55,  2 users,  load average: 0.09, 0.03, 0.05</div></pre></td></tr></table></figure>
-<h4 id="5、组内变量"><a href="#5、组内变量" class="headerlink" title="5、组内变量"></a>5、组内变量</h4><p>变量也可以通过组名，应用到组内的所有成员：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[test]</div><div class="line">host1</div><div class="line">host2</div><div class="line">[test:vars]</div><div class="line">ntp_server=ntp.361way.com</div><div class="line">proxy=proxy.361way.com</div></pre></td></tr></table></figure>
-<p>上面test组中包含两台主机，通过对test组指定vars变更，相应的host1和host2相当于相应的指定了ntp_server和proxy变量参数值 。</p>
-<h4 id="6、组的包含与组内变量"><a href="#6、组的包含与组内变量" class="headerlink" title="6、组的包含与组内变量"></a>6、组的包含与组内变量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">[hangzhou]</div><div class="line">host1</div><div class="line">host2</div><div class="line">[jiaxing]</div><div class="line">host2</div><div class="line">host3</div><div class="line">[zhejiang:children]</div><div class="line">hangzhou</div><div class="line">jiaxing</div><div class="line">[zhejiang:vars]</div><div class="line">some_server=foo.southeast.example.com</div><div class="line">halon_system_timeout=30</div><div class="line">self_destruct_countdown=60</div><div class="line">escape_pods=2</div><div class="line">[china:children]</div><div class="line">zhejiang</div><div class="line">henan</div><div class="line">shandong</div><div class="line">hebei</div></pre></td></tr></table></figure>
-<p>如上面的示例中，我指定了杭州组我有host1、hosts2；嘉兴组我有host3、host4主机；我又指定了一个组浙江组，同时包含杭州和嘉兴；同时为该组内的所有主机指定了四个vars变量。后面我又设定了一个组中国组，包含浙江、河南、山东、河北。</p>
-<p>注：由于vars变量在ansible ad-hoc部分中基本用不到，主要用在ansible-playbook中，后面的章节部分也会提到。</p>
-<p>以上部分基本上是完全按照<a href="http://docs.ansible.com/intro_inventory.html" target="_blank" rel="external">官方Inventory 文档</a>部分进行了翻译和微小的变化。英文感觉还可以的可以直接查看官方页面。</p>
-<h3 id="二、Patterns（主机与组正则匹配部分）"><a href="#二、Patterns（主机与组正则匹配部分）" class="headerlink" title="二、Patterns（主机与组正则匹配部分）"></a>二、Patterns（主机与组正则匹配部分）</h3><p>把Patterns 直接理解为正则实际是不完全准确的，正常的理解为patterns意味着在ansible中管理哪些主机，也可以理解为，要与哪台主机进行通信。在探讨这个问题之前我们先看下ansible的用法：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible &lt;pattern_goes_here&gt; -m &lt;module_name&gt; -a &lt;arguments&gt;</div></pre></td></tr></table></figure>
-<p>直接上一个示例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible webservers -m service -a &quot;name=httpd state=restarted&quot;</div></pre></td></tr></table></figure>
-<p>这里是对webservers 组或主机重启httpd服务 ，其中webservers 就是Pattern部分。而之所以上面我说Pattern（模式）可以理解为正则，主要针对下面经常用到的用法而言的。</p>
-<h4 id="1、表示所有的主机可以使用all-或"><a href="#1、表示所有的主机可以使用all-或" class="headerlink" title="1、表示所有的主机可以使用all 或 *"></a>1、表示所有的主机可以使用all 或 *</h4><h4 id="2、通配符与逻辑或"><a href="#2、通配符与逻辑或" class="headerlink" title="2、通配符与逻辑或"></a>2、通配符与逻辑或</h4><p>利用通配符还可以指定一组具有规则特征的主机或主机名，冒号表示or－－－逻辑或</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">one.361way.com</div><div class="line">one.361way:two.361way.com</div><div class="line">192.168.1.50</div><div class="line">192.168.1.*</div></pre></td></tr></table></figure>
-<p>当然，这里的*通配符也可以用在前面，如：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">*.361way.com</div><div class="line">*.com</div></pre></td></tr></table></figure>
-<p>上面的用法，在多个组之间同样适用 ，如：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">webservers</div><div class="line">webservers:dbservers  //表示两个组中所有的主机</div></pre></td></tr></table></figure>
-<h4 id="3、逻辑非与逻辑and"><a href="#3、逻辑非与逻辑and" class="headerlink" title="3、逻辑非与逻辑and"></a>3、逻辑非与逻辑and</h4><p>当然你可以做出非的表达式，例如，目标主机必须在组webservers但不在phoenix组中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webserver:!phoenix</div></pre></td></tr></table></figure>
-<p>你还可以做出交集的表达式，例如，目标主机必须即在组webservers中又在组staging中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webservers:&amp;staging</div></pre></td></tr></table></figure>
-<p>一个更复杂的示例：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webserver:dbservers:&amp;staging:!phoenix</div></pre></td></tr></table></figure>
-<p>上面这个复杂的表达式最后表示的目标主机必须满足：在webservers或者dbservers组中，必须还存在于staging组中，但是不在phoenix组中。这些可以看作是SaltStack中Compound matchers 。</p>
-<h4 id="4、混合高级用法"><a href="#4、混合高级用法" class="headerlink" title="4、混合高级用法"></a>4、混合高级用法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">*.361way.com:*.org</div></pre></td></tr></table></figure>
-<p>还可以在开头的地方使用”~”，用来表示这是一个正则表达式:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~(web|db).*\.91it\.org</div></pre></td></tr></table></figure>
-<p>到这里估计你应该用能明白为什么前面我会提到Patterns 可以理解为正则的原因了。最后部分给两个ansible-playbook中具体可能用的用法：</p>
-<p>a、在ansible-palybook命令中，你也可以使用变量来组成这样的表达式，但是你必须使用“-e”的选项来指定这个表达式（通常我们不这样用）：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible-palybook -e webservers:!&#123;&#123;excluded&#125;&#125;:&amp;&#123;&#123;required&#125;&#125;</div></pre></td></tr></table></figure>
-<p>b、在ansible和ansible-playbook中，还可以通过一个参数”–limit”来明确指定排除某些主机或组：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible-playbook site.yml --limit datacenter2</div></pre></td></tr></table></figure>
-<p>以上部分主要按照<a href="http://docs.ansible.com/intro_patterns.html" target="_blank" rel="external">官方Pattern部分</a>进行翻译和尝试。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      Ansible的Inventory文件，可以理解为saltstack中的salt-key中的所有minion的列表以及用户自定义的nodegroup的概念，默认情况下这个文件是/etc/ansible/hosts ，后面还会讲到Dynamic Inventory，本节主要讲静态主机群部分。Patterns（模式）部分我们可以理解为正则表达式，通过Patterns我们可以匹配Inventory分组中的部分主机。
-    
-    </summary>
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
-    
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
-    
-      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ansible小结（十 二）磁盘使用率筛选</title>
-    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_12/"/>
-    <id>https://plpcm.github.io/blog/2016/10/22/ansible_12/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-11T01:36:37.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="一、实现目标"><a href="#一、实现目标" class="headerlink" title="一、实现目标"></a>一、实现目标</h3><p>将所有主机的磁盘大于75%的主机获取到，并输出为下面的格式：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">主机IP    主机名      磁盘挂载点信息     磁盘使用率</div></pre></td></tr></table></figure>
-<p>假如 host1上有多个分区都大于75% ，则写多条。当主机上没有一台符合时，则什么都不输出。</p>
-<p>注：现网主机上有两个 bond 网卡，其中一个配置的是10段的IP，另一个配置的是192段的IP。这里要获取的是10段的IP。</p>
-<h3 id="二、-ansible-awk-简单输出"><a href="#二、-ansible-awk-简单输出" class="headerlink" title="二、 ansible + awk 简单输出"></a>二、 ansible + awk 简单输出</h3><p>该问题我处理的结果是使用ansible api 写的一个python脚本实现的。先看下我在一个技术群和一个大牛的讨论的结果(点击图片看大图)。</p>
-<p><a href="http://www.361way.com/wp-content/uploads/2016/01/ansible-df.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2016/01/ansible-df-300x100.png" alt="ansible-df"></a></p>
-<p>如上图，大牛的做法用的是awk 的next方法进行的处理，awk 的next功能我也做过记录，具体参看<a href="http://www.361way.com/awk-next-merge-lines/4923.html" target="_blank" rel="external">awk next多行合并</a> 。</p>
-<p>这里有几个注意点需要说明下：</p>
-<p>1、大牛的写法中在筛选上写的不严谨，$5前应该有int转化，不过不能正确的取到值</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# df -hP|awk &apos;NR&gt;1 &amp;&amp; $5 &gt; 20&apos;</div><div class="line">/dev/xvda1       20G  4.6G   15G  25% /</div><div class="line">/dev/xvdb        20G  645M   18G   4% /data1</div><div class="line">[root@361way ~]# df -hP|awk &apos;NR&gt;1 &amp;&amp; int($5) &gt; 20&apos;</div><div class="line">/dev/xvda1       20G  4.6G   15G  25% /</div></pre></td></tr></table></figure>
-<p>有没有看到，如果不做int格式转换取的结果是所有分区的信息，而加上int后获取的才是我们想要的结果</p>
-<p>2、在ansible执行时$5前面要加上转义</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># ansible all -m shell -a &quot;df -hP|awk &apos;NR&gt;1 &amp;&amp; int($5) &gt; 50&apos;&quot;</div><div class="line">10.212.52.252 | FAILED | rc=2 &gt;&gt;</div><div class="line">awk: fatal: 0 is invalid as number of arguments for int</div><div class="line">[root@361way ~]# df -hP|awk &apos;NR&gt;1 &amp;&amp; int(\$5) &gt; 20&apos;</div><div class="line">awk: NR&gt;1 &amp;&amp; int(\$5) &gt; 20</div><div class="line">awk:             ^ backslash not last character on line</div></pre></td></tr></table></figure>
-<p>如上面的结果，如果在ansible执行时不加转义时会有报错提示，如果加上转义在主机端执行时会自动是将转义符去掉的结果。而在主机端执行时，如果加上了转义也会报错。所以主机端一定不能加上转义。</p>
-<p>3、在实际应用时，输出结果可能和大牛的输出有差距</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# ansible all -m shell -a &quot;df -hP|awk &apos;NR&gt;1 &amp;&amp; int(\$5) &gt; 30&apos;&quot;|awk &apos;/success/&#123;ip=$1;next&#125;&#123;print ip,$0&#125;&apos;</div><div class="line">10.212.52.252 /dev/sda9       9.9G  2.9G  6.5G  31% /opt</div><div class="line">10.212.52.252 /dev/sda6       5.0G  1.9G  2.8G  41% /tmp</div><div class="line">10.212.52.252 /dev/sda5       9.9G  3.9G  5.5G  42% /usr</div><div class="line">10.212.52.252</div><div class="line">10.212.52.14 /dev/cciss/c0d0p5  9.9G  3.2G  6.3G  34% /usr</div><div class="line">10.212.52.14</div><div class="line">10.212.52.16 /dev/cciss/c0d0p7  9.9G  4.0G  5.4G  43% /tmp</div><div class="line">10.212.52.16 /dev/cciss/c0d0p5  9.9G  2.9G  6.5G  31% /usrdf: `/root/.gvfs&apos;: Permission denied</div><div class="line">10.212.52.16</div></pre></td></tr></table></figure>
-<p>上面的结果是我在自己的测试环境上执行的结果。可以看到多出的空行也打印了主机的IP 。还会需要注意的，我这里ansible输出的success是小写的。</p>
-<p>不知道以上的问题是不是使用的环境不同造成的。我运行的环境是ansible主机为redhat6，ansible版本为1.9，被取数据主机有redhat6和suse11 。不过这都是小问题，同样可以通过处理获取到正常的结果。</p>
-<p>4、ansible api 执行</p>
-<p>上面的大牛的结果，我使用ansible api 执行，如下，可以对比下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">[root@localhost ~]# cat /tmp/test.py</div><div class="line">#!/usr/bin/env python</div><div class="line"># coding=utf-8</div><div class="line"># author ： www.361way.com</div><div class="line"># mail : itybku@139.com</div><div class="line">import ansible.runner</div><div class="line">#import json</div><div class="line">runner = ansible.runner.Runner(</div><div class="line">           module_name=&apos;shell&apos;,</div><div class="line">           module_args=&quot;df -hP|awk &apos;NR&gt;1 &amp;&amp; int($5)&gt;30&apos;&quot;,</div><div class="line">           pattern=&apos;all&apos;,</div><div class="line">           forks=10</div><div class="line">        )</div><div class="line">results = runner.run()</div><div class="line">#print  results</div><div class="line">for (hostname, result) in results[&apos;contacted&apos;].items():</div><div class="line">    if not &apos;failed&apos; in result:</div><div class="line">        for line in  result[&apos;stdout&apos;].split(&apos;\n&apos;):</div><div class="line">            print &quot;%s  %s&quot; % (hostname, line)</div><div class="line"># 执行结果如下</div><div class="line">[root@localhost ~]# python /tmp/test.py</div><div class="line">10.212.52.16  /dev/cciss/c0d0p7  9.9G  4.0G  5.4G  43% /tmp</div><div class="line">10.212.52.16  /dev/cciss/c0d0p5  9.9G  2.9G  6.5G  31% /usr</div><div class="line">10.212.52.252  /dev/sda9       9.9G  2.9G  6.5G  31% /opt</div><div class="line">10.212.52.252  /dev/sda6       5.0G  1.9G  2.8G  41% /tmp</div><div class="line">10.212.52.252  /dev/sda5       9.9G  3.9G  5.5G  42% /usr</div><div class="line">10.212.52.14  /dev/cciss/c0d0p5  9.9G  3.2G  6.3G  34% /usr</div></pre></td></tr></table></figure>
-<h3 id="三、还是ansible-api-获取磁盘信息"><a href="#三、还是ansible-api-获取磁盘信息" class="headerlink" title="三、还是ansible api 获取磁盘信息"></a>三、还是ansible api 获取磁盘信息</h3><p>上面的方法中实际执行时，比我们预期需要的效果少了主机名一项。这里我换做执行脚本实现，实现效果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">#/bin/bash</div><div class="line"># author : www.361way.com</div><div class="line">IP=`ip add show|grep inet|grep 10|awk &apos;&#123;print $2&#125;&apos;`</div><div class="line">df -hl|grep &apos;^/&apos;|sed &apos;s/%//g&apos;|awk &apos;&#123;if($5&gt;30) print $0&#125;&apos;|while read line</div><div class="line">do</div><div class="line">    echo $IP `hostname` $line</div><div class="line">done</div><div class="line"># 执行结果如下</div><div class="line"># sh aa.sh</div><div class="line">10.212.52.253/24 localhost /dev/sda3 9.5G 5.7G 3.4G 64 /</div><div class="line">10.212.52.253/24 localhost /dev/sda2 39G 19G 18G 52 /home</div><div class="line">10.212.52.253/24 localhost /dev/sda6 9.5G 7.1G 2.0G 78 /usr</div></pre></td></tr></table></figure>
-<p>使用ansible api 执行该脚本的结果如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"># python dfscript.py</div><div class="line">df: `/root/.gvfs&apos;: Permission denied</div><div class="line">df: `/root/.gvfs&apos;: Permission denied</div><div class="line">10.212.52.16/24 linux /dev/cciss/c0d0p7 9.9G 4.0G 5.4G 43 /tmp</div><div class="line">10.212.52.16/24 linux /dev/cciss/c0d0p5 9.9G 2.9G 6.5G 31 /usr</div><div class="line">10.212.52.252/24 zjhz-bmc-test /dev/sda9 9.9G 2.9G 6.5G 31 /opt</div><div class="line">10.212.52.252/24 zjhz-bmc-test /dev/sda6 5.0G 1.9G 2.8G 41 /tmp</div><div class="line">10.212.52.252/24 zjhz-bmc-test /dev/sda5 9.9G 3.9G 5.5G 42 /usr</div><div class="line">10.212.52.14/24 linux /dev/cciss/c0d0p5 9.9G 3.2G 6.3G 34 /usr</div></pre></td></tr></table></figure>
-<p>dfscript.py脚本内容如下</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"># cat dfscript.py</div><div class="line">#!/usr/bin/env python</div><div class="line"># coding=utf-8</div><div class="line"># author ： www.361way.com</div><div class="line"># mail : itybku@139.com</div><div class="line">import ansible.runner</div><div class="line">#import json</div><div class="line">runner = ansible.runner.Runner(</div><div class="line">           module_name=&apos;script&apos;,</div><div class="line">           module_args=&quot;aa.sh&quot;,</div><div class="line">           pattern=&apos;all&apos;,</div><div class="line">           forks=10</div><div class="line">        )</div><div class="line">results = runner.run()</div><div class="line">#print  results</div><div class="line">for (hostname, result) in results[&apos;contacted&apos;].items():</div><div class="line">    if not &apos;failed&apos; in result:</div><div class="line">        for line in  result[&apos;stdout&apos;].split(&apos;\r\n&apos;):</div><div class="line">            #print &quot;%s  %s&quot; % (hostname, line)</div><div class="line">            print line</div></pre></td></tr></table></figure>
-<p>直接对该脚本执行后的结果进行grep 标准输出时，会发现其行与行之间是以\r\n这样的方式分行的。</p>
-<p><img src="http://www.361way.com/wp-content/uploads/2016/01/diskdf.png" alt="img"></p>
-<p>所以在数据获取方面，尽量以ansible api 的方式进行获取，而api 的使用非常简单，无法是几个参数的替换后面再调用run方法，最终在对结果进行处理。而涉及多项信息获取时，建议使用自定义模块的方法，先将所需数据取回来，以json方式返回－－－ansible自定义模块所要求的格式。返回后可以再以api 或其他方式处理返回的数据即可。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      年底了虽然有各种告警，不过还是需要做一下全网巡检，这里以磁盘使用率为例。由于目前平台上使用的是商业版的自动化工具bmc，其在执行分发都方面非常不存，不过在取值返回上做的不好－－－当然也和其是商业化工具有关，很多东西不开源，用shell 的语法概念写nsh时又执行不通过，NND总是要问原厂支撑 。刚好在测试环境上有之前安装的ansible环境，也测试下用ansible 来实现该功能。
-    
-    </summary>
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
-    
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
-    
-      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ansible小结（十一）ansible普通用户su切换问题</title>
-    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_11/"/>
-    <id>https://plpcm.github.io/blog/2016/10/22/ansible_11/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:52:45.000Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="一、ansible-hosts配置文件"><a href="#一、ansible-hosts配置文件" class="headerlink" title="一、ansible hosts配置文件"></a>一、ansible hosts配置文件</h3><p>在之前的系列文章中我们提到，可以把密码写到hosts配置文件，通过查询官网的相关信息了解了，其除了ansible_ssh_user、ansible_ssh_pass变量外，还为su切换提供了ansible_su_pass变量，通过该变量我们可以把root密码直接写到配置文件中。具体如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# cat /etc/ansible/hosts</div><div class="line">[test01]</div><div class="line">10.212.52.14 ansible_ssh_user=test ansible_ssh_pass=111111 ansible_su_pass=*I2145</div><div class="line">10.212.52.16 ansible_ssh_user=test ansible_ssh_pass=xyz123  ansible_su_pass=mn1Pokm</div><div class="line">10.212.52.252 ansible_ssh_user=amos ansible_ssh_pass=asdf ansible_su_pass=xyzp)okm</div></pre></td></tr></table></figure>
-<p>注：我测试使用的ansible版本是1.9版的，在新的2.0版本中，变量也做了变化ansible_become_pass替换了之前的ansible_sudo_pass or ansible_su_pass ，具体可以参看<a href="http://docs.ansible.com/ansible/become.html" target="_blank" rel="external">官方文档</a>。</p>
-<h3 id="二、ansible命令参数"><a href="#二、ansible命令参数" class="headerlink" title="二、ansible命令参数"></a>二、ansible命令参数</h3><p>在执行ansible -h查看时，会看到如下条目：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">-S, --su              run operations with su (deprecated, use become)</div><div class="line">-R SU_USER, --su-user=SU_USER</div><div class="line">                      run operations with su as this user (default=root)</div><div class="line">                      (deprecated, use become)</div></pre></td></tr></table></figure>
-<h3 id="三、su切换执行"><a href="#三、su切换执行" class="headerlink" title="三、su切换执行"></a>三、su切换执行</h3><p>所以结合上面两块，我们做下简单的测试：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible all  -S -R root -m shell -a &quot;uptime&quot;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 16:13pm  up 34 days  5:40,  2 users,  load average: 0.08, 0.21, 0.30</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 16:26pm  up 538 days 23:17,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 16:24pm  up 538 days 22:39,  2 users,  load average: 0.00, 0.01, 0.05</div></pre></td></tr></table></figure>
-<p>这里需要注意的是，普通用户的家目录是要存在，并切该普通用户要有写的权限的，不然会出现类似如下的报错：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">10.212.52.252 | FAILED =&gt; Authentication or permission failure.</div><div class="line">In some cases, you may have been able to authenticate and did not have permissions on the remote directory.</div><div class="line">Consider changing the remote temp path in ansible.cfg to a path rooted in &quot;/tmp&quot;.</div><div class="line">Failed command was: mkdir -p $HOME/.ansible/tmp/ansible-tmp-1449456070.96-212322517029279 &amp;&amp; echo $HOME/.ansible/tmp/ansible-tmp-1449456070.96-212322517029279,</div><div class="line">exited with result 1: mkdir: cannot create directory `/home/amos/.ansible&apos;: Permission denied</div></pre></td></tr></table></figure>
-<p>当然，如果这个普通用户没有家目录或者家目录没有写权限在不修改远端主机也有办法可以搞定，修改ansible主机的ansible.cfg配置文件，如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# vim /etc/ansible/ansible.cfg</div><div class="line">找到如下行：</div><div class="line">remote_tmp     = $HOME/.ansible/tmp</div><div class="line">修改为</div><div class="line">remote_tmp     = /tmp/.ansible/tmp</div></pre></td></tr></table></figure>
-<p>tmp目录一般都有写的权限吧，改成临时目录为/tmp下即可。</p>
-<p>再下为我们再看看远程主机的message日志文件确认下是否真的是通过普通用户切换的：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Dec  3 11:36:20 linux su: (to root) test on /dev/pts/1     //由普通用户test切换为su切换为root的日志</div><div class="line">Dec  3 11:36:20 linux ansible-command: Invoked with creates=None executable=None chdir=None args=uptime removes=None NO_LOG=None shell=True warn=True  //ansible执行的内容</div></pre></td></tr></table></figure>
-<p>功能实现了，最后要说的是，由于该配置文件中涉及到多台主机的用户名密码，所以该文件的安全工作一定要做好。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      在现网应用中，安全加固后的主机是不允许直接以root用户登陆的，而很多命令又需要root用户来执行，在不改造现网的情况下。希望通过一个普通用户先登陆，再su切到root执行。而且每台主机的普通用户和root用户的密码又不同。希望在通过ansible执行的时候不需要交互输入密码，而是直接执行后输出结果。
-    
-    </summary>
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
-    
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
-    
-      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>ansible小结（四）ansible.cfg与默认配置</title>
-    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_04/"/>
-    <id>https://plpcm.github.io/blog/2016/10/22/ansible_04/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:30:31.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Ansible默认安装好后有一个配置文件/etc/ansible/ansible.cfg，该配置文件中定义了ansible的主机的默认配置部分，如默认是否需要输入密码、是否开启sudo认证、action_plugins插件的位置、hosts主机组的位置、是否开启log功能、默认端口、key文件位置等等。</p>
-<p>具体如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">[defaults]</div><div class="line"># some basic default values...</div><div class="line">hostfile       = /etc/ansible/hosts   \\指定默认hosts配置的位置</div><div class="line"># library_path = /usr/share/my_modules/</div><div class="line">remote_tmp     = $HOME/.ansible/tmp</div><div class="line">pattern        = *</div><div class="line">forks          = 5</div><div class="line">poll_interval  = 15</div><div class="line">sudo_user      = root  \\远程sudo用户</div><div class="line">#ask_sudo_pass = True  \\每次执行ansible命令是否询问ssh密码</div><div class="line">#ask_pass      = True  \\每次执行ansible命令时是否询问sudo密码</div><div class="line">transport      = smart</div><div class="line">remote_port    = 22</div><div class="line">module_lang    = C</div><div class="line">gathering = implicit</div><div class="line">host_key_checking = False    \\关闭第一次使用ansible连接客户端是输入命令提示</div><div class="line">log_path    = /var/log/ansible.log \\需要时可以自行添加。chown -R root:root ansible.log</div><div class="line">system_warnings = False    \\关闭运行ansible时系统的提示信息，一般为提示升级</div><div class="line"># set plugin path directories here, separate with colons</div><div class="line">action_plugins     = /usr/share/ansible_plugins/action_plugins</div><div class="line">callback_plugins   = /usr/share/ansible_plugins/callback_plugins</div><div class="line">connection_plugins = /usr/share/ansible_plugins/connection_plugins</div><div class="line">lookup_plugins     = /usr/share/ansible_plugins/lookup_plugins</div><div class="line">vars_plugins       = /usr/share/ansible_plugins/vars_plugins</div><div class="line">filter_plugins     = /usr/share/ansible_plugins/filter_plugins</div><div class="line">fact_caching = memory</div><div class="line">[accelerate]</div><div class="line">accelerate_port = 5099</div><div class="line">accelerate_timeout = 30</div><div class="line">accelerate_connect_timeout = 5.0</div><div class="line"># The daemon timeout is measured in minutes. This time is measured</div><div class="line"># from the last activity to the accelerate daemon.</div><div class="line">accelerate_daemon_timeout = 30</div></pre></td></tr></table></figure>
-<p>本篇就结合一个示例对其进行下了解。我在对之前未连接的主机进行连结时报错如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible test -a &apos;uptime&apos;</div><div class="line">10.212.52.14 | FAILED =&gt; Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host&apos;s fingerprint to your known_hosts file to manage this host.</div><div class="line">10.212.52.16 | FAILED =&gt; Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host&apos;s fingerprint to your known_hosts file to manage this host.</div></pre></td></tr></table></figure>
-<p>从上面的输出提示上基本可以了解到由于在本机的~/.ssh/known_hosts文件中并有fingerprint key串，ssh第一次连接的时候一般会提示输入yes 进行确认为将key字符串加入到  ~/.ssh/known_hosts 文件中。</p>
-<h4 id="方法1："><a href="#方法1：" class="headerlink" title="方法1："></a>方法1：</h4><p>了解到问题原因为，我们了解到进行ssh连接时，可以使用-o参数将StrictHostKeyChecking设置为no，使用ssh连接时避免首次连接时让输入yes/no部分的提示。通过查看ansible.cfg配置文件，发现如下行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[ssh_connection]</div><div class="line"># ssh arguments to use</div><div class="line"># Leaving off ControlPersist will result in poor performance, so use</div><div class="line"># paramiko on older platforms rather than removing it</div><div class="line">#ssh_args = -o ControlMaster=auto -o ControlPersist=60s</div></pre></td></tr></table></figure>
-<p>所以这里我们可以启用ssh_args 部分，使用下面的配置，避免上面出现的错误：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking＝no</div></pre></td></tr></table></figure>
-<h4 id="方法2："><a href="#方法2：" class="headerlink" title="方法2："></a>方法2：</h4><p>在ansible.cfg配置文件中，也会找到如下部分：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># uncomment this to disable SSH key host checking</div><div class="line">host_key_checking = False</div></pre></td></tr></table></figure>
-<p>默认host_key_checking部分是注释的，通过找开该行的注释，同样也可以实现跳过 ssh 首次连接提示验证部分。由于配置文件中直接有该选项，所以推荐用方法2 。</p>
-<h4 id="其他部分"><a href="#其他部分" class="headerlink" title="其他部分"></a>其他部分</h4><p>由于官方给的说明比较详细，同时ansible.cfg 文件本身默认也有注释提示部分，所以不做过多说明，这里再举个例子，默认ansible 执行的时候，并不会输出日志到文件，不过在ansible.cfg 配置文件中有如下行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># logging is off by default unless this path is defined</div><div class="line"># if so defined, consider logrotate</div><div class="line">log_path = /var/log/ansible.log</div></pre></td></tr></table></figure>
-<p>同样，默认log_path这行是注释的，打开该行的注释，所有的命令执行后，都会将日志输出到/var/log/ansible.log 文件，便于了解在何时执行了何操作及其结果，如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ansible]# cat /var/log/ansible.log</div><div class="line">2015-05-04 01:57:19,758 p=4667 u=root |</div><div class="line">2015-05-04 01:57:19,759 p=4667 u=root |  /usr/bin/ansible test -a uptime</div><div class="line">2015-05-04 01:57:19,759 p=4667 u=root |</div><div class="line">2015-05-04 01:57:20,563 p=4667 u=root |  10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 01:57am  up 23 days 11:20,  2 users,  load average: 0.38, 0.38, 0.40</div><div class="line">2015-05-04 01:57:20,831 p=4667 u=root |  10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 02:03am  up 331 days  8:19,  2 users,  load average: 0.08, 0.05, 0.05</div><div class="line">2015-05-04 01:57:20,909 p=4667 u=root |  10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 02:05am  up 331 days  8:56,  2 users,  load average: 0.00, 0.01, 0.05</div></pre></td></tr></table></figure>
-<p>更多部分可以<a href="http://docs.ansible.com/intro_configuration.html" target="_blank" rel="external">参看官方文档</a>。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      ansible.cfg 配置小结
-    
-    </summary>
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
-    
-    
-      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
-    
-      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
-    
-  </entry>
-  
-  <entry>
     <title>ansible小结（八）ansible-playbook简单使用</title>
-    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_10/"/>
-    <id>https://plpcm.github.io/blog/2016/10/22/ansible_10/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:48:51.000Z</updated>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_08/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_08/</id>
+    <published>2016-10-22T02:38:16.000Z</published>
+    <updated>2017-01-11T01:39:57.000Z</updated>
     
     <content type="html"><![CDATA[<p>playbook通过ansible-playbook命令使用,它的参数和ansible命令类似,如参数-k(–ask-pass) 和 -K (–ask-sudo) 来询问ssh密码和sudo密码,-u指定用户,这些指令也可以通过规定的单元写在playbook 。ansible-playbook的简单使用方法: ansible-playbook example-play.yml 。</p>
 <h3 id="一、一个简单的示例"><a href="#一、一个简单的示例" class="headerlink" title="一、一个简单的示例"></a>一、一个简单的示例</h3><p>下面给出一个简单的ansible-playbook示例，了解下其构成。</p>
@@ -803,8 +499,8 @@
     <title>ansible小结（七）常用模块</title>
     <link href="https://plpcm.github.io/blog/2016/10/22/ansible_07/"/>
     <id>https://plpcm.github.io/blog/2016/10/22/ansible_07/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:46:19.000Z</updated>
+    <published>2016-10-22T02:37:16.000Z</published>
+    <updated>2017-01-11T01:39:46.000Z</updated>
     
     <content type="html"><![CDATA[<p>这里从官方分类的模块里选择最常用的一些模块进行介绍（commands模块上一篇已经介绍，这里不再提）。</p>
 <h3 id="一、ping模块"><a href="#一、ping模块" class="headerlink" title="一、ping模块"></a>一、ping模块</h3><p>测试主机是否是通的，用法很简单，不涉及参数：</p>
@@ -937,11 +633,252 @@
   </entry>
   
   <entry>
+    <title>ansible小结（六）Ad-hoc与commands模块</title>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_06/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_06/</id>
+    <published>2016-10-22T02:35:16.000Z</published>
+    <updated>2017-01-11T01:39:37.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="一、Ad-hoc"><a href="#一、Ad-hoc" class="headerlink" title="一、Ad-hoc"></a>一、Ad-hoc</h3><h4 id="1、直接执行"><a href="#1、直接执行" class="headerlink" title="1、直接执行"></a>1、直接执行</h4><p>这里还是先来一个上几篇幅经常用到的一个例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -a &apos;uptime&apos; -kSSH password:10.212.52.252 | success | rc=0 &gt;&gt; 10:10am  up 27 days 19:33,  2 users,  load average: 0.39, 0.34, 0.33</div></pre></td></tr></table></figure>
+<p>一个ad-hoc命令的执行，需要按以下格式进行执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible 主机或组  -m 模块名 -a &apos;模块参数&apos;  ansible参数</div></pre></td></tr></table></figure>
+<ul>
+<li>主机和组，是在/etc/ansible/hosts 里进行指定的部分，当然动态Inventory 使用的是脚本从外部应用里获取的主机，这部分具体可以参考<a href="http://www.361way.com/ansible-dynamic-inventory/4403.html" target="_blank" rel="external">ansible小结（五）Dynamic Inventory </a>；</li>
+<li>模块名，可以通过ansible-doc -l 查看目前安装的模块，默认不指定时，使用的是command模块，具体可以查看/etc/ansible/ansible.cfg 的“#module_name = command ” 部分，默认模块可以在该配置文件中进行修改；</li>
+<li>模块参数，可以通过 “ansible-doc 模块名” 查看具体的用法及后面的参数；</li>
+<li>ansible参数，可以通过ansible命令的帮忙信息里查看到，这里有很多参数可以供选择，如是否需要输入密码、是否sudo等。</li>
+</ul>
+<h4 id="2、后台执行"><a href="#2、后台执行" class="headerlink" title="2、后台执行"></a>2、后台执行</h4><p>当命令执行时间比较长时，也可以放到后台执行，这里会用到-B、-P参数，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible all -B 3600 -a &quot;/usr/bin/long_running_operation --do-stuff&quot; \\后台执行命令 3600s，-B 表示后台执行的时间ansible all -m async_status -a &quot;jid=123456789&quot;  \\检查任务的状态ansible all -B 1800 -P 60 -a &quot;/usr/bin/long_running_operation --do-stuff&quot; \\后台执行命令最大时间是 1800s 即 30 分钟，-P 每 60s 检查下状态默认 15s</div></pre></td></tr></table></figure>
+<p>示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -B 3600 -P 0 -a &apos;watch ls&apos;background launch...10.212.52.252 | success &gt;&gt; &#123;    &quot;ansible_job_id&quot;: &quot;411650646689.13501&quot;,    &quot;results_file&quot;: &quot;/root/.ansible_async/411650646689.13501&quot;,    &quot;started&quot;: 1&#125;[root@361way ~]# ansible 10.212.52.252 -m async_status -a &apos;jid=411650646689.13501&apos;10.212.52.252 | success &gt;&gt; &#123;    &quot;ansible_job_id&quot;: &quot;411650646689.13501&quot;,    &quot;changed&quot;: false,    &quot;finished&quot;: 0,    &quot;results_file&quot;: &quot;/root/.ansible_async/411650646689.13501&quot;,    &quot;started&quot;: 1&#125;</div></pre></td></tr></table></figure>
+<p>不指定-P或-P参数为非0时，该任务就会按-P直接的参数一直刷新下去，直到超出-B参数指定的时间或命令执行完成：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -B 3600  -a &apos;watch ls&apos;background launch...10.212.52.252 | success &gt;&gt; &#123;    &quot;ansible_job_id&quot;: &quot;397200656414.15008&quot;,    &quot;results_file&quot;: &quot;/root/.ansible_async/397200656414.15008&quot;,    &quot;started&quot;: 1&#125;10.212.52.252 | success &gt;&gt; &#123;    &quot;ansible_job_id&quot;: &quot;397200656414.15008&quot;,    &quot;changed&quot;: false,    &quot;finished&quot;: 0,    &quot;results_file&quot;: &quot;/root/.ansible_async/397200656414.15008&quot;,    &quot;started&quot;: 1&#125;&lt;job 397200656414.15008&gt; polling on 10.212.52.252, 3585s remaining…………………………………………略</div></pre></td></tr></table></figure>
+<h3 id="二、commands模块"><a href="#二、commands模块" class="headerlink" title="二、commands模块"></a>二、commands模块</h3><p>上面已经提到，ansbile自身已经自带了很多模块，可以通过ansible-doc -l 进行查看。这里就结合command、shell、raw、script模块了解下其用法。</p>
+<p>上面四个模块都属于<a href="http://docs.ansible.com/list_of_commands_modules.html" target="_blank" rel="external">commands 类</a>。</p>
+<ul>
+<li><a href="http://docs.ansible.com/command_module.html" target="_blank" rel="external">command模块</a>，该模块通过-a跟上要执行的命令可以直接执行，不过命令里如果有带有如下字符部分则执行不成功 “ so variables like $HOME and operations like “&lt;”, “&gt;”, “|”, and “&amp;” will not work (use the shell module if you need these features).”；</li>
+<li><a href="http://docs.ansible.com/shell_module.html" target="_blank" rel="external">shell 模块</a>，用法其本和command一样，不过的是其是通过/bin/sh进行执行，所以shell 模块可以执行任何命令，就像在本机执行一样，“ It is almost exactly like the command module but runs the command through a shell (/bin/sh) on the remote node.”；</li>
+<li><a href="http://docs.ansible.com/raw_module.html" target="_blank" rel="external">raw模块</a>，用法和shell 模块一样 ，其也可以执行任意命令，就像在本机执行一样，“Executes a low-down and dirty SSH command, not going through the module subsystem. There is no change handler support for this module. This module does not require python on the remote system”</li>
+<li><a href="http://docs.ansible.com/script_module.html" target="_blank" rel="external">script模块</a>，其是将管理端的shell 在被管理主机上执行，其原理是先将shell 复制到远程主机，再在远程主机上执行，原理类似于raw模块，“This module does not require python on the remote system, much like the raw module.” 。</li>
+</ul>
+<p>注：raw模块和comand、shell 模块不同的是其没有chdir、creates、removes参数，chdir参数的作用就是先切到chdir指定的目录后，再执行后面的命令，这在后面很多模块里都会有该参数 。</p>
+<p>command模块包含如下选项： </p>
+<ul>
+<li>creates：一个文件名，当该文件存在，则该命令不执行 </li>
+<li>free_form：要执行的linux指令 </li>
+<li>chdir：在执行指令之前，先切换到该指定的目录 </li>
+<li>removes：一个文件名，当该文件不存在，则该选项不执行</li>
+<li>executable：切换shell来执行指令，该执行路径必须是一个绝对路径</li>
+</ul>
+<p><strong>command模块、raw模块、shell模块示例：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -m command -a &apos;ps auxf|grep snmp&apos;</div><div class="line">10.212.52.252 | FAILED | rc=1 &gt;&gt;</div><div class="line">ERROR: Unsupported option (BSD syntax)</div><div class="line">********* simple selection *********  ********* selection by list *********</div><div class="line">-A all processes                      -C by command name</div><div class="line">-N negate selection                   -G by real group ID (supports names)</div><div class="line">-a all w/ tty except session leaders  -U by real user ID (supports names)</div><div class="line">-d all except session leaders         -g by session OR by effective group name</div><div class="line">-e all processes                      -p by process ID</div><div class="line">T  all processes on this terminal     -s processes in the sessions given</div><div class="line">a  all w/ tty, including other users  -t by tty</div><div class="line">g  OBSOLETE -- DO NOT USE             -u by effective user ID (supports names)</div><div class="line">r  only running processes             U  processes for specified users</div><div class="line">x  processes w/o controlling ttys     t  by tty</div><div class="line">*********** output format **********  *********** long options ***********</div><div class="line">-o,o user-defined  -f full            --Group --User --pid --cols --ppid</div><div class="line">-j,j job control   s  signal          --group --user --sid --rows --info</div><div class="line">-O,O preloaded -o  v  virtual memory  --cumulative --format --deselect</div><div class="line">-l,l long          u  user-oriented   --sort --tty --forest --version</div><div class="line">-F   extra full    X  registers       --heading --no-heading --context</div><div class="line">                    ********* misc options *********</div><div class="line">-V,V  show version      L  list format codes  f  ASCII art forest</div><div class="line">-m,m,-L,-T,H  threads   S  children in sum    -y change -l format</div><div class="line">-M,Z  security data     c  true command name  -c scheduling class</div><div class="line">-w,w  wide output       n  numeric WCHAN,UID  -H process hierarchy</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m raw -a &apos;ps auxf|grep snmp&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">root      5580 25.0  0.0  12876  1792 pts/2    Ss+  12:36   0:00      \_ bash -c ps auxf|grep snmp</div><div class="line">root      5607  0.0  0.0   5720   832 pts/2    S+   12:36   0:00          \_ grep snmp</div><div class="line">root     24364  0.0  0.0  70416  6696 ?        SNl  May15   0:22 /usr/sbin/snmpd -r -A -LF i /var/log/net-snmpd.log -p /var/run/snmpd.pid</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m shell -a &apos;ps auxf|grep snmp&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">root      5803  0.0  0.0  11308  1308 pts/2    S+   12:36   0:00              \_ /bin/sh -c ps auxf|grep snmp</div><div class="line">root      5805  0.0  0.0   4260   572 pts/2    S+   12:36   0:00                  \_ grep snmp</div><div class="line">root     24364  0.0  0.0  70416  6696 ?        SNl  May15   0:22 /usr/sbin/snmpd -r -A -LF i /var/log/net-snmpd.log -p /var/run/snmpd.pid</div></pre></td></tr></table></figure>
+<p>上面的执行结果可以看到，我这里加了管道，command模块执行时出错，而使用raw模块和shell 模块都正常。</p>
+<p><strong>使用chdir的示例：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -m command -a &apos;chdir=/tmp/361way touch test.file&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m shell -a &apos;chdir=/tmp/361way touch test2.file&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m raw -a &apos;chdir=/tmp/361way touch test3.file&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div></pre></td></tr></table></figure>
+<p>从上面执行结果来看，三个命令都执行成功了。不过通过在远程主机上查看，前两个文件被成功创建：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">linux-wdh1:/tmp/361way # ls /tmp/361way</div><div class="line">test.file  test2.file</div></pre></td></tr></table></figure>
+<p>使用raw模块的执行的结果文件也被正常创建了，不过不是在chdir 指定的目录，而是在当前执行用户的家目录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">linux-wdh1:~ # ls ~/test3.file</div><div class="line">/root/test3.file</div></pre></td></tr></table></figure>
+<p><strong>creates与removes示例：</strong></p>
+<p>这里我在测试主机上创建/tmp/361way/server.txt文件，执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -a &apos;creates=/tmp/361way/server.txt uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">skipped, since /tmp/361way/server.txt exists</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -a &apos;removes=/tmp/361way/server.txt uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 15:11pm  up 28 days  0:34,  2 users,  load average: 0.75, 0.46, 0.39</div></pre></td></tr></table></figure>
+<p><strong>script模块示例：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# cat script.sh</div><div class="line">#!/bin/bash</div><div class="line">df -hl</div><div class="line">ifconfig</div><div class="line">ps auxf|grep snmp</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m script -a &apos;scrip.sh&apos;</div><div class="line">10.212.52.252 | FAILED =&gt; file or module does not exist: /root/scrip.sh</div><div class="line">[root@361way ~]# ansible 10.212.52.252 -m script -a &apos;script.sh&apos;</div><div class="line">10.212.52.252 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: true,</div><div class="line">    &quot;rc&quot;: 0,</div><div class="line">    &quot;stderr&quot;: &quot;OpenSSH_5.3p1, OpenSSL 1.0.1e-fips 11 Feb 2013\ndebug1: Reading configuration data /etc/ssh/ssh_config\r\ndebug1: Applying options for *\r\ndebug1: auto-mux: Trying existing master\r\nControl socket connect(/root/.ansible/cp/ansible-ssh-10.212.52.252-22-root): Connection refused\r\ndebug1: Connecting to 10.212.52.252 [10.212.52.252] port 22.\r\ndebug1: fd 3 clearing O_NONBLOCK\r\ndebug1: Connection established.\r\ndebug1: permanently_set_uid: 0/0\r\ndebug1: identity file /root/.ssh/identity type -1\r\ndebug1: identity file /root/.ssh/identity-cert type -1\r\ndebug1: identity file /root/.ssh/id_rsa type -1\r\ndebug1: identity file /root/.ssh/id_rsa-cert type -1\r\ndebug1: identity file /root/.ssh/id_dsa type -1\r\ndebug1: identity file /root/.ssh/id_dsa-cert type -1\r\ndebug1: identity file /root/.ssh/id_ecdsa type -1\r\ndebug1: identity file /root/.ssh/id_ecdsa-cert type -1\r\ndebug1: Remote protocol version 2.0, remote software version OpenSSH_6.2\r\ndebug1: match: OpenSSH_6.2 pat OpenSSH*\r\ndebug1: Enabling compatibility mode for protocol 2.0\r\ndebug1: Local version string SSH-2.0-OpenSSH_5.3\r\ndebug1: SSH2_MSG_KEXINIT sent\r\ndebug1: SSH2_MSG_KEXINIT received\r\ndebug1: kex: server-&gt;client aes128-ctr hmac-md5 zlib@openssh.com\r\ndebug1: kex: client-&gt;server aes128-ctr hmac-md5 zlib@openssh.com\r\ndebug1: SSH2_MSG_KEX_DH_GEX_REQUEST(1024&lt;1024&lt;8192) sent\r\ndebug1: expecting SSH2_MSG_KEX_DH_GEX_GROUP\r\ndebug1: SSH2_MSG_KEX_DH_GEX_INIT sent\r\ndebug1: expecting SSH2_MSG_KEX_DH_GEX_REPLY\r\ndebug1: Host &apos;10.212.52.252&apos; is known and matches the RSA host key.\r\ndebug1: Found key in /root/.ssh/known_hosts:1\r\ndebug1: ssh_rsa_verify: signature correct\r\ndebug1: SSH2_MSG_NEWKEYS sent\r\ndebug1: expecting SSH2_MSG_NEWKEYS\r\ndebug1: SSH2_MSG_NEWKEYS received\r\ndebug1: SSH2_MSG_SERVICE_REQUEST sent\r\ndebug1: SSH2_MSG_SERVICE_ACCEPT received\r\ndebug1: Authentications that can continue: publickey,password,keyboard-interactive\r\ndebug1: Next authentication method: keyboard-interactive\r\ndebug1: Enabling compression at level 6.\r\ndebug1: Authentication succeeded (keyboard-interactive).\r\ndebug1: setting up multiplex master socket\r\nControlSocket /root/.ansible/cp/ansible-ssh-10.212.52.252-22-root already exists, disabling multiplexing\r\ndebug1: channel 0: new [client-session]\r\ndebug1: Requesting no-more-sessions@openssh.com\r\ndebug1: Entering interactive session.\r\ndebug1: Sending environment.\r\ndebug1: Sending env LANG = en_US.UTF-8\r\ndebug1: Sending command: LANG=C LC_CTYPE=C /root/.ansible/tmp/ansible-tmp-1431924855.88-242473611260231/script.sh \r\ndebug1: client_input_channel_req: channel 0 rtype exit-status reply 0\r\ndebug1: client_input_channel_req: channel 0 rtype eow@openssh.com reply 0\r\ndebug1: channel 0: free: client-session, nchannels 1\r\ndebug1: fd 1 clearing O_NONBLOCK\r\ndebug1: fd 2 clearing O_NONBLOCK\r\nConnection to 10.212.52.252 closed.\r\nTransferred: sent 1928, received 3920 bytes, in 0.1 seconds\r\nBytes per second: sent 37017.0, received 75262.7\r\ndebug1: Exit status 0\r\ndebug1: compress outgoing: raw data 537, compressed 375, factor 0.70\r\ndebug1: compress incoming: raw data 1837, compressed 1019, factor 0.55\r\n&quot;,</div><div class="line">    &quot;stdout&quot;: &quot;Filesystem      Size  Used Avail Use% Mounted on\r\n/dev/sda2       9.9G  872M  8.5G  10% /\r\nudev            3.9G  128K  3.9G   1% /dev\r\ntmpfs           3.9G   76K  3.9G   1% /dev/shm\r\n/dev/sda3       5.0G  219M  4.5G   5% /boot\r\n/dev/sda8        40G   15G   23G  40% /home\r\n/dev/sda9       9.9G  5.2G  4.3G  55% /opt\r\n/dev/sda6       5.0G  2.7G  2.1G  57% /tmp\r\n/dev/sda5       9.9G  3.4G  6.0G  36% /usr\r\n/dev/sda7       9.9G  823M  8.6G   9% /var\r\neth0      Link encap:Ethernet  HWaddr 00:50:56:A8:65:7E  \r\n          inet addr:10.212.52.252  Bcast:10.212.52.255  Mask:255.255.255.0\r\n          inet6 addr: fe80::250:56ff:fea8:657e/64 Scope:Link\r\n          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1\r\n          RX packets:24112135 errors:0 dropped:792372 overruns:0 frame:0\r\n          TX packets:10697339 errors:0 dropped:0 overruns:0 carrier:0\r\n          collisions:0 txqueuelen:1000 \r\n          RX bytes:17137233328 (16343.3 Mb)  TX bytes:13390377826 (12770.0 Mb)\r\n\r\nlo        Link encap:Local Loopback  \r\n          inet addr:127.0.0.1  Mask:255.0.0.0\r\n          inet6 addr: ::1/128 Scope:Host\r\n          UP LOOPBACK RUNNING  MTU:16436  Metric:1\r\n          RX packets:3407332 errors:0 dropped:0 overruns:0 frame:0\r\n          TX packets:3407332 errors:0 dropped:0 overruns:0 carrier:0\r\n          collisions:0 txqueuelen:0 \r\n          RX bytes:262675450 (250.5 Mb)  TX bytes:262675450 (250.5 Mb)\r\n\r\nroot     25332  0.0  0.0   4260   568 pts/2    S+   12:54   0:00          \\_ grep snmp\r\nroot     24364  0.0  0.0  70416  6696 ?        SNl  May15   0:22 /usr/sbin/snmpd -r -A -LF i /var/log/net-snmpd.log -p /var/run/snmpd.pid\r\n&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>输出结果很多，看起来也很乱，不过查下stdout部分，这个部分是实际上执行后的结果。这里可以配合管道一起使用，可以如下使用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@361way ~]# ansible 10.212.52.252 -m script -a &apos;script.sh&apos; |egrep &apos;&gt;&gt;|stdout&apos;</div></pre></td></tr></table></figure>
+<p>篇幅所限，本来想把常用模块都放在该篇来写，感觉太冗长，后面再单独分开相应的篇幅做模块的介绍。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      Ad-Hoc 是指ansible下临时执行的一条命令，并且不需要保存的命令，对于复杂的命令后面会说playbook。讲到Ad-hoc 就要提到模块，所有的命令执行都要依赖于事先写好的模块，默认安装好的ansible 里面已经自带了很多模块，如：command、raw、shell、file、cron等，具体可以通过ansible-doc -l 进行查看 。
+    
+    </summary>
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
+    
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
+    
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ansible小结（五）Dynamic Inventory</title>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_05/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_05/</id>
+    <published>2016-10-22T02:32:16.000Z</published>
+    <updated>2017-01-11T01:39:27.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Ansible Inventory实际上是包含静态Inventory和动态Inventory两部分，静态Inventory指的是在文件/etc/ansible/hosts中指定的主机和组，Dynamic Inventory指通过外部脚本获取主机列表，并按照ansible 所要求的格式返回给ansilbe命令的。这部分一般会结合CMDB资管系统、zabbix 监控系统、crobble安装系统、云计算平台等获取主机信息。由于主机资源一般会动态的进行增减，而这些系统一般会智能更新。我们可以通过这些工具提供的API 或者接入库查询等方式返回主机列表。</p>
+<h3 id="一、最简单示例"><a href="#一、最简单示例" class="headerlink" title="一、最简单示例"></a>一、最简单示例</h3><p>由于Ansible在接受脚本动态获取主机信息时支持的是json格式，这里我也不从其他系统中取了，向通过一段代码打印一个段json格式的主机信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">#!/usr/bin/env python</div><div class="line"># coding=utf-8</div><div class="line">import json</div><div class="line">host1ip = [&apos;10.212.52.252&apos;,&apos;10.212.52.14&apos;]</div><div class="line">host2ip = [&apos;10.212.52.16&apos;]</div><div class="line">group = &apos;test1&apos;</div><div class="line">group2 = &apos;test2&apos;</div><div class="line">hostdata = &#123;group:&#123;&quot;hosts&quot;:host1ip&#125;,group2:&#123;&quot;hosts&quot;:host2ip&#125;&#125;</div><div class="line">print json.dumps(hostdata,indent=4)</div></pre></td></tr></table></figure>
+<p>注：</p>
+<p>1、主机部分必须是列表格式的；</p>
+<p>2、hostdata行，其中的”hosts” 部分可以省略，但如果使用时，必须是”hosts” ，不能是其他如‘‘hostlist’’ 等字符串。</p>
+<p>省略后可以这样写：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">hostdata = &#123;group:host1ip,group2:host2ip&#125;</div></pre></td></tr></table></figure>
+<p>直接执行该段代码结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# python twogroup.py</div><div class="line">&#123;</div><div class="line">    &quot;test1&quot;: &#123;</div><div class="line">        &quot;hosts&quot;: [</div><div class="line">            &quot;10.212.52.252&quot;,</div><div class="line">            &quot;10.212.52.14&quot;</div><div class="line">        ]</div><div class="line">    &#125;,</div><div class="line">    &quot;test2&quot;: &#123;</div><div class="line">        &quot;hosts&quot;: [</div><div class="line">            &quot;10.212.52.16&quot;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上面定义了两个主机组，test1组内包含主机10.212.52.252、10.212.52.14，test2组内包含主机10.212.52.16 。ansible可以通过如下方法调用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible -i twogroup.py test1 -m command -a &apos;uptime&apos; -k</div><div class="line">SSH password:</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 23:01pm  up 24 days  8:24,  2 users,  load average: 0.21, 0.35, 0.39</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 23:08pm  up 332 days  5:23,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">[root@361way.com ~]# ansible -i twogroup.py test2 -m command -a &apos;uptime&apos; -k</div><div class="line">SSH password:</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 23:09pm  up 332 days  6:00,  2 users,  load average: 0.08, 0.06, 0.05</div></pre></td></tr></table></figure>
+<h3 id="二、复杂示例"><a href="#二、复杂示例" class="headerlink" title="二、复杂示例"></a>二、复杂示例</h3><p>在静态主机配置文件示例中，会有组变量（vars），组之间的包含，如下图（点击图片看大图）：</p>
+<p><a href="http://www.361way.com/wp-content/uploads/2015/05/ansible-host-static.jpg" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/05/ansible-host-static-188x300.jpg" alt="ansible-host-static"></a></p>
+<p>如果以上部分想要，通过脚本获取实现，实现后返回的json格式应该如下图：</p>
+<p><a href="http://www.361way.com/wp-content/uploads/2015/05/ansible-hosts-json.jpg" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/05/ansible-hosts-json-1024x574.jpg" alt="ansible-hosts-json"></a></p>
+<p>像上面这种复杂的返回格式，一般不会用在ad-hoc环境中，多数会用在ansible-playbook 中，应为playbook文件中有时假会涉及到vars 参数的传参。</p>
+<h3 id="三、从第三方平台获取主机示例"><a href="#三、从第三方平台获取主机示例" class="headerlink" title="三、从第三方平台获取主机示例"></a>三、从第三方平台获取主机示例</h3><p>这个在本篇一开头就提到了，我们从如cobbler、cmdb等平台上获取的示例。由于ansible 的发起者（作者）同时又是cobbler软件的创建者，所以官方文档给了我们cobbler的示例，同时给出了一个从AWS 去上获取主机信息的示例 。如下：</p>
+<p><a href="https://raw.githubusercontent.com/ansible/ansible/devel/plugins/inventory/cobbler.py" target="_blank" rel="external">cobbler 上获取主机信息代码</a></p>
+<p><a href="https://raw.githubusercontent.com/ansible/ansible/devel/plugins/inventory/ec2.py" target="_blank" rel="external">aws 云上获取主机信息代码</a></p>
+<p>关于如何从aws上获取主机信息并入库，这个我之前也写过相关的篇章，具体也可以参看我之前的博文－－－－<a href="http://www.361way.com/python-boto-aws-inventory/3672.html" target="_blank" rel="external">AWS主机资产管理 </a> （该篇也是纯python实现的）。</p>
+<p>通过zabbix api 获取主机信息，我也写过一篇<a href="http://www.361way.com/zabbix-api/3577.html" target="_blank" rel="external">zabbix小结（八）Zabbix api</a> ，想要通过zabbix平台上获取主机列表信息也可以参考下。</p>
+<h3 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a>四、其他</h3><p><strong>1、ansible -i 参数后调用的脚本并非一定是py文件</strong>，也可以是其他脚本输出的结果，这里做了个简单的测试：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">[root@361way.com yaml]# ansible -i group.sh test1 -m command -a &apos;uptime&apos; -k</div><div class="line">SSH password:</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 00:18am  up 332 days  7:10,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 00:17am  up 332 days  6:32,  2 users,  load average: 0.01, 0.03, 0.05</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 00:11am  up 24 days  9:33,  2 users,  load average: 0.49, 0.42, 0.41</div><div class="line">[root@localhost yaml]# cat group.sh</div><div class="line">#!/bin/bash</div><div class="line">groups=&apos;&apos;&apos;</div><div class="line">&#123;</div><div class="line">    &quot;test1&quot;: &#123;</div><div class="line">        &quot;hosts&quot;: [</div><div class="line">            &quot;10.212.52.252&quot;,</div><div class="line">            &quot;10.212.52.14&quot;,</div><div class="line">            &quot;10.212.52.16&quot;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">&apos;&apos;&apos;</div><div class="line">echo $groups</div></pre></td></tr></table></figure>
+<p><strong>2、-i 参数指定的脚本需要有可执行权限</strong> ，不然会报错，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@361way.com yaml]# ansible -i hostjson.py  AA  -a &apos;uptime&apos;</div><div class="line">ERROR: The file hostjson.py looks like it should be an executable inventory script, but is not marked executable. Perhaps you want to correct this with `chmod +x hostjson.py`?</div></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      Ansible Inventory实际上是包含静态Inventory和动态Inventory两部分，静态Inventory指的是在文件/etc/ansible/hosts中指定的主机和组，Dynamic Inventory指通过外部脚本获取主机列表，并按照ansible 所要求的格式返回给ansilbe命令的。
+    
+    </summary>
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
+    
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
+    
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ansible小结（四）ansible.cfg与默认配置</title>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_04/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_04/</id>
+    <published>2016-10-22T02:30:16.000Z</published>
+    <updated>2017-01-10T10:30:31.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Ansible默认安装好后有一个配置文件/etc/ansible/ansible.cfg，该配置文件中定义了ansible的主机的默认配置部分，如默认是否需要输入密码、是否开启sudo认证、action_plugins插件的位置、hosts主机组的位置、是否开启log功能、默认端口、key文件位置等等。</p>
+<p>具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">[defaults]</div><div class="line"># some basic default values...</div><div class="line">hostfile       = /etc/ansible/hosts   \\指定默认hosts配置的位置</div><div class="line"># library_path = /usr/share/my_modules/</div><div class="line">remote_tmp     = $HOME/.ansible/tmp</div><div class="line">pattern        = *</div><div class="line">forks          = 5</div><div class="line">poll_interval  = 15</div><div class="line">sudo_user      = root  \\远程sudo用户</div><div class="line">#ask_sudo_pass = True  \\每次执行ansible命令是否询问ssh密码</div><div class="line">#ask_pass      = True  \\每次执行ansible命令时是否询问sudo密码</div><div class="line">transport      = smart</div><div class="line">remote_port    = 22</div><div class="line">module_lang    = C</div><div class="line">gathering = implicit</div><div class="line">host_key_checking = False    \\关闭第一次使用ansible连接客户端是输入命令提示</div><div class="line">log_path    = /var/log/ansible.log \\需要时可以自行添加。chown -R root:root ansible.log</div><div class="line">system_warnings = False    \\关闭运行ansible时系统的提示信息，一般为提示升级</div><div class="line"># set plugin path directories here, separate with colons</div><div class="line">action_plugins     = /usr/share/ansible_plugins/action_plugins</div><div class="line">callback_plugins   = /usr/share/ansible_plugins/callback_plugins</div><div class="line">connection_plugins = /usr/share/ansible_plugins/connection_plugins</div><div class="line">lookup_plugins     = /usr/share/ansible_plugins/lookup_plugins</div><div class="line">vars_plugins       = /usr/share/ansible_plugins/vars_plugins</div><div class="line">filter_plugins     = /usr/share/ansible_plugins/filter_plugins</div><div class="line">fact_caching = memory</div><div class="line">[accelerate]</div><div class="line">accelerate_port = 5099</div><div class="line">accelerate_timeout = 30</div><div class="line">accelerate_connect_timeout = 5.0</div><div class="line"># The daemon timeout is measured in minutes. This time is measured</div><div class="line"># from the last activity to the accelerate daemon.</div><div class="line">accelerate_daemon_timeout = 30</div></pre></td></tr></table></figure>
+<p>本篇就结合一个示例对其进行下了解。我在对之前未连接的主机进行连结时报错如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible test -a &apos;uptime&apos;</div><div class="line">10.212.52.14 | FAILED =&gt; Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host&apos;s fingerprint to your known_hosts file to manage this host.</div><div class="line">10.212.52.16 | FAILED =&gt; Using a SSH password instead of a key is not possible because Host Key checking is enabled and sshpass does not support this.  Please add this host&apos;s fingerprint to your known_hosts file to manage this host.</div></pre></td></tr></table></figure>
+<p>从上面的输出提示上基本可以了解到由于在本机的~/.ssh/known_hosts文件中并有fingerprint key串，ssh第一次连接的时候一般会提示输入yes 进行确认为将key字符串加入到  ~/.ssh/known_hosts 文件中。</p>
+<h4 id="方法1："><a href="#方法1：" class="headerlink" title="方法1："></a>方法1：</h4><p>了解到问题原因为，我们了解到进行ssh连接时，可以使用-o参数将StrictHostKeyChecking设置为no，使用ssh连接时避免首次连接时让输入yes/no部分的提示。通过查看ansible.cfg配置文件，发现如下行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[ssh_connection]</div><div class="line"># ssh arguments to use</div><div class="line"># Leaving off ControlPersist will result in poor performance, so use</div><div class="line"># paramiko on older platforms rather than removing it</div><div class="line">#ssh_args = -o ControlMaster=auto -o ControlPersist=60s</div></pre></td></tr></table></figure>
+<p>所以这里我们可以启用ssh_args 部分，使用下面的配置，避免上面出现的错误：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh_args = -o ControlMaster=auto -o ControlPersist=60s -o StrictHostKeyChecking＝no</div></pre></td></tr></table></figure>
+<h4 id="方法2："><a href="#方法2：" class="headerlink" title="方法2："></a>方法2：</h4><p>在ansible.cfg配置文件中，也会找到如下部分：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># uncomment this to disable SSH key host checking</div><div class="line">host_key_checking = False</div></pre></td></tr></table></figure>
+<p>默认host_key_checking部分是注释的，通过找开该行的注释，同样也可以实现跳过 ssh 首次连接提示验证部分。由于配置文件中直接有该选项，所以推荐用方法2 。</p>
+<h4 id="其他部分"><a href="#其他部分" class="headerlink" title="其他部分"></a>其他部分</h4><p>由于官方给的说明比较详细，同时ansible.cfg 文件本身默认也有注释提示部分，所以不做过多说明，这里再举个例子，默认ansible 执行的时候，并不会输出日志到文件，不过在ansible.cfg 配置文件中有如下行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"># logging is off by default unless this path is defined</div><div class="line"># if so defined, consider logrotate</div><div class="line">log_path = /var/log/ansible.log</div></pre></td></tr></table></figure>
+<p>同样，默认log_path这行是注释的，打开该行的注释，所有的命令执行后，都会将日志输出到/var/log/ansible.log 文件，便于了解在何时执行了何操作及其结果，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ansible]# cat /var/log/ansible.log</div><div class="line">2015-05-04 01:57:19,758 p=4667 u=root |</div><div class="line">2015-05-04 01:57:19,759 p=4667 u=root |  /usr/bin/ansible test -a uptime</div><div class="line">2015-05-04 01:57:19,759 p=4667 u=root |</div><div class="line">2015-05-04 01:57:20,563 p=4667 u=root |  10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 01:57am  up 23 days 11:20,  2 users,  load average: 0.38, 0.38, 0.40</div><div class="line">2015-05-04 01:57:20,831 p=4667 u=root |  10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 02:03am  up 331 days  8:19,  2 users,  load average: 0.08, 0.05, 0.05</div><div class="line">2015-05-04 01:57:20,909 p=4667 u=root |  10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 02:05am  up 331 days  8:56,  2 users,  load average: 0.00, 0.01, 0.05</div></pre></td></tr></table></figure>
+<p>更多部分可以<a href="http://docs.ansible.com/intro_configuration.html" target="_blank" rel="external">参看官方文档</a>。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      ansible.cfg 配置小结
+    
+    </summary>
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
+    
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
+    
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ansible小结（三）Inventory与Patterns</title>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_03/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_03/</id>
+    <published>2016-10-22T02:20:16.000Z</published>
+    <updated>2017-01-11T01:39:12.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="一、Hosts-and-Groups（主机与组）"><a href="#一、Hosts-and-Groups（主机与组）" class="headerlink" title="一、Hosts and Groups（主机与组）"></a>一、Hosts and Groups（主机与组）</h3><p>对于/etc/ansible/hosts最简单的定义格式像下面：</p>
+<h4 id="1、简单的主机和组"><a href="#1、简单的主机和组" class="headerlink" title="1、简单的主机和组"></a>1、简单的主机和组</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">mail.361way.com</div><div class="line">[webservers]</div><div class="line">web1.361way.com</div><div class="line">web2.361way.com </div><div class="line">[dbservers]</div><div class="line">db1.361way.com</div><div class="line">db2.361way.com</div></pre></td></tr></table></figure>
+<p>a、中括号中的名字代表组名，你可以根据你自己的需求将庞大的主机分成具有标识的组，如上面我分了两个组webservers和dbservers组；</p>
+<p>b、主机(hosts)部分可以使用域名、主机名、IP地址表示；当然使用前两者时，也需要主机能反解析到相应的IP地址，一般此类配置中多使用IP地址；</p>
+<h4 id="2、端口与别名"><a href="#2、端口与别名" class="headerlink" title="2、端口与别名"></a>2、端口与别名</h4><p>如果某些主机的SSH运行在自定义的端口上，ansible使用Paramiko进行ssh连接时，不会使用你SSH配置文件中列出的端口，但是如果修改ansible使用openssh进行ssh连接时将会使用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">192.168.0.10:5309</div></pre></td></tr></table></figure>
+<p>假如你想要为某些静态IP设置一些别名，类似于SaltStack中minion配置文件中id的参数配置。你可以这样做：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">jumper ansible_ssh_port = 5555 ansible_ssh_host = 192.168.1.50</div></pre></td></tr></table></figure>
+<p>上面的 jumper 别名就指代了IP为192.168.1.50，ssh连接端口为5555的主机。</p>
+<h4 id="3、指定主机范围"><a href="#3、指定主机范围" class="headerlink" title="3、指定主机范围"></a>3、指定主机范围</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[webservers]</div><div class="line">www[01:50].361way.com</div><div class="line">[databases]</div><div class="line">db-[a:f].91it.org</div></pre></td></tr></table></figure>
+<p>上面指定了从web1到web50，webservers组共计50台主机；databases组有db-a到db-f共6台主机。</p>
+<h4 id="4、使用主机变量"><a href="#4、使用主机变量" class="headerlink" title="4、使用主机变量"></a>4、使用主机变量</h4><p>以下是Hosts部分中经常用到的变量部分</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">ansible_ssh_host # 要连接的主机名</div><div class="line">ansible_ssh_port # 端口号默认是22</div><div class="line">ansible_ssh_user # ssh连接时默认使用的用户名</div><div class="line">ansible_ssh_pass # ssh连接时的密码</div><div class="line">ansible_sudo_pass # 使用sudo连接用户是的密码</div><div class="line">ansible_ssh_private_key_file # 秘钥文件如果不想使用ssh-agent管理时可以使用此选项</div><div class="line">ansible_shell_type # shell的类型默认sh</div><div class="line">ansible_connection # SSH 连接的类型： local , ssh , paramiko在 ansible 1.2 之前默认是 paramiko ，后来智能选择，优先使用基于 ControlPersist 的 ssh （支持的前提）</div><div class="line">ansible_python _ interpreter #用来指定 python 解释器的路径，同样可以指定ruby 、perl 的路径</div></pre></td></tr></table></figure>
+<p>示例如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[test]</div><div class="line">10.212.52.252 ansible_ssh_user=root ansible_ssh_pass=&apos;361way.com&apos;</div><div class="line">10.212.52.14 ansible_ssh_user=test1 ansible_ssh_pass=&apos;91it.org&apos;</div><div class="line">10.212.52.16 ansible_ssh_user=test2 ansible_ssh_port=7788 ansible_ssh_pass=&apos;123456&apos;</div></pre></td></tr></table></figure>
+<p>上面的示例中指定了三台主机，三台主机的用密码分别是361way.com、91it.org、123456，指定的ssh连接的用户名分别为root、test1、test2，ssh 端口分别为22、22、7788 ，这样在ansible命令执行的时候就不用再指令用户和密码等了，执行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible test -a &apos;uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line">01:34am  up 23 days 10:57,  2 users,  load average: 0.42, 0.39, 0.41</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line">01:41am  up 331 days  8:33,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line">01:40am  up 331 days  7:55,  2 users,  load average: 0.09, 0.03, 0.05</div></pre></td></tr></table></figure>
+<h4 id="5、组内变量"><a href="#5、组内变量" class="headerlink" title="5、组内变量"></a>5、组内变量</h4><p>变量也可以通过组名，应用到组内的所有成员：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[test]</div><div class="line">host1</div><div class="line">host2</div><div class="line">[test:vars]</div><div class="line">ntp_server=ntp.361way.com</div><div class="line">proxy=proxy.361way.com</div></pre></td></tr></table></figure>
+<p>上面test组中包含两台主机，通过对test组指定vars变更，相应的host1和host2相当于相应的指定了ntp_server和proxy变量参数值 。</p>
+<h4 id="6、组的包含与组内变量"><a href="#6、组的包含与组内变量" class="headerlink" title="6、组的包含与组内变量"></a>6、组的包含与组内变量</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">[hangzhou]</div><div class="line">host1</div><div class="line">host2</div><div class="line">[jiaxing]</div><div class="line">host2</div><div class="line">host3</div><div class="line">[zhejiang:children]</div><div class="line">hangzhou</div><div class="line">jiaxing</div><div class="line">[zhejiang:vars]</div><div class="line">some_server=foo.southeast.example.com</div><div class="line">halon_system_timeout=30</div><div class="line">self_destruct_countdown=60</div><div class="line">escape_pods=2</div><div class="line">[china:children]</div><div class="line">zhejiang</div><div class="line">henan</div><div class="line">shandong</div><div class="line">hebei</div></pre></td></tr></table></figure>
+<p>如上面的示例中，我指定了杭州组我有host1、hosts2；嘉兴组我有host3、host4主机；我又指定了一个组浙江组，同时包含杭州和嘉兴；同时为该组内的所有主机指定了四个vars变量。后面我又设定了一个组中国组，包含浙江、河南、山东、河北。</p>
+<p>注：由于vars变量在ansible ad-hoc部分中基本用不到，主要用在ansible-playbook中，后面的章节部分也会提到。</p>
+<p>以上部分基本上是完全按照<a href="http://docs.ansible.com/intro_inventory.html" target="_blank" rel="external">官方Inventory 文档</a>部分进行了翻译和微小的变化。英文感觉还可以的可以直接查看官方页面。</p>
+<h3 id="二、Patterns（主机与组正则匹配部分）"><a href="#二、Patterns（主机与组正则匹配部分）" class="headerlink" title="二、Patterns（主机与组正则匹配部分）"></a>二、Patterns（主机与组正则匹配部分）</h3><p>把Patterns 直接理解为正则实际是不完全准确的，正常的理解为patterns意味着在ansible中管理哪些主机，也可以理解为，要与哪台主机进行通信。在探讨这个问题之前我们先看下ansible的用法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible &lt;pattern_goes_here&gt; -m &lt;module_name&gt; -a &lt;arguments&gt;</div></pre></td></tr></table></figure>
+<p>直接上一个示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible webservers -m service -a &quot;name=httpd state=restarted&quot;</div></pre></td></tr></table></figure>
+<p>这里是对webservers 组或主机重启httpd服务 ，其中webservers 就是Pattern部分。而之所以上面我说Pattern（模式）可以理解为正则，主要针对下面经常用到的用法而言的。</p>
+<h4 id="1、表示所有的主机可以使用all-或"><a href="#1、表示所有的主机可以使用all-或" class="headerlink" title="1、表示所有的主机可以使用all 或 *"></a>1、表示所有的主机可以使用all 或 *</h4><h4 id="2、通配符与逻辑或"><a href="#2、通配符与逻辑或" class="headerlink" title="2、通配符与逻辑或"></a>2、通配符与逻辑或</h4><p>利用通配符还可以指定一组具有规则特征的主机或主机名，冒号表示or－－－逻辑或</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">one.361way.com</div><div class="line">one.361way:two.361way.com</div><div class="line">192.168.1.50</div><div class="line">192.168.1.*</div></pre></td></tr></table></figure>
+<p>当然，这里的*通配符也可以用在前面，如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">*.361way.com</div><div class="line">*.com</div></pre></td></tr></table></figure>
+<p>上面的用法，在多个组之间同样适用 ，如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">webservers</div><div class="line">webservers:dbservers  //表示两个组中所有的主机</div></pre></td></tr></table></figure>
+<h4 id="3、逻辑非与逻辑and"><a href="#3、逻辑非与逻辑and" class="headerlink" title="3、逻辑非与逻辑and"></a>3、逻辑非与逻辑and</h4><p>当然你可以做出非的表达式，例如，目标主机必须在组webservers但不在phoenix组中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webserver:!phoenix</div></pre></td></tr></table></figure>
+<p>你还可以做出交集的表达式，例如，目标主机必须即在组webservers中又在组staging中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webservers:&amp;staging</div></pre></td></tr></table></figure>
+<p>一个更复杂的示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">webserver:dbservers:&amp;staging:!phoenix</div></pre></td></tr></table></figure>
+<p>上面这个复杂的表达式最后表示的目标主机必须满足：在webservers或者dbservers组中，必须还存在于staging组中，但是不在phoenix组中。这些可以看作是SaltStack中Compound matchers 。</p>
+<h4 id="4、混合高级用法"><a href="#4、混合高级用法" class="headerlink" title="4、混合高级用法"></a>4、混合高级用法</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">*.361way.com:*.org</div></pre></td></tr></table></figure>
+<p>还可以在开头的地方使用”~”，用来表示这是一个正则表达式:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">~(web|db).*\.91it\.org</div></pre></td></tr></table></figure>
+<p>到这里估计你应该用能明白为什么前面我会提到Patterns 可以理解为正则的原因了。最后部分给两个ansible-playbook中具体可能用的用法：</p>
+<p>a、在ansible-palybook命令中，你也可以使用变量来组成这样的表达式，但是你必须使用“-e”的选项来指定这个表达式（通常我们不这样用）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible-palybook -e webservers:!&#123;&#123;excluded&#125;&#125;:&amp;&#123;&#123;required&#125;&#125;</div></pre></td></tr></table></figure>
+<p>b、在ansible和ansible-playbook中，还可以通过一个参数”–limit”来明确指定排除某些主机或组：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible-playbook site.yml --limit datacenter2</div></pre></td></tr></table></figure>
+<p>以上部分主要按照<a href="http://docs.ansible.com/intro_patterns.html" target="_blank" rel="external">官方Pattern部分</a>进行翻译和尝试。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      Ansible的Inventory文件，可以理解为saltstack中的salt-key中的所有minion的列表以及用户自定义的nodegroup的概念，默认情况下这个文件是/etc/ansible/hosts ，后面还会讲到Dynamic Inventory，本节主要讲静态主机群部分。Patterns（模式）部分我们可以理解为正则表达式，通过Patterns我们可以匹配Inventory分组中的部分主机。
+    
+    </summary>
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
+    
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
+    
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
+    
+  </entry>
+  
+  <entry>
     <title>ansible小结（二）ansible架构</title>
     <link href="https://plpcm.github.io/blog/2016/10/22/ansible_02/"/>
     <id>https://plpcm.github.io/blog/2016/10/22/ansible_02/</id>
-    <published>2016-10-22T02:30:16.000Z</published>
-    <updated>2017-01-10T10:18:53.000Z</updated>
+    <published>2016-10-22T02:10:16.000Z</published>
+    <updated>2017-01-11T01:38:59.000Z</updated>
     
     <content type="html"><![CDATA[<h3 id="一、Ansible基本架构"><a href="#一、Ansible基本架构" class="headerlink" title="一、Ansible基本架构"></a>一、Ansible基本架构</h3><p><a href="http://www.361way.com/wp-content/uploads/2015/05/ansible-framework.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/05/ansible-framework.png" alt="ansible-framework"></a></p>
 <p>上图为ansible的基本架构，从上图可以了解到其由以下部分组成：</p>
@@ -983,6 +920,69 @@
     <summary type="html">
     
       Ansible 是一个模型驱动的配置管理器，支持多节点发布、远程任务执行。默认使用 SSH 进行远程连接。无需在被管理节点上安装附加软件，可使用各种编程语言进行扩展。
+    
+    </summary>
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
+    
+    
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
+    
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ansible小结（一）ansible的安装</title>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_01/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_01/</id>
+    <published>2016-10-22T01:10:16.000Z</published>
+    <updated>2017-01-11T01:38:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h3><p>Ansible 是一个配置管理和应用部署工具，功能类似于目前业界的配置管理工具 Chef,Puppet,Saltstack。Ansible 是通过 Python 语言开发。Ansible 平台由 Michael DeHaan 创建，他同时也是知名软件 Cobbler 与 Func 的作者。Ansible 的第一个版本发布于 2012 年 2 月。Ansible 默认通过 SSH 协议管理机器，所以 Ansible 不需要安装客户端程序在服务器上。您只需要将 Ansible 安装在一台服务器，在 Ansible 安装完后，您就可以去管理控制其它服务器。不需要为它配置数据库，Ansible 不会以 daemons 方式来启动或保持运行状态。Ansible 可以实现以下目标：</p>
+<ul>
+<li>自动化部署应用</li>
+<li>自动化管理配置</li>
+<li>自动化的持续交付</li>
+<li>自动化的（AWS）云服务管理。</li>
+</ul>
+<p>根据 Ansible 官方提供的信息，当前使用 Ansible 的用户有：evernote、rackspace、NASA、Atlassian、twitter 等。</p>
+<p>注：以上简介来自于ibm developerworks 中国的介绍。</p>
+<h3 id="二、Ansible的安装"><a href="#二、Ansible的安装" class="headerlink" title="二、Ansible的安装"></a>二、Ansible的安装</h3><h4 id="1、yum源安装"><a href="#1、yum源安装" class="headerlink" title="1、yum源安装"></a>1、yum源安装</h4><p>以centos为例，默认在源里没有ansible，不过在<a href="http://fedoraproject.org/wiki/EPEL" target="_blank" rel="external">fedora epel源</a>里有ansible，配置完epel 源后，可以直接通过yum 进行安装。这里以centos6.8为例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># yum install http://mirrors.sohu.com/fedora-epel/6/x86_64/epel-release-6-8.noarch.rpm</div><div class="line"># yum install ansible</div></pre></td></tr></table></figure>
+<h4 id="2、apt-get安装"><a href="#2、apt-get安装" class="headerlink" title="2、apt-get安装"></a>2、apt-get安装</h4><p>在ubuntu及其衍生版中，可以通过增加ppa源进行apt-get安装，具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ sudo apt-get install software-properties-common</div><div class="line">$ sudo apt-add-repository ppa:ansible/ansible</div><div class="line">$ sudo apt-get update</div><div class="line">$ sudo apt-get install ansible</div></pre></td></tr></table></figure>
+<h4 id="3、源码安装"><a href="#3、源码安装" class="headerlink" title="3、源码安装"></a>3、源码安装</h4><p>源码安装需要python2.6以上版本，其依赖模块paramiko、PyYAML、Jinja2、httplib2、simplejson、pycrypto模块，以上模块可以通过pip或easy_install 进行安装，不过本部分既然提到的是源码安装，主要针对的无法上外网的情况下，可以通过<a href="https://pypi.python.org/" target="_blank" rel="external">pypi 站点</a>搜索以上包，下载后通过python setup.py install 进行安装。</p>
+<p>最后通过<a href="https://github.com/ansible/ansible" target="_blank" rel="external">github</a>或<a href="https://pypi.python.org/pypi/ansible/1.9.1" target="_blank" rel="external">pypi上</a>下载ansible源码包，通过python setup.py install 安装即可。由于安装过程相对简单，这里略过，主要介绍安装后，可能遇到的问题。</p>
+<p>a、安装PyYAML时，报错如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># python setup.py install</div><div class="line">libyaml is not found or a compiler error: forcing --without-libyaml(if libyaml is installed correctly, you may need to specify the option --include-dirs or uncomment and modify the parameter include_dirs in setup.cfg)</div><div class="line">running install_lib</div><div class="line">running install_egg_info</div><div class="line">Removing /usr/lib64/python2.6/site-packages/PyYAML-3.11-py2.6.egg-info</div><div class="line">Writing /usr/lib64/python2.6/site-packages/PyYAML-3.11-py2.6.egg-info</div></pre></td></tr></table></figure>
+<p>在centos6.8系统中，可以通过yum -y install libyaml 包解决，或者从ISO文件中提供该包，通过rpm -ivh进行安装。</p>
+<p>b、安装完ansible是，报错如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ansible-1.9.1]# ansible -h</div><div class="line">Traceback (most recent call last):</div><div class="line">File &quot;/usr/local/src/ansible-devel/bin/ansible&quot;, line 36, in &lt;module&gt;    </div><div class="line">from ansible.runner import Runner</div><div class="line">File &quot;/usr/local/src/ansible-devel/lib/ansible/runner/__init__.py&quot;, line 62, in &lt;module&gt;</div><div class="line">from Crypto.Random import atfork</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/__init__.py&quot;, line 29, in &lt;module&gt;</div><div class="line">from Crypto.Random import _UserFriendlyRNG</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/_UserFriendlyRNG.py&quot;, line 38, in &lt;module&gt;</div><div class="line">from Crypto.Random.Fortuna import FortunaAccumulator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaAccumulator.py&quot;, line 39, in &lt;module&gt;</div><div class="line">import FortunaGenerator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaGenerator.py&quot;, line 34, in &lt;module&gt; </div><div class="line">from Crypto.Util.number import ceil_shift, exact_log2, exact_div</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Util/number.py&quot;, line 56, in &lt;module&gt;</div><div class="line">if _fastmath is not None and not _fastmath.HAVE_DECL_MPZ_POWM_SEC:</div><div class="line">AttributeError: &apos;module&apos; object has no attribute &apos;HAVE_DECL_MPZ_POWM_SEC&apos;</div></pre></td></tr></table></figure>
+<p>import paramiko包时，报错如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; import paramiko</div><div class="line">Traceback (most recent call last):</div><div class="line">File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;  File &quot;/usr/lib/python2.6/site-packages/paramiko/__init__.py&quot;, line 69, in &lt;module&gt;</div><div class="line">from transport import randpool, SecurityOptions, Transport</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/transport.py&quot;, line 32, in &lt;module&gt;</div><div class="line">from paramiko import util</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/util.py&quot;, line 32, in &lt;module&gt;</div><div class="line">from paramiko.common import *</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/common.py&quot;, line 98, in &lt;module&gt;</div><div class="line">from rng import StrongLockingRandomPool</div><div class="line">File &quot;/usr/lib/python2.6/site-packages/paramiko/rng.py&quot;, line 22, in &lt;module&gt;</div><div class="line">from Crypto.Util.randpool import RandomPool as _RandomPool</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Util/randpool.py&quot;, line 30, in &lt;module&gt;</div><div class="line">import Crypto.Random</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/__init__.py&quot;, line 29, in &lt;module&gt;</div><div class="line">from Crypto.Random import _UserFriendlyRNG</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/_UserFriendlyRNG.py&quot;, line 38, in &lt;module&gt;</div><div class="line">from Crypto.Random.Fortuna import FortunaAccumulator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaAccumulator.py&quot;, line 39, in &lt;module&gt;</div><div class="line">import FortunaGenerator</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Random/Fortuna/FortunaGenerator.py&quot;, line 34, in &lt;module&gt; </div><div class="line">from Crypto.Util.number import ceil_shift, exact_log2, exact_div</div><div class="line">File &quot;/usr/lib64/python2.6/site-packages/Crypto/Util/number.py&quot;, line 56, in &lt;module&gt;</div><div class="line">if _fastmath is not None and not _fastmath.HAVE_DECL_MPZ_POWM_SEC:</div><div class="line">AttributeError: &apos;module&apos; object has no attribute &apos;HAVE_DECL_MPZ_POWM_SEC&apos;</div></pre></td></tr></table></figure>
+<p>经网上查找，确认为pycrypto包安装时依赖的GMP版本不对的问题，具体可以通过以下步骤验证：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@361way.com pycrypto-2.6.1]# python setup.py build</div><div class="line">running build</div><div class="line">running build_py</div><div class="line">running build_ext</div><div class="line">running build_configure</div><div class="line">warning: GMP or MPIR library not found; Not building Crypto.PublicKey._fastmath.</div></pre></td></tr></table></figure>
+<p><strong>解决方法：</strong></p>
+<p>打开 /usr/lib64/python2.6/site-packages/Crypto/Util/number.py 文件，可以 看到 56 行上的注释说明，要求 libgmp 为 v5 以上版本。而系统现有版本为 4.1.4，把以下两行暂时注释掉，Ansible 执行正常。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">if _fastmath is not None and not _fastmath.HAVE_DECL_MPZ_POWM_SEC:     </div><div class="line">_warn(&quot;Not using mpz_powm_sec.  You should rebuild using libgmp &gt;= 5 to avoid timing attack vulnerability.&quot;, PowmInsecureWarning)</div></pre></td></tr></table></figure>
+<p>不过，此方法只是临时加以解决，更好的方式是去将 libgmp 升级到符合要求的版本。</p>
+<p>c、执行时报错</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@361way.com src]# ansible test -m raw -a &apos;uptime&apos;</div><div class="line">10.212.52.14 | FAILED =&gt; to use the &apos;ssh&apos; connection type with passwords, you must install the sshpass program</div><div class="line">10.212.52.16 | FAILED =&gt; to use the &apos;ssh&apos; connection type with passwords, you must install the sshpass program</div></pre></td></tr></table></figure>
+<p>安装<a href="http://mirrors.sohu.com/fedora-epel/6/x86_64/sshpass-1.05-1.el6.x86_64.rpm" target="_blank" rel="external">sshpass程序</a>。默认源里没有，我这里选择直接从sohu源里下载安装。</p>
+<h3 id="三、Ansible的配置与验证"><a href="#三、Ansible的配置与验证" class="headerlink" title="三、Ansible的配置与验证"></a>三、Ansible的配置与验证</h3><p>这里以pypi上下载的源码内有一个examles包，可以将使用该示例文件做为默认配置，具体如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ansible-1.9.1]# mkdir -p /etc/ansible</div><div class="line">[root@361way.com ansible-1.9.1]# cp -rp examples/*  /etc/ansible/</div><div class="line">[root@361way.com ansible-1.9.1]# cd /etc/ansible/</div></pre></td></tr></table></figure>
+<p>使用默认示例配置文件后，编辑/etc/ansible/hosts文件，通过以下方式验证ansible是否可用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# cat /etc/ansible/hosts</div><div class="line">[test]</div><div class="line">10.212.52.252 ansible_ssh_user=root ansible_ssh_pass=361way.com</div><div class="line">10.212.52.14 ansible_ssh_user=root ansible_ssh_pass=abc123</div><div class="line">10.212.52.16 ansible_ssh_user=root ansible_ssh_pass=91it.org</div></pre></td></tr></table></figure>
+<p>以上的配置中，我配置了一个test组，该组下有三台主机，三台都使用root验证，三台的密码分别是361way.com、abc123、91it.org 。</p>
+<p>注：后面的用户和密码项是非必须的，在配置key认证的情况下，不使用密码也可以直接操作 。未使用key的，也可以在ansible通过 -k参数在操作前询问手动输入密码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[root@361way.com ~]# ansible test -a &apos;uptime&apos;</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 18:01pm  up 21 days  3:24,  3 users,  load average: 0.39, 0.38, 0.35</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 18:09pm  up 329 days  1:01,  2 users,  load average: 0.08, 0.03, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 18:08pm  up 329 days  0:23,  2 users,  load average: 0.06, 0.06, 0.05</div></pre></td></tr></table></figure>
+<p>执行以上指令后，有结果输出，证明安装成功。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      Ansible 是一个配置管理和应用部署工具，功能类似于目前业界的配置管理工具 Chef,Puppet,Saltstack。Ansible 是通过 Python 语言开发。Ansible 平台由 Michael DeHaan 创建，他同时也是知名软件 Cobbler 与 Func 的作者。Ansible 的第一个版本发布于 2012 年 2 月。Ansible 默认通过 SSH 协议管理机器，所以 Ansible 不需要安装客户端程序在服务器上。您只需要将 Ansible 安装在一台服务器，在 Ansible 安装完后，您就可以去管理控制其它服务器。不需要为它配置数据库，Ansible 不会以 daemons 方式来启动或保持运行状态。Ansible 可以实现以下目标：
     
     </summary>
     
@@ -1048,8 +1048,8 @@
     <title>ansible playbook进阶</title>
     <link href="https://plpcm.github.io/blog/2016/10/08/ansible_09/"/>
     <id>https://plpcm.github.io/blog/2016/10/08/ansible_09/</id>
-    <published>2016-10-08T02:30:16.000Z</published>
-    <updated>2017-01-10T09:22:48.000Z</updated>
+    <published>2016-10-08T02:39:16.000Z</published>
+    <updated>2017-01-11T01:40:04.000Z</updated>
     
     <content type="html"><![CDATA[<p>到目前为止,我们只是简单的运行了几个模块.其实ansible运行更多控制去执行playbook.使用这些技术,你能够执行更加复杂的部署.</p>
 <h2 id="并发运行"><a href="#并发运行" class="headerlink" title="并发运行"></a>并发运行</h2><p>ansible默认只会创建5个进程,所以一次任务只能同时控制5台机器执行.那如果你有大量的机器需要控制,或者你希望减少进程数,那你可以采取异步执行.ansible的模块可以把task放进后台,然后轮询它.这使得在一定进程数下能让大量需要的机器同时运作起来.</p>
