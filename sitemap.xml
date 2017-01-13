@@ -2,6 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/10/22/ansible_07/</loc>
+    
+    <lastmod>2017-01-13T06:18:19.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/10/22/ansible_05/</loc>
+    
+    <lastmod>2017-01-11T10:57:47.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/10/25/yaml/</loc>
+    
+    <lastmod>2017-01-11T08:23:34.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://plpcm.github.io/blog/blog/2016/11/02/ansible_haproxy_keepalive/</loc>
+    
+    <lastmod>2017-01-11T03:49:49.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://plpcm.github.io/blog/blog/2016/10/22/ansible_12/</loc>
     
     <lastmod>2017-01-11T01:49:03.000Z</lastmod>
@@ -37,23 +65,9 @@
   </url>
   
   <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/10/22/ansible_07/</loc>
-    
-    <lastmod>2017-01-11T01:39:46.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://plpcm.github.io/blog/blog/2016/10/22/ansible_06/</loc>
     
     <lastmod>2017-01-11T01:39:37.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/10/22/ansible_05/</loc>
-    
-    <lastmod>2017-01-11T01:39:27.000Z</lastmod>
     
   </url>
   
@@ -261,14 +275,14 @@
   </url>
   
   <url>
-    <loc>https://plpcm.github.io/blog/blog/2016/02/02/macdown-introduce/</loc>
+    <loc>https://plpcm.github.io/blog/blog/2015/12/22/hello-world/</loc>
     
     <lastmod>2016-11-30T07:50:28.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://plpcm.github.io/blog/blog/2015/12/22/hello-world/</loc>
+    <loc>https://plpcm.github.io/blog/blog/2016/02/02/macdown-introduce/</loc>
     
     <lastmod>2016-11-30T07:50:28.000Z</lastmod>
     

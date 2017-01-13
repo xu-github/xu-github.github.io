@@ -94,7 +94,7 @@
 <meta property="og:description" content="Ansible Inventory实际上是包含静态Inventory和动态Inventory两部分，静态Inventory指的是在文件/etc/ansible/hosts中指定的主机和组，Dynamic Inventory指通过外部脚本获取主机列表，并按照ansible 所要求的格式返回给ansilbe命令的。">
 <meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/05/ansible-host-static-188x300.jpg">
 <meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/05/ansible-hosts-json-1024x574.jpg">
-<meta property="og:updated_time" content="2017-01-11T01:39:27.000Z">
+<meta property="og:updated_time" content="2017-01-11T10:57:47.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ansible小结（五）Dynamic Inventory">
 <meta name="twitter:description" content="Ansible Inventory实际上是包含静态Inventory和动态Inventory两部分，静态Inventory指的是在文件/etc/ansible/hosts中指定的主机和组，Dynamic Inventory指通过外部脚本获取主机列表，并按照ansible 所要求的格式返回给ansilbe命令的。">
@@ -435,7 +435,6 @@
 <p><a href="https://raw.githubusercontent.com/ansible/ansible/devel/plugins/inventory/cobbler.py" target="_blank" rel="external">cobbler 上获取主机信息代码</a></p>
 <p><a href="https://raw.githubusercontent.com/ansible/ansible/devel/plugins/inventory/ec2.py" target="_blank" rel="external">aws 云上获取主机信息代码</a></p>
 <p>关于如何从aws上获取主机信息并入库，这个我之前也写过相关的篇章，具体也可以参看我之前的博文－－－－<a href="http://www.361way.com/python-boto-aws-inventory/3672.html" target="_blank" rel="external">AWS主机资产管理 </a> （该篇也是纯python实现的）。</p>
-<p>通过zabbix api 获取主机信息，我也写过一篇<a href="http://www.361way.com/zabbix-api/3577.html" target="_blank" rel="external">zabbix小结（八）Zabbix api</a> ，想要通过zabbix平台上获取主机列表信息也可以参考下。</p>
 <h3 id="四、其他"><a href="#四、其他" class="headerlink" title="四、其他"></a>四、其他</h3><p><strong>1、ansible -i 参数后调用的脚本并非一定是py文件</strong>，也可以是其他脚本输出的结果，这里做了个简单的测试：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">[root@361way.com yaml]# ansible -i group.sh test1 -m command -a &apos;uptime&apos; -k</div><div class="line">SSH password:</div><div class="line">10.212.52.16 | success | rc=0 &gt;&gt;</div><div class="line"> 00:18am  up 332 days  7:10,  2 users,  load average: 0.00, 0.01, 0.05</div><div class="line">10.212.52.14 | success | rc=0 &gt;&gt;</div><div class="line"> 00:17am  up 332 days  6:32,  2 users,  load average: 0.01, 0.03, 0.05</div><div class="line">10.212.52.252 | success | rc=0 &gt;&gt;</div><div class="line"> 00:11am  up 24 days  9:33,  2 users,  load average: 0.49, 0.42, 0.41</div><div class="line">[root@localhost yaml]# cat group.sh</div><div class="line">#!/bin/bash</div><div class="line">groups=&apos;&apos;&apos;</div><div class="line">&#123;</div><div class="line">    &quot;test1&quot;: &#123;</div><div class="line">        &quot;hosts&quot;: [</div><div class="line">            &quot;10.212.52.252&quot;,</div><div class="line">            &quot;10.212.52.14&quot;,</div><div class="line">            &quot;10.212.52.16&quot;</div><div class="line">        ]</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">&apos;&apos;&apos;</div><div class="line">echo $groups</div></pre></td></tr></table></figure>
 <p><strong>2、-i 参数指定的脚本需要有可执行权限</strong> ，不然会报错，如下：</p>
@@ -554,7 +553,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/blog/archives">
-              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-count">37</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -571,7 +570,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/blog/tags">
-                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-count">30</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

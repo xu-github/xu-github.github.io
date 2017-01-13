@@ -1,0 +1,918 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="devops,ansible,haproxy,keepalive,discuz," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="曹淼的“git博客”" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="使用ansible搭建Keepalived+HAProxy实现读写分离discuz论坛">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Keepalived+HAProxy实现读写分离discuz论坛">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/11/02/ansible_haproxy_keepalive/index.html">
+<meta property="og:site_name" content="曹淼的“git博客”">
+<meta property="og:description" content="使用ansible搭建Keepalived+HAProxy实现读写分离discuz论坛">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/10/keepalived-haproxy.png">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/10/ansible-discuz.png">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/10/discuz.png">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/10/keepalived.png">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/10/backupnode.png">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/10/haproxy-forum.png">
+<meta property="og:image" content="http://www.361way.com/wp-content/uploads/2015/10/haproxy-keepalived.png">
+<meta property="og:updated_time" content="2017-01-11T03:49:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Keepalived+HAProxy实现读写分离discuz论坛">
+<meta name="twitter:description" content="使用ansible搭建Keepalived+HAProxy实现读写分离discuz论坛">
+<meta name="twitter:image" content="http://www.361way.com/wp-content/uploads/2015/10/keepalived-haproxy.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/11/02/ansible_haproxy_keepalive/"/>
+
+
+
+
+
+  <title> Keepalived+HAProxy实现读写分离discuz论坛 | 曹淼的“git博客” </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">曹淼的“git博客”</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">道法自然</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/blog/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/blog/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/11/02/ansible_haproxy_keepalive/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="曹淼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/blog/uploads/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="曹淼的“git博客”">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="曹淼的“git博客”" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Keepalived+HAProxy实现读写分离discuz论坛
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-11-02T10:30:16+08:00">
+                2016-11-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/devops/" itemprop="url" rel="index">
+                    <span itemprop="name">devops</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+              <div class="post-description">
+                  使用ansible搭建Keepalived+HAProxy实现读写分离discuz论坛
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://www.361way.com/wp-content/uploads/2015/10/keepalived-haproxy.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/10/keepalived-haproxy.png" alt="keepalived-haproxy"></a></p>
+<h3 id="一、测试环境：-centos-6-6；使用8台虚拟机（上图）"><a href="#一、测试环境：-centos-6-6；使用8台虚拟机（上图）" class="headerlink" title="一、测试环境： centos 6.6；使用8台虚拟机（上图）"></a>一、测试环境： centos 6.6；使用8台虚拟机（上图）</h3><p>分别对它们设置主机名：</p>
+<table>
+<thead>
+<tr>
+<th>主机名</th>
+<th>ip地址</th>
+<th>软件包</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>node1</td>
+<td>172.16.16.11</td>
+<td>keepalived+haproxy</td>
+</tr>
+<tr>
+<td>node2</td>
+<td>172.16.16.12</td>
+<td>keepalived+haproxy</td>
+</tr>
+<tr>
+<td>php1</td>
+<td>172.16.16.2</td>
+<td>httpd+php+php-mysql+nfs-utils</td>
+</tr>
+<tr>
+<td>php2</td>
+<td>172.16.16.8</td>
+<td>httpd+php+php-mysql+nfs-utils</td>
+</tr>
+<tr>
+<td>web1</td>
+<td>172.16.16.3</td>
+<td>httpd</td>
+</tr>
+<tr>
+<td>web2</td>
+<td>172.16.16.4</td>
+<td>httpd</td>
+</tr>
+<tr>
+<td>mysql</td>
+<td>172.16.16.5</td>
+<td>mariadb-5.5.43-linux-x86_64.tar.gz</td>
+</tr>
+<tr>
+<td>nfs</td>
+<td>172.16.16.252</td>
+<td>nfs-utils</td>
+</tr>
+</tbody>
+</table>
+<p>上述服务器实现的作用介绍：</p>
+<p>①keepalived+haproxy，实现高可用和haproxy的反向代理功能并实现动静分离的效果；请求动态的内容交给后端的动态服务器组（php1或php2）；静态内容交给静态服务器组（web1和web2）</p>
+<p>②mysql服务器存储discuz数据库</p>
+<p>③nfs文件共享服务器设置2个目录/mydata和/discuz；前者给mysql服务器用做当datadir使用；后者给web和php服务器使用，共享discuz网页文件</p>
+<h3 id="二、准备工作：这里基于ansible的playbook部署"><a href="#二、准备工作：这里基于ansible的playbook部署" class="headerlink" title="二、准备工作：这里基于ansible的playbook部署"></a>二、准备工作：这里基于ansible的playbook部署</h3><h4 id="1、ansible使用环境为centos-7；设置如下"><a href="#1、ansible使用环境为centos-7；设置如下" class="headerlink" title="1、ansible使用环境为centos 7；设置如下"></a>1、ansible使用环境为centos 7；设置如下</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"># ssh-keygen -t rsa -P &apos;&apos;</div><div class="line"># ssh-copy-id -i ~/.ssh/id_rsa.pub node1</div><div class="line"># ssh-copy-id -i ~/.ssh/id_rsa.pub node2</div><div class="line"># ssh-copy-id -i ~/.ssh/id_rsa.pub web1</div><div class="line"># ssh-copy-id -i ~/.ssh/id_rsa.pub web2</div><div class="line"># ssh-copy-id -i ~/.ssh/id_rsa.pub php1</div><div class="line"># ssh-copy-id -i ~/.ssh/id_rsa.pub php2</div><div class="line"># ssh-copy-id -i ~/.ssh/id_rsa.pub mysql</div><div class="line"># ssh-copy-id -i ~/.ssh/id_rsa.pub nfs</div></pre></td></tr></table></figure>
+<h4 id="2、ansible设置及管理节点探测："><a href="#2、ansible设置及管理节点探测：" class="headerlink" title="2、ansible设置及管理节点探测："></a>2、ansible设置及管理节点探测：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"># vim /etc/ansible/host</div><div class="line">[haproxy]</div><div class="line">172.16.16.11</div><div class="line">172.16.16.12</div><div class="line">[dynamic_servers]</div><div class="line">172.16.16.2</div><div class="line">172.16.16.8</div><div class="line">[static_servers]</div><div class="line">172.16.16.3</div><div class="line">172.16.16.4</div><div class="line">[db]</div><div class="line">172.16.16.5</div><div class="line">[nfs]</div><div class="line">172.16.16.252</div><div class="line"># ansible all -m ping</div><div class="line">172.16.16.12 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: false,</div><div class="line">    &quot;ping&quot;: &quot;pong&quot;</div><div class="line">&#125;</div><div class="line">172.16.16.3 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: false,</div><div class="line">    &quot;ping&quot;: &quot;pong&quot;</div><div class="line">&#125;</div><div class="line">172.16.16.11 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: false,</div><div class="line">    &quot;ping&quot;: &quot;pong&quot;</div><div class="line">&#125;</div><div class="line">172.16.16.4 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: false,</div><div class="line">    &quot;ping&quot;: &quot;pong&quot;</div><div class="line">&#125;</div><div class="line">172.16.16.5 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: false,</div><div class="line">    &quot;ping&quot;: &quot;pong&quot;</div><div class="line">&#125;</div><div class="line">172.16.16.2 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: false,</div><div class="line">    &quot;ping&quot;: &quot;pong&quot;</div><div class="line">&#125;</div><div class="line">172.16.16.8 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: false,</div><div class="line">    &quot;ping&quot;: &quot;pong&quot;</div><div class="line">&#125;</div><div class="line">172.16.16.252 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: false,</div><div class="line">    &quot;ping&quot;: &quot;pong&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="3、ansible定义roles如下："><a href="#3、ansible定义roles如下：" class="headerlink" title="3、ansible定义roles如下："></a>3、ansible定义roles如下：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div></pre></td><td class="code"><pre><div class="line">[root@localhost ansible_playbooks]# tree</div><div class="line">.</div><div class="line">|-- haproxy.yml                 //playbook剧本</div><div class="line">`-- roles                       //定义的角色（7个）</div><div class="line">    |-- haproxy                 //node1,node2节点用到的haproxy</div><div class="line">    |   |-- files</div><div class="line">    |   |-- handlers</div><div class="line">    |   |   `-- main.yml</div><div class="line">    |   |-- tasks</div><div class="line">    |   |   `-- main.yml</div><div class="line">    |   |-- templates</div><div class="line">    |   |   |-- haproxy.cfg.j2</div><div class="line">    |   |   `-- rsyslog.conf</div><div class="line">    |   `-- vars</div><div class="line">    |       `-- main.yml</div><div class="line">    |-- httpd                 //web1，web2节点用到的httpd</div><div class="line">    |   |-- files</div><div class="line">    |   |   `-- mountnfs.sh</div><div class="line">    |   |-- handlers</div><div class="line">    |   |-- tasks</div><div class="line">    |   |   `-- main.yml</div><div class="line">    |   `-- templates</div><div class="line">    |       `-- httpd.conf.j2</div><div class="line">    |-- initialization               //所有节点用到的系统初始化</div><div class="line">    |   |-- files</div><div class="line">    |   |-- handlers</div><div class="line">    |   |-- tasks</div><div class="line">    |   |   `-- main.yml</div><div class="line">    |   `-- templates</div><div class="line">    |       |-- hosts</div><div class="line">    |       |-- resolv.conf</div><div class="line">    |       `-- selinux.conf</div><div class="line">    |-- keepalived                 //keepalived设置</div><div class="line">    |   |-- files</div><div class="line">    |   |   `-- notify.sh</div><div class="line">    |   |-- handlers</div><div class="line">    |   |   `-- main.yml</div><div class="line">    |   |-- tasks</div><div class="line">    |   |   `-- main.yml</div><div class="line">    |   |-- templates</div><div class="line">    |   |   |-- keepalived.conf.backup.j2</div><div class="line">    |   |   `-- keepalived.conf.master.j2</div><div class="line">    |   `-- vars</div><div class="line">    |       `-- main.yml</div><div class="line">    |-- mysql                      //mysql数据库</div><div class="line">    |   |-- files</div><div class="line">    |   |   |-- mariadb-5.5.43-linux-x86_64.tar.gz</div><div class="line">    |   |   |-- mariadb-5.5.43.sh</div><div class="line">    |   |   `-- privilege.sh</div><div class="line">    |   |-- handlers</div><div class="line">    |   |-- tasks</div><div class="line">    |   |   `-- main.yml</div><div class="line">    |   `-- templates</div><div class="line">    |-- nfs                            //nfs文件共享</div><div class="line">    |   |-- files</div><div class="line">    |   |   |-- Discuz_X3.1_SC_UTF8.zip</div><div class="line">    |   |   `-- discuz.sh</div><div class="line">    |   |-- handlers</div><div class="line">    |   |-- tasks</div><div class="line">    |   |   `-- main.yml</div><div class="line">    |   `-- templates</div><div class="line">    |       `-- exports</div><div class="line">    `-- php                    //php1,php2节点用到的相关配置</div><div class="line">        |-- files</div><div class="line">        |   |-- install-php.sh</div><div class="line">        |   `-- mountnfs.sh</div><div class="line">        |-- handlers</div><div class="line">        |-- tasks</div><div class="line">        |   `-- main.yml</div><div class="line">        `-- templates</div><div class="line">            `-- httpd.conf.j2</div></pre></td></tr></table></figure>
+<h4 id="4、介绍上述roles代表的含义，从上至下进行介绍；"><a href="#4、介绍上述roles代表的含义，从上至下进行介绍；" class="headerlink" title="4、介绍上述roles代表的含义，从上至下进行介绍；"></a>4、介绍上述roles代表的含义，从上至下进行介绍；</h4><p>4.1、haproxy</p>
+<p>handlers:main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">	</div><div class="line">- name: restart haproxy       //重启haproxy服务</div><div class="line"></div><div class="line">  service: name=haproxy state=restarted</div><div class="line"></div><div class="line">- name: restart rsyslog      //重启rsyslog服务</div><div class="line"></div><div class="line">  service: name=rsyslog state=restarted</div></pre></td></tr></table></figure></p>
+<p>tasks:main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">- name: install haproxy package        </div><div class="line">  yum: name=haproxy state=present</div><div class="line"></div><div class="line">- name: configuration haproxy </div><div class="line"></div><div class="line">  template: src=haproxy.cfg.j2   dest=/etc/haproxy/haproxy.cfg</div><div class="line"></div><div class="line">  notify: </div><div class="line"></div><div class="line">    - restart haproxy</div><div class="line"></div><div class="line">  tags: cfg</div><div class="line"></div><div class="line">- name: configuration rsyslog for haproxy</div><div class="line"></div><div class="line">  template: src=rsyslog.conf   dest=/etc/rsyslog.conf</div><div class="line"></div><div class="line">  notify:</div><div class="line"></div><div class="line">    - restart rsyslog</div><div class="line"></div><div class="line">- name: start haproxy service</div><div class="line"></div><div class="line">  service: name=haproxy state=started enabled=yes</div></pre></td></tr></table></figure></p>
+<p>template</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line">haproxy.cfg.j2:  //只截取了重要的部分，动静分离，后端服务器定义</div><div class="line"></div><div class="line">frontend  http</div><div class="line"></div><div class="line">    bind *:80</div><div class="line"></div><div class="line">    mode http</div><div class="line"></div><div class="line">    log global</div><div class="line"></div><div class="line">    option httpclose</div><div class="line"></div><div class="line">    option logasap</div><div class="line"></div><div class="line">    option dontlognull</div><div class="line"></div><div class="line">    acl url_static       path_end       -i .jpg .gif .png .css .js .html .ico</div><div class="line"></div><div class="line">    use_backend static_servers          if url_static</div><div class="line"></div><div class="line">    default_backend dynamic_servers</div><div class="line"></div><div class="line">#---------------------------------------------------------------------</div><div class="line"></div><div class="line"># static backend for serving up images, stylesheets and such</div><div class="line"></div><div class="line">#---------------------------------------------------------------------</div><div class="line"></div><div class="line">backend static_servers</div><div class="line"></div><div class="line">    balance    roundrobin</div><div class="line"></div><div class="line">    cookie   WebID  insert nocache</div><div class="line"></div><div class="line">    server   web1 &#123;&#123; web1_ip &#125;&#125;:80 check cookie web1</div><div class="line"></div><div class="line">    server   web2 &#123;&#123; web2_ip &#125;&#125;:80 check cookie web2</div><div class="line"></div><div class="line">#---------------------------------------------------------------------</div><div class="line"></div><div class="line"># round robin balancing between the various backends</div><div class="line"></div><div class="line">#---------------------------------------------------------------------</div><div class="line"></div><div class="line">backend dynamic_servers</div><div class="line"></div><div class="line">    balance     uri</div><div class="line"></div><div class="line">    hash-type consistent</div><div class="line"></div><div class="line">    server  php1 &#123;&#123; php1_ip &#125;&#125;:80 check cookie php1</div><div class="line"></div><div class="line">    server  php2 &#123;&#123; php2_ip &#125;&#125;:80 check cookie php2</div><div class="line"></div><div class="line">rsyslog.conf</div></pre></td></tr></table></figure>
+<p>Vars:main.yml</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">web1_ip : 172.16.16.3           //静态web1服务器ip</div><div class="line"></div><div class="line">web2_ip : 172.16.16.4          //静态web2服务器ip</div><div class="line"></div><div class="line">php1_ip : 172.16.16.2         //动态php1服务器ip</div><div class="line"></div><div class="line">php2_ip : 172.16.16.8        //动态php2服务器ip</div></pre></td></tr></table></figure>
+<p>4.2、httpd</p>
+<p>files：mountnfs.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">yum install -y nfs-utils &amp;&gt; /dev/null   //挂载nfs共享目录</div><div class="line"></div><div class="line">echo &quot; 172.16.16.252:/discuz     /var/www/html/          nfs    defaults,_netdev       0 0 &quot; &gt;&gt; /etc/fstab</div><div class="line"></div><div class="line">mount -a</div></pre></td></tr></table></figure></p>
+<p>tasks:main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">- name: install httpd package</div><div class="line"></div><div class="line">  yum: name=httpd state=present</div><div class="line"></div><div class="line">- name: mount nfs share directory /discuz</div><div class="line"></div><div class="line">  script: mountnfs.sh</div><div class="line"></div><div class="line">- name: set configuration</div><div class="line"></div><div class="line">  template: src=httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf</div><div class="line"></div><div class="line">- name: start httpd service</div><div class="line"></div><div class="line">  service: name=httpd state=started</div></pre></td></tr></table></figure></p>
+<p>templates:http.conf.j2<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">LogFormat %&#123;X-Forwarded-For&#125;i combined  //将客户端ip记入日志</div></pre></td></tr></table></figure></p>
+<p>4.3、initialization</p>
+<p>tasks：main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">- name: set selinux</div><div class="line"></div><div class="line">  shell: sed -i &apos;s@^SELINUX=.*@SELINUX=permissive@&apos; /etc/selinux/config</div><div class="line"></div><div class="line">  shell: setenforce 0</div><div class="line"></div><div class="line">- name: install libselinux-python package</div><div class="line"></div><div class="line">  yum: name=libselinux-python state=present</div><div class="line"></div><div class="line">- name: copy hosts to all node /etc/hosts</div><div class="line"></div><div class="line">  template: src=hosts dest=/etc/hosts</div><div class="line"></div><div class="line">- name: copy resolv.conf to all node /etc/resolv.conf</div><div class="line"></div><div class="line">  template: src=resolv.conf dest=/etc/resolv.conf</div><div class="line"></div><div class="line">- name: install ntpdate package</div><div class="line"></div><div class="line">  yum: name=ntpdate state=present</div><div class="line"></div><div class="line">- name: synctime from ntp.sjtu.edu.cn</div><div class="line"></div><div class="line">  shell: ntpdate ntp.sjtu.edu.cn</div><div class="line"></div><div class="line">- name: set a cron to synctime from ntp.sjtu.edu.cn</div><div class="line"></div><div class="line"> </div><div class="line">cron: name=&quot;cron to synctime from ntp.sjtu.edu.cn&quot; minute=&quot;*/5&quot;</div><div class="line">job=&quot;/usr/sbin/ntpdate ntp.sjtu.edu.cn &amp;&gt; /dev/null&quot;</div><div class="line">state=present</div><div class="line"></div><div class="line">- name: modify selinux configuration</div><div class="line"></div><div class="line">  template: src=selinux.conf dest=/etc/selinux/conf</div><div class="line"></div><div class="line">- name: set selinux permissive</div><div class="line"></div><div class="line">  shell: setenforce 0</div></pre></td></tr></table></figure></p>
+<p>templates:3个文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">(1)hosts</div><div class="line"></div><div class="line">127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4</div><div class="line"></div><div class="line">::1         localhost localhost.localdomain localhost6 localhost6.localdomain6</div><div class="line"></div><div class="line">172.16.16.11    node1</div><div class="line"></div><div class="line">172.16.16.12    node2</div><div class="line"></div><div class="line">172.16.16.3     web1</div><div class="line"></div><div class="line">172.16.16.4     web2</div><div class="line"></div><div class="line">172.16.16.2     php1</div><div class="line"></div><div class="line">172.16.16.8     php2</div><div class="line"></div><div class="line">172.16.16.5     mysql</div><div class="line"></div><div class="line">172.16.16.252  nfs</div><div class="line"></div><div class="line">(2)resolv.conf</div><div class="line"></div><div class="line">nameserver 172.16.0.1</div><div class="line"></div><div class="line">(3)selinux.conf</div><div class="line"></div><div class="line">SELINUX=disabled</div><div class="line"></div><div class="line">SELINUXTYPE=targeted</div></pre></td></tr></table></figure></p>
+<p>4.4、keepalived</p>
+<p>files:notify.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">通知机制：当主从发生变化的时候给管理员发邮件</div></pre></td></tr></table></figure></p>
+<p>handlers：main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">- name: restart keepalived</div><div class="line">  service: name=keepalived state=restarted</div></pre></td></tr></table></figure></p>
+<p>tasks:main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">- name: install keepalived package</div><div class="line">  yum: name=keepalived state=present</div><div class="line"></div><div class="line">- name: copy notify.sh to node1 and node2</div><div class="line"></div><div class="line">  copy: src=notify.sh dest=/etc/keepalived/notify.sh</div><div class="line"></div><div class="line">- name: configure keepalived on node1-master</div><div class="line"></div><div class="line">  template: src=keepalived.conf.master.j2 dest=/etc/keepalived/keepalived.conf</div><div class="line"></div><div class="line">  when: ansible_hostname == &quot;node1&quot;</div><div class="line"></div><div class="line">  notify:</div><div class="line"></div><div class="line">   - restart keepalived</div><div class="line"></div><div class="line">- name: configure keepalived on node2-backup</div><div class="line"></div><div class="line">  template: src=keepalived.conf.backup.j2 dest=/etc/keepalived/keepalived.conf</div><div class="line"></div><div class="line">  when: ansible_hostname == &quot;node2&quot;</div><div class="line"></div><div class="line">  notify:</div><div class="line"></div><div class="line">   - restart keepalived</div><div class="line"></div><div class="line">- name: start keepalived service</div><div class="line"></div><div class="line">  service: name=keepalived state=started enabled=yes</div></pre></td></tr></table></figure></p>
+<p>templates<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div></pre></td><td class="code"><pre><div class="line">keepalived.conf.master.j2</div><div class="line"></div><div class="line">! Configuration File for keepalived</div><div class="line"></div><div class="line">global_defs &#123;</div><div class="line"></div><div class="line">   notification_email &#123;</div><div class="line"></div><div class="line">       root@localhost</div><div class="line"></div><div class="line">   &#125;</div><div class="line"></div><div class="line">   notification_email_from keepalived@localhost</div><div class="line"></div><div class="line">   smtp_connect_timeout 3</div><div class="line"></div><div class="line">   smtp_server 127.0.0.1</div><div class="line"></div><div class="line">   router_id LVS_DEVEL</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_script chk_haproxy &#123;</div><div class="line"></div><div class="line">    script &quot;killall -0 haproxy&quot;</div><div class="line"></div><div class="line">    interval 1</div><div class="line"></div><div class="line">    weight 2</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_script chk_mantaince_down &#123;</div><div class="line"></div><div class="line">   script &quot;[[ -f /etc/keepalived/down ]] &amp;&amp; exit 1 || exit 0&quot;</div><div class="line"></div><div class="line">   interval 1</div><div class="line"></div><div class="line">   weight 2</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">vrrp_instance VI_1 &#123;</div><div class="line"></div><div class="line">    interface eth0</div><div class="line"></div><div class="line">    state MASTER  # BACKUP for slave routers</div><div class="line"></div><div class="line">    priority 101  # 100 for BACKUP</div><div class="line"></div><div class="line">    virtual_router_id 51</div><div class="line"></div><div class="line">    garp_master_delay 1</div><div class="line"></div><div class="line">    authentication &#123;</div><div class="line"></div><div class="line">        auth_type PASS</div><div class="line"></div><div class="line">        auth_pass password12345</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    track_interface &#123;</div><div class="line"></div><div class="line">       eth0</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    virtual_ipaddress &#123;</div><div class="line"></div><div class="line">        &#123;&#123; vip &#125;&#125;/16 dev eth0 label eth0:0</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    track_script &#123;</div><div class="line"></div><div class="line">        chk_haproxy</div><div class="line"></div><div class="line">        chk_mantaince_down</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    notify_master &quot;/etc/keepalived/notify.sh master&quot;</div><div class="line"></div><div class="line">    notify_backup &quot;/etc/keepalived/notify.sh backup&quot;</div><div class="line"></div><div class="line">    notify_fault &quot;/etc/keepalived/notify.sh fault&quot;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">keepalived.conf.backup.j2</div><div class="line"></div><div class="line"> state BACKUP  </div><div class="line"></div><div class="line"> priority 100</div></pre></td></tr></table></figure></p>
+<p>vars:main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">vip : 172.16.16.50</div></pre></td></tr></table></figure></p>
+<p>4.5、mysql</p>
+<p>files:3个文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">(1)mariadb-5.5.43.sh: 编译安装配置mariadb的脚本，就不发了，太多</div><div class="line"></div><div class="line">(2)privilege.sh</div><div class="line"></div><div class="line">#!/bin/bash</div><div class="line"></div><div class="line">#! privilege to dzuser</div><div class="line"></div><div class="line">echo &quot;create database discuz;</div><div class="line"></div><div class="line">grant all on discuz.* to &apos;dzuser&apos;@&apos;172.16.%.%&apos; identified by &apos;dzpasswd&apos;;</div><div class="line"></div><div class="line">flush privileges;</div><div class="line"></div><div class="line">\q&quot; | mysql</div><div class="line"></div><div class="line">~</div></pre></td></tr></table></figure></p>
+<p>tasks:main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">- name: copy mariadb-5.5.43 package</div><div class="line"></div><div class="line">  copy: src=mariadb-5.5.43-linux-x86_64.tar.gz dest=/root/mariadb-5.5.43-linux-x86_64.tar.gz</div><div class="line"></div><div class="line">- name: install mysql and cofiguration</div><div class="line"></div><div class="line">  script: mariadb-5.5.43.sh</div><div class="line"></div><div class="line">- name: start mysqld service</div><div class="line"></div><div class="line">  shell: service mysqld start</div><div class="line"></div><div class="line">- name: privileges to dzuser</div><div class="line"></div><div class="line">  script: privilege.sh</div><div class="line"></div><div class="line">  tags: haha</div></pre></td></tr></table></figure></p>
+<p>4.6、nfs</p>
+<p>files：discuz.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">#!/bin/bash</div><div class="line"></div><div class="line"># discuz configuration</div><div class="line"></div><div class="line">unzip -d /discuz /root/Discuz_X3.1_SC_UTF8.zip</div><div class="line"></div><div class="line">chmod -R go+w /discuz/upload/config/</div><div class="line"></div><div class="line">chmod -R go+w /discuz/upload/data/</div><div class="line"></div><div class="line">chmod -R go+w /discuz/upload/uc_*</div></pre></td></tr></table></figure></p>
+<p>tasks:main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line">- name: mkdir share directory to mysql and web</div><div class="line"></div><div class="line">  shell: mkdir -pv /&#123;mydata,discuz&#125;</div><div class="line"></div><div class="line">- name: install nfs package</div><div class="line"></div><div class="line">  yum: name=nfs-utils state=present</div><div class="line"></div><div class="line">- name: useradd mysql </div><div class="line"></div><div class="line">  user: name=mysql state=present system=yes</div><div class="line"></div><div class="line">- name: useradd apache</div><div class="line"></div><div class="line">  user: name=apache state=present system=yes</div><div class="line"></div><div class="line">- name: copy exports to nfs node</div><div class="line"></div><div class="line">  template: src=exports dest=/etc/exports</div><div class="line"></div><div class="line">- name: set mysql mode(rwx) to /mydata  </div><div class="line"></div><div class="line">  shell: setfacl -m u:mysql:rwx /mydata</div><div class="line"></div><div class="line">- name: set apache mode(rwx) to /discuz</div><div class="line"></div><div class="line">  shell: setfacl -m u:apache:rwx /discuz</div><div class="line"></div><div class="line">- name: copy Discuz_X3.1_SC_UTF8.zip package</div><div class="line"></div><div class="line">  copy: src=Discuz_X3.1_SC_UTF8.zip dest=/root/Discuz_X3.1_SC_UTF8.zip</div><div class="line"></div><div class="line">- name: install unzip package</div><div class="line"></div><div class="line">  yum: name=unzip state=present </div><div class="line"></div><div class="line">- name: configuration discuz </div><div class="line"></div><div class="line">  script: discuz.sh </div><div class="line"></div><div class="line">- name: start rpcbind service</div><div class="line"></div><div class="line">  service: name=rpcbind state=started</div><div class="line"></div><div class="line">- name: start nfs service</div></pre></td></tr></table></figure></p>
+<p>templates:exports<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">/mydata    172.16.0.0/16(rw,no_root_squash)//编译安装mysql需要这样设置，安装完可以改成rw权限即可</div><div class="line">/discuz    172.16.0.0/16(rw)</div></pre></td></tr></table></figure></p>
+<p>4.7、php</p>
+<p>files：2个文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">(1)install-php.sh</div><div class="line"></div><div class="line">#!/bin/bash</div><div class="line"></div><div class="line"># install nfs-utils httpd | php | php-mysql</div><div class="line"></div><div class="line">yum install -y nfs-utils httpd php php-mysql openssl-devel &amp;&gt; /dev/null</div><div class="line"></div><div class="line">(2)mountnfs.sh //同httpd使用的脚本</div></pre></td></tr></table></figure></p>
+<p>tasks：main.yml<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">- name: install nfs-utils | httpd | php | php-mysql package</div><div class="line">  script: install-php.sh</div><div class="line"></div><div class="line">- name: mount nfs share directory /discuz</div><div class="line"></div><div class="line">  script: mountnfs.sh</div><div class="line"></div><div class="line">- name: set configuration</div><div class="line"></div><div class="line">  template: src=httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf</div><div class="line"></div><div class="line">- name: start httpd service</div><div class="line"></div><div class="line">  service: name=httpd state=started</div></pre></td></tr></table></figure></p>
+<p>templates:httpd.conf.j2<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">这个模板也同httpd使用的！</div></pre></td></tr></table></figure></p>
+<h3 id="三、执行过程如下"><a href="#三、执行过程如下" class="headerlink" title="三、执行过程如下"></a>三、执行过程如下</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div></pre></td><td class="code"><pre><div class="line">[root@localhost ansible_playbooks]# ansible-playbook haproxy.yml //执行ansible剧本</div><div class="line">PLAY [nfs] ********************************************************************</div><div class="line">GATHERING FACTS ***************************************************************</div><div class="line">ok: [172.16.16.252]</div><div class="line">TASK: [initialization | set selinux] ******************************************</div><div class="line">changed: [172.16.16.252]                       //设置selinux</div><div class="line">TASK: [initialization | install libselinux-python package] ********************</div><div class="line">changed: [172.16.16.252]                       //需要安装libselinux-python</div><div class="line">TASK: [initialization | copy hosts to all node /etc/hosts] ********************</div><div class="line">changed: [172.16.16.252]                      //复制主机名解析文件</div><div class="line">TASK: [initialization | copy resolv.conf to all node /etc/resolv.conf] ********</div><div class="line">changed: [172.16.16.252]                    //复制域名文件</div><div class="line">TASK: [initialization | install ntpdate package] ******************************</div><div class="line">changed: [172.16.16.252]                     //安装ntpdate</div><div class="line">TASK: [initialization | synctime from ntp.sjtu.edu.cn] ************************</div><div class="line">changed: [172.16.16.252]</div><div class="line">                                                 //同步时间</div><div class="line">TASK: [initialization | set a cron to synctime from ntp.sjtu.edu.cn] **********                                              //设置计划任务</div><div class="line">changed: [172.16.16.252]</div><div class="line">TASK: [initialization | modify selinux configuration] *************************</div><div class="line">changed: [172.16.16.252]                        //修改selinux</div><div class="line">TASK: [initialization | set selinux permissive] *******************************</div><div class="line">changed: [172.16.16.252]</div><div class="line">TASK: [nfs | mkdir share directory to mysql and web] **************************</div><div class="line">changed: [172.16.16.252]              //创建nfs的共享目录/mydata和/discuz</div><div class="line">TASK: [nfs | install nfs package] *********************************************</div><div class="line">changed: [172.16.16.252]                //安装nfs-utils</div><div class="line">TASK: [nfs | useradd mysql] ***************************************************</div><div class="line">changed: [172.16.16.252]                 //添加mysql用户</div><div class="line">TASK: [nfs | useradd apache] **************************************************</div><div class="line">changed: [172.16.16.252]                //添加apache用户</div><div class="line">TASK: [nfs | copy exports to nfs node] ****************************************</div><div class="line">changed: [172.16.16.252]                //设置nfs导出的共享目录</div><div class="line">TASK: [nfs | set mysql mode(rwx) to /mydata] **********************************</div><div class="line">changed: [172.16.16.252]                //给mysql对/mydata的rwx权限</div><div class="line">TASK: [nfs | set apache mode(rwx) to /discuz] *********************************</div><div class="line">changed: [172.16.16.252]                //给apache对/discuz的rwx权限</div><div class="line">TASK: [nfs | copy Discuz_X3.1_SC_UTF8.zip package] ****************************</div><div class="line">changed: [172.16.16.252]               //复制discuz安装包到nfs服务器</div><div class="line">TASK: [nfs | install unzip package] *******************************************</div><div class="line">changed: [172.16.16.252]                //解压discuz</div><div class="line">TASK: [nfs | configuration discuz] ********************************************</div><div class="line">changed: [172.16.16.252]                 //配置discuz网页文件（给其对应访问权限）</div><div class="line">TASK: [nfs | start rpcbind service] *******************************************</div><div class="line">changed: [172.16.16.252]                 //启动rpcbind服务</div><div class="line">TASK: [nfs | start nfs service] ***********************************************</div><div class="line">changed: [172.16.16.252]               //启动nfs服务</div><div class="line">PLAY [db] *********************************************************************</div><div class="line">                                         //安装及配置mysql</div><div class="line">GATHERING FACTS ***************************************************************</div><div class="line">ok: [172.16.16.5]</div><div class="line">TASK: [initialization | set selinux] ******************************************</div><div class="line">changed: [172.16.16.5]</div><div class="line">TASK: [initialization | install libselinux-python package] ********************</div><div class="line">changed: [172.16.16.5]</div><div class="line">TASK: [initialization | copy hosts to all node /etc/hosts] ********************</div><div class="line">changed: [172.16.16.5]</div><div class="line">TASK: [initialization | copy resolv.conf to all node /etc/resolv.conf] ********</div><div class="line">changed: [172.16.16.5]</div><div class="line">TASK: [initialization | install ntpdate package] ******************************</div><div class="line">changed: [172.16.16.5]</div><div class="line">TASK: [initialization | synctime from ntp.sjtu.edu.cn] ************************</div><div class="line">changed: [172.16.16.5]</div><div class="line">TASK: [initialization | set a cron to synctime from ntp.sjtu.edu.cn] **********</div><div class="line">changed: [172.16.16.5]</div><div class="line">TASK: [initialization | modify selinux configuration] *************************</div><div class="line">changed: [172.16.16.5]</div><div class="line">TASK: [initialization | set selinux permissive] *******************************</div><div class="line">changed: [172.16.16.5]</div><div class="line">TASK: [mysql | copy mariadb-5.5.43 package] ***********************************</div><div class="line">changed: [172.16.16.5]                //复制mariadb到mysql服务器</div><div class="line">TASK: [mysql | install mysql and cofiguration] ********************************</div><div class="line">changed: [172.16.16.5]                 //脚本执行mysql安装，配置</div><div class="line">TASK: [mysql | start mysqld service] ******************************************</div><div class="line">changed: [172.16.16.5]              //启动mysqld服务</div><div class="line">TASK: [mysql | privileges to dzuser] ******************************************</div><div class="line">changed: [172.16.16.5]              //使用脚本创建discuz数据库，并给dzuser授权</div><div class="line">PLAY [static_servers] *********************************************************</div><div class="line">                                   //静态服务器设置 web1和web2节点</div><div class="line">GATHERING FACTS ***************************************************************</div><div class="line">ok: [172.16.16.3]</div><div class="line">ok: [172.16.16.4]</div><div class="line">TASK: [initialization | set selinux] ******************************************</div><div class="line">changed: [172.16.16.3]</div><div class="line">changed: [172.16.16.4]</div><div class="line">TASK: [initialization | install libselinux-python package] ********************</div><div class="line">changed: [172.16.16.3]</div><div class="line">changed: [172.16.16.4]</div><div class="line">TASK: [initialization | copy hosts to all node /etc/hosts] ********************</div><div class="line">changed: [172.16.16.4]</div><div class="line">changed: [172.16.16.3]</div><div class="line">TASK: [initialization | copy resolv.conf to all node /etc/resolv.conf] ********</div><div class="line">changed: [172.16.16.3]</div><div class="line">changed: [172.16.16.4]</div><div class="line">TASK: [initialization | install ntpdate package] ******************************</div><div class="line">changed: [172.16.16.3]</div><div class="line">changed: [172.16.16.4]</div><div class="line">TASK: [initialization | synctime from ntp.sjtu.edu.cn] ************************</div><div class="line">changed: [172.16.16.4]</div><div class="line">changed: [172.16.16.3]</div><div class="line">TASK: [initialization | set a cron to synctime from ntp.sjtu.edu.cn] **********</div><div class="line">changed: [172.16.16.3]</div><div class="line">changed: [172.16.16.4]</div><div class="line">TASK: [initialization | modify selinux configuration] *************************</div><div class="line">changed: [172.16.16.3]</div><div class="line">changed: [172.16.16.4]</div><div class="line">TASK: [initialization | set selinux permissive] *******************************</div><div class="line">changed: [172.16.16.4]</div><div class="line">changed: [172.16.16.3]</div><div class="line">TASK: [httpd | install httpd package] *****************************************</div><div class="line">changed: [172.16.16.3]                //安装httpd软件包</div><div class="line">changed: [172.16.16.4]</div><div class="line">TASK: [httpd | mount nfs share directory /discuz] *****************************</div><div class="line">changed: [172.16.16.3]                 //挂载nfs服务器共享的discuz目录至/var/www/html</div><div class="line">changed: [172.16.16.4]</div><div class="line">TASK: [httpd | set configuration] *********************************************</div><div class="line">changed: [172.16.16.4]              //配置httpd.conf</div><div class="line">changed: [172.16.16.3]</div><div class="line">TASK: [httpd | start httpd service] *******************************************</div><div class="line">changed: [172.16.16.3]                 //启动httpd服务</div><div class="line">changed: [172.16.16.4]</div><div class="line">PLAY [dynamic_servers] ********************************************************</div><div class="line">                                    //设置动态服务器php1和php2节点</div><div class="line">GATHERING FACTS ***************************************************************</div><div class="line">ok: [172.16.16.2]</div><div class="line">ok: [172.16.16.8]</div><div class="line">TASK: [initialization | set selinux] ******************************************</div><div class="line">changed: [172.16.16.2]</div><div class="line">changed: [172.16.16.8]</div><div class="line">TASK: [initialization | install libselinux-python package] ********************</div><div class="line">changed: [172.16.16.2]</div><div class="line">changed: [172.16.16.8]</div><div class="line">TASK: [initialization | copy hosts to all node /etc/hosts] ********************</div><div class="line">changed: [172.16.16.8]</div><div class="line">changed: [172.16.16.2]</div><div class="line">TASK: [initialization | copy resolv.conf to all node /etc/resolv.conf] ********</div><div class="line">changed: [172.16.16.8]</div><div class="line">changed: [172.16.16.2]</div><div class="line">TASK: [initialization | install ntpdate package] ******************************</div><div class="line">changed: [172.16.16.2]</div><div class="line">changed: [172.16.16.8]</div><div class="line">TASK: [initialization | synctime from ntp.sjtu.edu.cn] ************************</div><div class="line">changed: [172.16.16.2]</div><div class="line">changed: [172.16.16.8]</div><div class="line">TASK: [initialization | set a cron to synctime from ntp.sjtu.edu.cn] **********</div><div class="line">changed: [172.16.16.8]</div><div class="line">changed: [172.16.16.2]</div><div class="line">TASK: [initialization | modify selinux configuration] *************************</div><div class="line">changed: [172.16.16.8]</div><div class="line">changed: [172.16.16.2]</div><div class="line">TASK: [initialization | set selinux permissive] *******************************</div><div class="line">changed: [172.16.16.8]</div><div class="line">changed: [172.16.16.2]</div><div class="line">TASK: [php | install nfs-utils | httpd | php | php-mysql package] *************</div><div class="line">changed: [172.16.16.8]              //安装php软件包（使用的是centos 6系统自带的）</div><div class="line">changed: [172.16.16.2]</div><div class="line">TASK: [php | mount nfs share directory /discuz] *******************************</div><div class="line">changed: [172.16.16.8]             //挂载discuz目录至/var/www/html</div><div class="line">changed: [172.16.16.2]</div><div class="line">TASK: [php | set configuration] ***********************************************</div><div class="line">changed: [172.16.16.8]              //配置httpd.conf，给日志加入客户端访问的ip地址</div><div class="line">changed: [172.16.16.2]</div><div class="line">TASK: [php | start httpd service] *********************************************</div><div class="line">changed: [172.16.16.8]             //启用php功能</div><div class="line">changed: [172.16.16.2]</div><div class="line">PLAY [haproxy] ****************************************************************</div><div class="line">                                   //安装设置keepalived+haproxy（node1和node2）</div><div class="line">GATHERING FACTS ***************************************************************</div><div class="line">ok: [172.16.16.12]</div><div class="line">ok: [172.16.16.11]</div><div class="line">TASK: [initialization | set selinux] ******************************************</div><div class="line">changed: [172.16.16.12]</div><div class="line">changed: [172.16.16.11]</div><div class="line">TASK: [initialization | install libselinux-python package] ********************</div><div class="line">changed: [172.16.16.12]</div><div class="line">changed: [172.16.16.11]</div><div class="line">TASK: [initialization | copy hosts to all node /etc/hosts] ********************</div><div class="line">changed: [172.16.16.12]</div><div class="line">changed: [172.16.16.11]</div><div class="line">TASK: [initialization | copy resolv.conf to all node /etc/resolv.conf] ********</div><div class="line">changed: [172.16.16.11]</div><div class="line">changed: [172.16.16.12]</div><div class="line">TASK: [initialization | install ntpdate package] ******************************</div><div class="line">ok: [172.16.16.12]</div><div class="line">ok: [172.16.16.11]</div><div class="line">TASK: [initialization | synctime from ntp.sjtu.edu.cn] ************************</div><div class="line">changed: [172.16.16.12]</div><div class="line">changed: [172.16.16.11]</div><div class="line">TASK: [initialization | set a cron to synctime from ntp.sjtu.edu.cn] **********</div><div class="line">changed: [172.16.16.11]</div><div class="line">changed: [172.16.16.12]</div><div class="line">TASK: [initialization | modify selinux configuration] *************************</div><div class="line">changed: [172.16.16.11]</div><div class="line">changed: [172.16.16.12]</div><div class="line">TASK: [initialization | set selinux permissive] *******************************</div><div class="line">changed: [172.16.16.11]</div><div class="line">changed: [172.16.16.12]</div><div class="line">TASK: [keepalived | install keepalived package] *******************************</div><div class="line">changed: [172.16.16.11]            //安装keepalived</div><div class="line">changed: [172.16.16.12]</div><div class="line">TASK: [keepalived | copy notify.sh to node1 and node2] ************************</div><div class="line">changed: [172.16.16.12]               //复制通知脚本给node1和node2</div><div class="line">changed: [172.16.16.11]</div><div class="line">TASK: [keepalived | configure keepalived on node1-master] *********************</div><div class="line">skipping: [172.16.16.12]             //设置node1为MASTER节点</div><div class="line">changed: [172.16.16.11]</div><div class="line">TASK: [keepalived | configure keepalived on node2-backup] *********************</div><div class="line">skipping: [172.16.16.11]           //设置node2为BACKUP节点</div><div class="line">changed: [172.16.16.12]</div><div class="line">TASK: [keepalived | start keepalived service] *********************************</div><div class="line">changed: [172.16.16.12]            //启动keepalived服务</div><div class="line">changed: [172.16.16.11]</div><div class="line">TASK: [haproxy | install haproxy package] *************************************</div><div class="line">changed: [172.16.16.12]               //安装haproxy软件包</div><div class="line">changed: [172.16.16.11]</div><div class="line">TASK: [haproxy | configuration haproxy] ***************************************</div><div class="line">changed: [172.16.16.12]             //配置haproxy，实现动静分离</div><div class="line">changed: [172.16.16.11]</div><div class="line">TASK: [haproxy | configuration rsyslog for haproxy] ***************************</div><div class="line">changed: [172.16.16.11]          //记录haproxy的日志</div><div class="line">changed: [172.16.16.12]</div><div class="line">TASK: [haproxy | start haproxy service] ***************************************</div><div class="line">changed: [172.16.16.12]          //启动haproxy服务</div><div class="line">changed: [172.16.16.11]</div><div class="line">NOTIFIED: [keepalived | restart keepalived] ***********************************</div><div class="line">changed: [172.16.16.12]          //配置文件发生变化，重启keepalived服务</div><div class="line">changed: [172.16.16.11]</div><div class="line">NOTIFIED: [haproxy | restart haproxy] *****************************************</div><div class="line">changed: [172.16.16.11]           //配置文件发生变化，重启haproxy服务</div><div class="line">changed: [172.16.16.12]</div><div class="line">NOTIFIED: [haproxy | restart rsyslog] *****************************************</div><div class="line">changed: [172.16.16.12]       //配置文件发生变化，重启rsyslog服务</div><div class="line">changed: [172.16.16.11]</div><div class="line">PLAY RECAP ********************************************************************</div><div class="line">172.16.16.11               : ok=21   changed=19   unreachable=0    failed=0</div><div class="line">172.16.16.12               : ok=21   changed=19   unreachable=0    failed=0</div><div class="line">172.16.16.2                : ok=14   changed=13   unreachable=0    failed=0</div><div class="line">172.16.16.252              : ok=22   changed=21   unreachable=0    failed=0</div><div class="line">172.16.16.3                : ok=14   changed=13   unreachable=0    failed=0</div><div class="line">172.16.16.4                : ok=14   changed=13   unreachable=0    failed=0</div><div class="line">172.16.16.5                : ok=14   changed=13   unreachable=0    failed=0</div><div class="line">172.16.16.8                : ok=14   changed=13   unreachable=0    failed=0</div></pre></td></tr></table></figure>
+<h3 id="四、安装discuz论坛"><a href="#四、安装discuz论坛" class="headerlink" title="四、安装discuz论坛"></a>四、安装discuz论坛</h3><p><a href="http://www.361way.com/wp-content/uploads/2015/10/ansible-discuz.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/10/ansible-discuz.png" alt="ansible-discuz"></a></p>
+<p>具体步骤略，无非是下一步下一步。安装完成，使用vip：172.16.16.50测试正常！！如下图：</p>
+<p><a href="http://www.361way.com/wp-content/uploads/2015/10/discuz.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/10/discuz.png" alt="discuz"></a></p>
+<h3 id="五、额外测试过程："><a href="#五、额外测试过程：" class="headerlink" title="五、额外测试过程："></a><strong>五、额外测试过程：</strong></h3><p>（1）测试keepalived是否工作正常，在master出现问题的时候，是否可以切换到backup上：</p>
+<p><a href="http://www.361way.com/wp-content/uploads/2015/10/keepalived.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/10/keepalived.png" alt="keepalived"></a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@node1 keepalived]# tail /var/log/messages    //通过下面的日志可看出node1成为BACKUPOct 24 20:08:19 node1 Keepalived_vrrp[2644]: VRRP_Script(chk_mantaince_down) failedOct 24 20:08:21 node1 Keepalived_vrrp[2644]: VRRP_Instance(VI_1) Received higher prio advertOct 24 20:08:21 node1 Keepalived_vrrp[2644]: VRRP_Instance(VI_1) Entering BACKUP STATEOct 24 20:08:21 node1 Keepalived_vrrp[2644]: VRRP_Instance(VI_1) removing protocol VIPs.Oct 24 20:08:21 node1 Keepalived_healthcheckers[2643]: Netlink reflector reports IP 172.16.16.50 removed[root@node2 ~]# tail /var/log/messages         //通过下面的日志可看出node2成为MASTEROct 24 20:08:22 node2 Keepalived_vrrp[2442]: VRRP_Instance(VI_1) Transition to MASTER STATEOct 24 20:08:23 node2 Keepalived_vrrp[2442]: VRRP_Instance(VI_1) Entering MASTER STATEOct 24 20:08:23 node2 Keepalived_vrrp[2442]: VRRP_Instance(VI_1) setting protocol VIPs.Oct 24 20:08:23 node2 Keepalived_healthcheckers[2441]: Netlink reflector reports IP 172.16.16.50 addedOct 24 20:08:23 node2 Keepalived_vrrp[2442]: VRRP_Instance(VI_1) Sending gratuitous ARPs on eth0 for 172.16.16.50</div></pre></td></tr></table></figure>
+<p><a href="http://www.361way.com/wp-content/uploads/2015/10/backupnode.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/10/backupnode.png" alt="backupnode"></a></p>
+<p><strong>这个时候访问discuz论坛仍然没有问题；说明keepalived发挥了作用！</strong></p>
+<p>（2）测试haproxy是否可以实现读写分离</p>
+<p>方法：将所有static_servers的httpd服务停止，测试只提供php的功能，显示效果如下图：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@web1 ~]# service httpd stop     //停止web1和web2的httpd服务，提供静态内容显示</div><div class="line">[root@web2 ~]# service httpd stop</div></pre></td></tr></table></figure>
+<p><a href="http://www.361way.com/wp-content/uploads/2015/10/haproxy-forum.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/10/haproxy-forum.png" alt="haproxy-forum"></a></p>
+<p># 可以看到上面的效果，图片都已经不再显示，将web2加回来，然后再查看效果，并查看http的访问日志</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@web2 ~]# service httpd start       //启动其中的一台</div><div class="line">[root@web2 ~]# tail /var/log/httpd/access_log</div><div class="line">172.16.0.3 - - [24/Oct/2015:20:46:54 +0800] &quot;GET /static/image/common/user_online.gif HTTP/1.1&quot; 200 868 &quot;http://172.16.16.50/data/cache/style_1_common.css?SFA&quot; &quot;Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36&quot;</div><div class="line">172.16.0.3 - - [24/Oct/2015:20:46:54 +0800] &quot;GET /static/image/common/arrwd.gif HTTP/1.1&quot; 200 51 &quot;http://172.16.16.50/data/cache/style_1_common.css?SFA&quot; &quot;Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36&quot;</div></pre></td></tr></table></figure>
+<p><a href="http://www.361way.com/wp-content/uploads/2015/10/haproxy-keepalived.png" target="_blank" rel="external"><img src="http://www.361way.com/wp-content/uploads/2015/10/haproxy-keepalived.png" alt="haproxy-keepalived"></a></p>
+<p>本篇自自于51cto bengbengtu的文章，实现haproxy+keepalived的方案属于一个比较成熟的方案并无太多新意，之所以将该篇拿过来看备忘下无法看到是通过ansible+haproxy+keepalived做了一个简单的整合，还是有点意思的。而且实的步骤也相对详尽，还是值得一看的。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/devops/" rel="tag"># devops</a>
+          
+            <a href="/blog/tags/ansible/" rel="tag"># ansible</a>
+          
+            <a href="/blog/tags/haproxy/" rel="tag"># haproxy</a>
+          
+            <a href="/blog/tags/keepalive/" rel="tag"># keepalive</a>
+          
+            <a href="/blog/tags/discuz/" rel="tag"># discuz</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2016/10/25/yaml/" rel="next" title="yaml在python上的使用">
+                <i class="fa fa-chevron-left"></i> yaml在python上的使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/blog/2016/12/02/tcp_CLOSE_WAIT/" rel="prev" title="浅谈CLOSE_WAIT">
+                浅谈CLOSE_WAIT <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/uploads/avatar.png"
+               alt="曹淼" />
+          <p class="site-author-name" itemprop="name">曹淼</p>
+          <p class="site-description motion-element" itemprop="description">混迹互联网圈数载，潜心修行编程之道的码农</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">37</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/blog/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/plpcm" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/2738224607" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.chinaunix.net/uid/29580597" target="_blank" title="旧版博客">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  旧版博客
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://openresty.org/" title="OpenResty" target="_blank">OpenResty</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git-scm.com/book/zh/v2" title="git-book" target="_blank">git-book</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一、测试环境：-centos-6-6；使用8台虚拟机（上图）"><span class="nav-number">1.</span> <span class="nav-text">一、测试环境： centos 6.6；使用8台虚拟机（上图）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#二、准备工作：这里基于ansible的playbook部署"><span class="nav-number">2.</span> <span class="nav-text">二、准备工作：这里基于ansible的playbook部署</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1、ansible使用环境为centos-7；设置如下"><span class="nav-number">2.1.</span> <span class="nav-text">1、ansible使用环境为centos 7；设置如下</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2、ansible设置及管理节点探测："><span class="nav-number">2.2.</span> <span class="nav-text">2、ansible设置及管理节点探测：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3、ansible定义roles如下："><span class="nav-number">2.3.</span> <span class="nav-text">3、ansible定义roles如下：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4、介绍上述roles代表的含义，从上至下进行介绍；"><span class="nav-number">2.4.</span> <span class="nav-text">4、介绍上述roles代表的含义，从上至下进行介绍；</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#三、执行过程如下"><span class="nav-number">3.</span> <span class="nav-text">三、执行过程如下</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#四、安装discuz论坛"><span class="nav-number">4.</span> <span class="nav-text">四、安装discuz论坛</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#五、额外测试过程："><span class="nav-number">5.</span> <span class="nav-text">五、额外测试过程：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">曹淼</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/blog/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/blog/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/blog/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
