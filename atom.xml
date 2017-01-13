@@ -825,13 +825,11 @@
     <link href="https://plpcm.github.io/blog/2016/10/22/ansible_07/"/>
     <id>https://plpcm.github.io/blog/2016/10/22/ansible_07/</id>
     <published>2016-10-22T02:37:16.000Z</published>
-    <updated>2017-01-13T06:18:19.000Z</updated>
+    <updated>2017-01-13T06:26:57.000Z</updated>
     
-    <content type="html"><![CDATA[<p><a href="http://docs.ansible.com/list_of_all_modules.html" target="_blank" rel="external">官方页面</a>。<br>这里从官方分类的模块里选择最常用的一些模块进行介绍（commands模块上一篇已经介绍，这里不再提）。</p>
-<h2 id="ansible常用模块用法"><a href="#ansible常用模块用法" class="headerlink" title="ansible常用模块用法"></a>ansible常用模块用法</h2><p>ansible 默认提供了很多模块来供我们使用。在 <a href="http://lib.csdn.net/base/linux" target="_blank" rel="external">Linux</a> 中，我们可以通过 ansible-doc -l 命令查看到当前 ansible 都支持哪些模块，通过 ansible-doc  -s  模块名  又可以查看该模块有哪些参数可以使用。</p>
-<p>模块按功能分类为：云模块、命令模块、数据库模块、文件模块、资产模块、消息模块、监控模块、网络模块、通知模块、包管理模块、源码控制模块、系统模块、单元模块、web设施模块、windows模块 ，具体可以参看<a href="http://docs.ansible.com/list_of_all_modules.html" target="_blank" rel="external">官方页面</a>。</p>
-<p>这里从官方分类的模块里选择最常用的一些模块进行介绍。</p>
-<h3 id="下面介绍比较常用的模块："><a href="#下面介绍比较常用的模块：" class="headerlink" title="下面介绍比较常用的模块："></a>下面介绍比较常用的模块：</h3><h3 id="一、ping模块"><a href="#一、ping模块" class="headerlink" title="一、ping模块"></a>一、ping模块</h3><p>测试主机是否是通的，用法很简单，不涉及参数：</p>
+    <content type="html"><![CDATA[<h2 id="ansible常用模块用法"><a href="#ansible常用模块用法" class="headerlink" title="ansible常用模块用法"></a>ansible常用模块用法</h2><p><a href="http://docs.ansible.com/list_of_all_modules.html" target="_blank" rel="external">官方页面</a>。<br>这里从官方分类的模块里选择最常用的一些模块进行介绍（commands模块上一篇已经介绍，这里不再提）。</p>
+<p>ansible 默认提供了很多模块来供我们使用。在 <a href="http://lib.csdn.net/base/linux" target="_blank" rel="external">Linux</a> 中，我们可以通过 ansible-doc -l 命令查看到当前 ansible 都支持哪些模块，通过 ansible-doc  -s  模块名  又可以查看该模块有哪些参数可以使用。<br>模块按功能分类为：云模块、命令模块、数据库模块、文件模块、资产模块、消息模块、监控模块、网络模块、通知模块、包管理模块、源码控制模块、系统模块、单元模块、web设施模块、windows模块 ，具体可以参看<a href="http://docs.ansible.com/list_of_all_modules.html" target="_blank" rel="external">官方页面</a>。<br>这里从官方分类的模块里选择最常用的一些模块进行介绍。</p>
+<h2 id="下面介绍比较常用的模块："><a href="#下面介绍比较常用的模块：" class="headerlink" title="下面介绍比较常用的模块："></a>下面介绍比较常用的模块：</h2><h3 id="一、ping模块"><a href="#一、ping模块" class="headerlink" title="一、ping模块"></a>一、ping模块</h3><p>测试主机是否是通的，用法很简单，不涉及参数：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@plpcm ~]# ansible 10.212.52.252 -m ping</div><div class="line">10.212.52.252 | success &gt;&gt; &#123;</div><div class="line">    &quot;changed&quot;: false,</div><div class="line">    &quot;ping&quot;: &quot;pong&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h3 id="二、setup模块"><a href="#二、setup模块" class="headerlink" title="二、setup模块"></a><strong>二、setup模块</strong></h3><p>setup模块，主要用于获取主机信息，在playbooks里经常会用到的一个参数gather_facts就与该模块相关。setup模块下经常使用的一个参数是filter参数，具体使用示例如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ansible test -m setup -a &apos;filter=ansible_*_mb&apos;   //查看主机内存信息</div><div class="line">ansible test -m setup -a &apos;filter=ansible_eth[0-2]&apos;   //查看地接口为eth0-2的网卡信息</div><div class="line">ansible test -m setup --tree /tmp/facts   //将所有主机的信息输入到/tmp/facts目录下，每台主机的信息输入到主机名文件中（/etc/ansible/hosts里的主机名）</div></pre></td></tr></table></figure>
@@ -948,16 +946,15 @@
 </ul>
 <p>使用示例：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">    src=some/relative/path dest=/some/absolute/path rsync_path=&quot;sudo rsync&quot;</div><div class="line">    src=some/relative/path dest=/some/absolute/path archive=no links=yes</div><div class="line">    src=some/relative/path dest=/some/absolute/path checksum=yes times=no</div><div class="line">    src=/tmp/helloworld dest=/var/www/helloword rsync_opts=--no-motd,--exclude=.git mode=pull</div></pre></td></tr></table></figure>
-<h3 id="十、filesystem模块"><a href="#十、filesystem模块" class="headerlink" title="十、filesystem模块"></a><strong>十、filesystem模块</strong></h3><h3 id="在块设备上创建文件系统选项："><a href="#在块设备上创建文件系统选项：" class="headerlink" title="在块设备上创建文件系统选项："></a>在块设备上创建文件系统选项：</h3><ul>
+<h3 id="十、filesystem模块"><a href="#十、filesystem模块" class="headerlink" title="十、filesystem模块"></a><strong>十、filesystem模块</strong></h3><p>在块设备上创建文件系统选项： </p>
+<ul>
 <li>dev：目标块设备</li>
 <li>force：在一个已有文件系统 的设备上强制创建</li>
 <li>fstype：文件系统的类型</li>
 <li>opts：传递给mkfs命令的选项</li>
 </ul>
-<h3 id="示例："><a href="#示例：" class="headerlink" title="示例："></a>示例：</h3><pre><code>ansible test -m filesystem -a &apos;fstype=ext2 dev=/dev/sdb1 force=yes&apos;
-
-ansible test -m filesystem -a &apos;fstype=ext4 dev=/dev/sdb1 opts=&quot;-cc&quot;&apos;
-</code></pre><h3 id="十一、mount模块"><a href="#十一、mount模块" class="headerlink" title="十一、mount模块"></a>十一、mount模块</h3><p>配置挂载点<br>选项： </p>
+<p>示例：<br>    ansible test -m filesystem -a ‘fstype=ext2 dev=/dev/sdb1 force=yes’<br>    ansible test -m filesystem -a ‘fstype=ext4 dev=/dev/sdb1 opts=”-cc”‘</p>
+<h3 id="十一、mount模块"><a href="#十一、mount模块" class="headerlink" title="十一、mount模块"></a>十一、mount模块</h3><p>配置挂载点<br>选项： </p>
 <ul>
 <li>dump</li>
 <li>fstype：必选项，挂载文件的类型 </li>
