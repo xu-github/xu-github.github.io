@@ -825,7 +825,7 @@
     <link href="https://plpcm.github.io/blog/2016/10/22/ansible_07/"/>
     <id>https://plpcm.github.io/blog/2016/10/22/ansible_07/</id>
     <published>2016-10-22T02:37:16.000Z</published>
-    <updated>2017-01-13T06:26:57.000Z</updated>
+    <updated>2017-01-13T06:27:59.000Z</updated>
     
     <content type="html"><![CDATA[<h2 id="ansible常用模块用法"><a href="#ansible常用模块用法" class="headerlink" title="ansible常用模块用法"></a>ansible常用模块用法</h2><p><a href="http://docs.ansible.com/list_of_all_modules.html" target="_blank" rel="external">官方页面</a>。<br>这里从官方分类的模块里选择最常用的一些模块进行介绍（commands模块上一篇已经介绍，这里不再提）。</p>
 <p>ansible 默认提供了很多模块来供我们使用。在 <a href="http://lib.csdn.net/base/linux" target="_blank" rel="external">Linux</a> 中，我们可以通过 ansible-doc -l 命令查看到当前 ansible 都支持哪些模块，通过 ansible-doc  -s  模块名  又可以查看该模块有哪些参数可以使用。<br>模块按功能分类为：云模块、命令模块、数据库模块、文件模块、资产模块、消息模块、监控模块、网络模块、通知模块、包管理模块、源码控制模块、系统模块、单元模块、web设施模块、windows模块 ，具体可以参看<a href="http://docs.ansible.com/list_of_all_modules.html" target="_blank" rel="external">官方页面</a>。<br>这里从官方分类的模块里选择最常用的一些模块进行介绍。</p>
@@ -927,7 +927,7 @@
 <p>不同的发行版默认使用的加密方式可能会有区别，具体可以查看/etc/login.defs文件确认，centos 6.5版本使用的是SHA512加密算法。</p>
 <h4 id="2、group示例"><a href="#2、group示例" class="headerlink" title="2、group示例"></a>2、group示例</h4><p>创建一个组名为nolinux，gid为2014的组</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ansible test -m group -a &apos;gid=2014 name=somegroup state=present&apos;</div></pre></td></tr></table></figure>
-<h4 id="九、synchronize模块"><a href="#九、synchronize模块" class="headerlink" title="九、synchronize模块"></a><strong>九、synchronize模块</strong></h4><p>使用rsync同步文件，其参数如下：</p>
+<h3 id="九、synchronize模块"><a href="#九、synchronize模块" class="headerlink" title="九、synchronize模块"></a><strong>九、synchronize模块</strong></h3><p>使用rsync同步文件，其参数如下：</p>
 <ul>
 <li>archive: 归档，相当于同时开启recursive(递归)、links、perms、times、owner、group、-D选项都为yes ，默认该项为开启</li>
 <li>checksum: 跳过检测sum值，默认关闭</li>
