@@ -1,0 +1,809 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="devops,fabric," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="曹淼的“git博客”" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="PYTHON 使用Fabric部署代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Fabric部署代码">
+<meta property="og:url" content="https://plpcm.github.io/blog/2018/11/02/fabric-basic/index.html">
+<meta property="og:site_name" content="曹淼的“git博客”">
+<meta property="og:description" content="PYTHON 使用Fabric部署代码">
+<meta property="og:updated_time" content="2018-11-06T07:30:04.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用Fabric部署代码">
+<meta name="twitter:description" content="PYTHON 使用Fabric部署代码">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://plpcm.github.io/blog/2018/11/02/fabric-basic/"/>
+
+
+
+
+
+  <title> 使用Fabric部署代码 | 曹淼的“git博客” </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/blog/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">曹淼的“git博客”</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">道法自然</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/blog/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/blog/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/blog/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/blog/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2018/11/02/fabric-basic/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="曹淼">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/blog/uploads/avatar.png">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="曹淼的“git博客”">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="曹淼的“git博客”" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                使用Fabric部署代码
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-02T10:30:16+08:00">
+                2018-11-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+              <span class="post-meta-divider">|</span>
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/devops/" itemprop="url" rel="index">
+                    <span itemprop="name">devops</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+              <div class="post-description">
+                  PYTHON 使用Fabric部署代码
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>使用Fabric部署代码Fabric是一个用Python开发的部署工具，最大特点是不用登录远程服务器，在本地运行远程命令，几行Python脚本就可以轻松部署。</p>
+<h2 id="1-Hello"><a href="#1-Hello" class="headerlink" title="1. Hello"></a>1. Hello</h2><h3 id="1-1-安装"><a href="#1-1-安装" class="headerlink" title="1.1 安装"></a>1.1 安装</h3><blockquote>
+<p>pip install fabric</p>
+</blockquote>
+<h3 id="1-2-编写脚本vim-fabfile-py"><a href="#1-2-编写脚本vim-fabfile-py" class="headerlink" title="1.2 编写脚本vim fabfile.py"></a>1.2 编写脚本vim fabfile.py</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello</span><span class="params">()</span>:</span></div><div class="line">    print(<span class="string">"Hello world!"</span>)</div></pre></td></tr></table></figure>
+<h3 id="1-3-运行脚本"><a href="#1-3-运行脚本" class="headerlink" title="1.3 运行脚本"></a>1.3 运行脚本</h3><blockquote>
+<p>fab hello</p>
+</blockquote>
+<h2 id="2-常见命令"><a href="#2-常见命令" class="headerlink" title="2. 常见命令"></a>2. 常见命令</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">fab --help</div><div class="line">fab <span class="_">-l</span>      <span class="comment"># 显示可用的task（命令）</span></div><div class="line">fab -H      <span class="comment"># 指定host，支持多个host，以逗号分开</span></div><div class="line">fab -R      <span class="comment"># 指定role，支持多个role</span></div><div class="line">fab -P      <span class="comment"># 并发数，默认串行</span></div><div class="line">fab -w      <span class="comment"># warn_only，默认遇到异常直接abort退出</span></div><div class="line">fab <span class="_">-f</span>      <span class="comment"># 指定入口文件，默认fabfile.py</span></div></pre></td></tr></table></figure>
+<h2 id="3-常用函数"><a href="#3-常用函数" class="headerlink" title="3. 常用函数"></a>3. 常用函数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">lcd(<span class="string">'/tmp'</span>)         <span class="comment"># 切换本地目录</span></div><div class="line">cd(<span class="string">'/tmp'</span>)          <span class="comment"># 切换远程目录</span></div><div class="line">put(<span class="string">'tmp.tar.gz'</span>)   <span class="comment"># 上传文件</span></div><div class="line">local(<span class="string">'pwd'</span>)        <span class="comment"># 执行本地命令</span></div><div class="line">run(<span class="string">'uname -a'</span>)     <span class="comment"># 执行远程命令</span></div><div class="line">sudo(<span class="string">'/etc/init.d/nginx start'</span>)     <span class="comment"># 执行远程sudo</span></div></pre></td></tr></table></figure>
+<h2 id="4-错误处理"><a href="#4-错误处理" class="headerlink" title="4. 错误处理"></a>4. 错误处理</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">with</span> settings(warn_only=<span class="keyword">True</span>):</div><div class="line">        result = local(<span class="string">'./manage.py test my_app'</span>, capture=<span class="keyword">True</span>)</div><div class="line">    <span class="keyword">if</span> result.failed <span class="keyword">and</span> <span class="keyword">not</span> confirm(<span class="string">"Tests failed. Continue anyway?"</span>):</div><div class="line">        abort(<span class="string">"Aborting at user request."</span>)</div></pre></td></tr></table></figure>
+<h2 id="5-角色定义"><a href="#5-角色定义" class="headerlink" title="5. 角色定义"></a>5. 角色定义</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">host1 = <span class="string">'user@192.168.1.1:22'</span></div><div class="line">host2 = <span class="string">'user@192.168.1.2:22'</span></div><div class="line">host3 = <span class="string">'user@192.168.1.3:22'</span></div><div class="line">env.hosts = [ host1, host2, host3 ]</div><div class="line">env.passwords = &#123;</div><div class="line">    host1: <span class="string">"pwd_of_host1"</span>,</div><div class="line">    host2: <span class="string">"pwd_of_host2"</span>,</div><div class="line">    host3: <span class="string">"pwd_of_host3"</span>,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">env.roledefs = &#123;</div><div class="line">    <span class="string">'nginx_user'</span>: [host1, host2],</div><div class="line">    <span class="string">'mysql_user'</span>: [host3]</div><div class="line">&#125;</div><div class="line">env.passwords = &#123;</div><div class="line">    host1: <span class="string">"pwd_of_host1"</span>,</div><div class="line">    host2: <span class="string">"pwd_of_host2"</span>,</div><div class="line">    host3: <span class="string">"pwd_of_host3"</span>,</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="6-简单实例"><a href="#6-简单实例" class="headerlink" title="6. 简单实例"></a>6. 简单实例</h2><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">from __future__ import with_statement</div><div class="line">from fabric.api import *</div><div class="line">from fabric.contrib.console import confirm</div><div class="line">host1 = 'user@192.168.1.1:22'</div><div class="line">host2 = 'user@192.168.1.2:22'</div><div class="line">host3 = 'user@192.168.1.3:22'</div><div class="line">env.passwords = &#123;</div><div class="line">    host1: "pwd_of_host1",</div><div class="line">    host2: "pwd_of_host2",</div><div class="line">    host3: "pwd_of_host3",</div><div class="line">&#125;</div><div class="line">env.roledefs = &#123;</div><div class="line">    'nginx_user': [host1, host2],</div><div class="line">    'mysql_user': [host3]</div><div class="line">&#125;</div><div class="line">def test():</div><div class="line">    with settings(warn_only=True):</div><div class="line">        result = local('./manage.py test my_app', capture=True)</div><div class="line">        print("some processings")</div><div class="line">    if result.failed and not confirm("Tests failed. Continue anyway?"):</div><div class="line">        abort("Aborting at user request.")</div><div class="line">        print red("some error")</div><div class="line">def deploy():</div><div class="line">    test()</div><div class="line">    local("git add -p &amp;&amp; git commit")</div><div class="line">    local("git push")</div><div class="line">@task</div><div class="line">@parallel</div><div class="line">@roles('nginx')</div><div class="line">def nginx_start():</div><div class="line">    sudo('/etc/init.d/nginx start')</div><div class="line">@task</div><div class="line">@serial</div><div class="line">@roles('nginx')</div><div class="line">def nginx_stop():</div><div class="line">    sudo('/etc/init.d/nginx stop')</div><div class="line">@task</div><div class="line">@parallel(pool_size=5)</div><div class="line">@roles('mysql')</div><div class="line">def mysql_start()</div><div class="line">    sudo('/etc/init.d/mysql start')</div></pre></td></tr></table></figure>
+<h2 id="7-扩展"><a href="#7-扩展" class="headerlink" title="7. 扩展"></a>7. 扩展</h2><h3 id="7-1-颜色"><a href="#7-1-颜色" class="headerlink" title="7.1 颜色"></a>7.1 颜色</h3><p>可以打印颜色，在查看操作结果信息的时候更为醒目和方便</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> fabric.colors <span class="keyword">import</span> *</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">show</span><span class="params">()</span>:</span></div><div class="line">    <span class="keyword">print</span> green(<span class="string">'success'</span>)</div><div class="line">    <span class="keyword">print</span> red(<span class="string">'fail'</span>)</div><div class="line">    <span class="keyword">print</span> yellow(<span class="string">'yellow'</span>)</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/devops/" rel="tag"># devops</a>
+          
+            <a href="/blog/tags/fabric/" rel="tag"># fabric</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/01/02/salt-command/" rel="next" title="salt 命令使用入门">
+                <i class="fa fa-chevron-left"></i> salt 命令使用入门
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/uploads/avatar.png"
+               alt="曹淼" />
+          <p class="site-author-name" itemprop="name">曹淼</p>
+          <p class="site-description motion-element" itemprop="description">混迹互联网圈数载，潜心修行编程之道的码农</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/blog/archives">
+              <span class="site-state-item-count">38</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/blog/categories">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/plpcm" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/u/2738224607" target="_blank" title="Weibo">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                  Weibo
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://blog.chinaunix.net/uid/29580597" target="_blank" title="旧版博客">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  旧版博客
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+          <div class="cc-license motion-element" itemprop="license">
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" target="_blank">
+              <img src="/blog/images/cc-by-nc-sa.svg" alt="Creative Commons" />
+            </a>
+          </div>
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-block">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://openresty.org/" title="OpenResty" target="_blank">OpenResty</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://git-scm.com/book/zh/v2" title="git-book" target="_blank">git-book</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Hello"><span class="nav-number">1.</span> <span class="nav-text">1. Hello</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-安装"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-编写脚本vim-fabfile-py"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 编写脚本vim fabfile.py</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-运行脚本"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 运行脚本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-常见命令"><span class="nav-number">2.</span> <span class="nav-text">2. 常见命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-常用函数"><span class="nav-number">3.</span> <span class="nav-text">3. 常用函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-错误处理"><span class="nav-number">4.</span> <span class="nav-text">4. 错误处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-角色定义"><span class="nav-number">5.</span> <span class="nav-text">5. 角色定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-简单实例"><span class="nav-number">6.</span> <span class="nav-text">6. 简单实例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-扩展"><span class="nav-number">7.</span> <span class="nav-text">7. 扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-颜色"><span class="nav-number">7.1.</span> <span class="nav-text">7.1 颜色</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">曹淼</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+	
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/blog/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/blog/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/blog/js/src/algolia-search.js?v=5.1.0"></script>
+
+
+
+</body>
+</html>
