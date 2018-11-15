@@ -89,46 +89,46 @@
 <meta name="description" content="本文重点介绍了支持Git的图形结构，以及该图形的属性指示Git行为的方式。从基础开始，同时有实例讲解，根据实例建立一个更真实的模型，让你更好地理解git做了什么。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Git工作原理">
-<meta property="og:url" content="http://aa.yongliangchen.cn/blog/2016/02/20/git-works-how/index.html">
+<meta property="og:url" content="https://plpcm.github.io/blog/2016/02/20/git-works-how/index.html">
 <meta property="og:site_name" content="曹淼的“git博客”">
 <meta property="og:description" content="本文重点介绍了支持Git的图形结构，以及该图形的属性指示Git行为的方式。从基础开始，同时有实例讲解，根据实例建立一个更真实的模型，让你更好地理解git做了什么。">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/1-a1-tree-graph.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/2-a1-commit.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/3-a1-refs.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/4-a1-wc-and-index.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/5-a1-wc-number-set-to-2.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/6-a1-wc-and-index-number-set-to-2.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/7-a2.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/8-a2-just-objects-commits-and-refs.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/9-a2-detached-head.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/10-a3-detached-head.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/11-a3-on-deputy.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/12-a3-on-master-on-a2.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/13-a3ondeputy.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/14-a3-on-master-on-a2.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/15-a3-on-master.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/16-a4-b3-on-deputy.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/17-a4-b3-on-deputy.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/18-b4-on-deputy.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/19-b4-master-deputy-on-b4.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/20-b5-on-deputy-b6-on-master.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/21-b6-on-master-with-merge-head.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/22-b11-on-master.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/24-b11-letter-removed-from-wc-and-index.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/24-b11-letter-removed-from-wc-and-index.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/25-11.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/26-11-cp-alpha-to-bravo.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/27-12-bravo.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/28-12-fetched-to-alpha.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/29-12-merged-to-alpha.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/30-13-alpha-cloned-to-delta-bare.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/31-14-alpha.png">
-<meta property="og:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/32-14-pushed-to-delta.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/1-a1-tree-graph.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/2-a1-commit.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/3-a1-refs.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/4-a1-wc-and-index.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/5-a1-wc-number-set-to-2.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/6-a1-wc-and-index-number-set-to-2.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/7-a2.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/8-a2-just-objects-commits-and-refs.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/9-a2-detached-head.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/10-a3-detached-head.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/11-a3-on-deputy.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/12-a3-on-master-on-a2.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/13-a3ondeputy.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/14-a3-on-master-on-a2.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/15-a3-on-master.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/16-a4-b3-on-deputy.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/17-a4-b3-on-deputy.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/18-b4-on-deputy.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/19-b4-master-deputy-on-b4.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/20-b5-on-deputy-b6-on-master.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/21-b6-on-master-with-merge-head.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/22-b11-on-master.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/24-b11-letter-removed-from-wc-and-index.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/24-b11-letter-removed-from-wc-and-index.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/25-11.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/26-11-cp-alpha-to-bravo.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/27-12-bravo.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/28-12-fetched-to-alpha.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/29-12-merged-to-alpha.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/30-13-alpha-cloned-to-delta-bare.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/31-14-alpha.png">
+<meta property="og:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/32-14-pushed-to-delta.png">
 <meta property="og:updated_time" content="2016-12-06T05:57:20.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Git工作原理">
 <meta name="twitter:description" content="本文重点介绍了支持Git的图形结构，以及该图形的属性指示Git行为的方式。从基础开始，同时有实例讲解，根据实例建立一个更真实的模型，让你更好地理解git做了什么。">
-<meta name="twitter:image" content="http://aa.yongliangchen.cn/blog/blog/uploads/git-works-how/1-a1-tree-graph.png">
+<meta name="twitter:image" content="https://plpcm.github.io/blog/blog/uploads/git-works-how/1-a1-tree-graph.png">
 
 
 
@@ -156,7 +156,7 @@
 
 
 
-  <link rel="canonical" href="http://aa.yongliangchen.cn/blog/2016/02/20/git-works-how/"/>
+  <link rel="canonical" href="https://plpcm.github.io/blog/2016/02/20/git-works-how/"/>
 
 
 
@@ -349,7 +349,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-  <link itemprop="mainEntityOfPage" href="http://aa.yongliangchen.cn/blog/blog/2016/02/20/git-works-how/">
+  <link itemprop="mainEntityOfPage" href="https://plpcm.github.io/blog/blog/2016/02/20/git-works-how/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
     <meta itemprop="name" content="曹淼">

@@ -4,9 +4,9 @@
   <subtitle>道法自然</subtitle>
   <link href="/blog/atom.xml" rel="self"/>
   
-  <link href="http://aa.yongliangchen.cn/blog/"/>
+  <link href="https://plpcm.github.io/blog/"/>
   <updated>2018-11-06T07:30:04.000Z</updated>
-  <id>http://aa.yongliangchen.cn/blog/</id>
+  <id>https://plpcm.github.io/blog/</id>
   
   <author>
     <name>曹淼</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>使用Fabric部署代码</title>
-    <link href="http://aa.yongliangchen.cn/blog/2018/11/02/fabric-basic/"/>
-    <id>http://aa.yongliangchen.cn/blog/2018/11/02/fabric-basic/</id>
+    <link href="https://plpcm.github.io/blog/2018/11/02/fabric-basic/"/>
+    <id>https://plpcm.github.io/blog/2018/11/02/fabric-basic/</id>
     <published>2018-11-02T02:30:16.000Z</published>
     <updated>2018-11-06T07:30:04.000Z</updated>
     
@@ -47,19 +47,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="fabric" scheme="http://aa.yongliangchen.cn/blog/tags/fabric/"/>
+      <category term="fabric" scheme="https://plpcm.github.io/blog/tags/fabric/"/>
     
   </entry>
   
   <entry>
     <title>salt 命令使用入门</title>
-    <link href="http://aa.yongliangchen.cn/blog/2017/01/02/salt-command/"/>
-    <id>http://aa.yongliangchen.cn/blog/2017/01/02/salt-command/</id>
+    <link href="https://plpcm.github.io/blog/2017/01/02/salt-command/"/>
+    <id>https://plpcm.github.io/blog/2017/01/02/salt-command/</id>
     <published>2017-01-02T02:30:16.000Z</published>
     <updated>2017-01-05T03:55:54.000Z</updated>
     
@@ -78,19 +78,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="saltstack" scheme="http://aa.yongliangchen.cn/blog/tags/saltstack/"/>
+      <category term="saltstack" scheme="https://plpcm.github.io/blog/tags/saltstack/"/>
     
   </entry>
   
   <entry>
     <title>supervisor安装与使用</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/12/12/supervisor-manual/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/12/12/supervisor-manual/</id>
+    <link href="https://plpcm.github.io/blog/2016/12/12/supervisor-manual/"/>
+    <id>https://plpcm.github.io/blog/2016/12/12/supervisor-manual/</id>
     <published>2016-12-12T02:30:16.000Z</published>
     <updated>2016-12-13T08:57:05.000Z</updated>
     
@@ -136,17 +136,17 @@
     
     </summary>
     
-      <category term="supervisor" scheme="http://aa.yongliangchen.cn/blog/categories/supervisor/"/>
+      <category term="supervisor" scheme="https://plpcm.github.io/blog/categories/supervisor/"/>
     
     
-      <category term="supervisor" scheme="http://aa.yongliangchen.cn/blog/tags/supervisor/"/>
+      <category term="supervisor" scheme="https://plpcm.github.io/blog/tags/supervisor/"/>
     
   </entry>
   
   <entry>
     <title>收藏链接</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/12/05/hotlink/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/12/05/hotlink/</id>
+    <link href="https://plpcm.github.io/blog/2016/12/05/hotlink/"/>
+    <id>https://plpcm.github.io/blog/2016/12/05/hotlink/</id>
     <published>2016-12-05T09:06:40.000Z</published>
     <updated>2016-12-05T09:06:40.000Z</updated>
     
@@ -167,15 +167,15 @@
     
     </summary>
     
-      <category term="Collection" scheme="http://aa.yongliangchen.cn/blog/categories/Collection/"/>
+      <category term="Collection" scheme="https://plpcm.github.io/blog/categories/Collection/"/>
     
     
   </entry>
   
   <entry>
     <title>PYTHON FABRIC实现远程操作和部署</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/12/02/fabric/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/12/02/fabric/</id>
+    <link href="https://plpcm.github.io/blog/2016/12/02/fabric/"/>
+    <id>https://plpcm.github.io/blog/2016/12/02/fabric/</id>
     <published>2016-12-02T02:30:16.000Z</published>
     <updated>2017-01-05T03:56:07.000Z</updated>
     
@@ -266,19 +266,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="fabric" scheme="http://aa.yongliangchen.cn/blog/tags/fabric/"/>
+      <category term="fabric" scheme="https://plpcm.github.io/blog/tags/fabric/"/>
     
   </entry>
   
   <entry>
     <title>浅谈CLOSE_WAIT</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/12/02/tcp_CLOSE_WAIT/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/12/02/tcp_CLOSE_WAIT/</id>
+    <link href="https://plpcm.github.io/blog/2016/12/02/tcp_CLOSE_WAIT/"/>
+    <id>https://plpcm.github.io/blog/2016/12/02/tcp_CLOSE_WAIT/</id>
     <published>2016-12-02T02:30:16.000Z</published>
     <updated>2017-01-05T07:41:44.000Z</updated>
     
@@ -310,17 +310,17 @@
     
     </summary>
     
-      <category term="tcp" scheme="http://aa.yongliangchen.cn/blog/categories/tcp/"/>
+      <category term="tcp" scheme="https://plpcm.github.io/blog/categories/tcp/"/>
     
     
-      <category term="tcp" scheme="http://aa.yongliangchen.cn/blog/tags/tcp/"/>
+      <category term="tcp" scheme="https://plpcm.github.io/blog/tags/tcp/"/>
     
   </entry>
   
   <entry>
     <title>Keepalived+HAProxy实现读写分离discuz论坛</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/11/02/ansible_haproxy_keepalive/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/11/02/ansible_haproxy_keepalive/</id>
+    <link href="https://plpcm.github.io/blog/2016/11/02/ansible_haproxy_keepalive/"/>
+    <id>https://plpcm.github.io/blog/2016/11/02/ansible_haproxy_keepalive/</id>
     <published>2016-11-02T02:30:16.000Z</published>
     <updated>2017-01-11T03:49:49.000Z</updated>
     
@@ -440,25 +440,25 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
-      <category term="haproxy" scheme="http://aa.yongliangchen.cn/blog/tags/haproxy/"/>
+      <category term="haproxy" scheme="https://plpcm.github.io/blog/tags/haproxy/"/>
     
-      <category term="keepalive" scheme="http://aa.yongliangchen.cn/blog/tags/keepalive/"/>
+      <category term="keepalive" scheme="https://plpcm.github.io/blog/tags/keepalive/"/>
     
-      <category term="discuz" scheme="http://aa.yongliangchen.cn/blog/tags/discuz/"/>
+      <category term="discuz" scheme="https://plpcm.github.io/blog/tags/discuz/"/>
     
   </entry>
   
   <entry>
     <title>yaml在python上的使用</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/25/yaml/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/25/yaml/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/25/yaml/"/>
+    <id>https://plpcm.github.io/blog/2016/10/25/yaml/</id>
     <published>2016-10-25T02:30:16.000Z</published>
     <updated>2017-01-11T08:23:34.000Z</updated>
     
@@ -501,19 +501,19 @@
     
     </summary>
     
-      <category term="python" scheme="http://aa.yongliangchen.cn/blog/categories/python/"/>
+      <category term="python" scheme="https://plpcm.github.io/blog/categories/python/"/>
     
     
-      <category term="python" scheme="http://aa.yongliangchen.cn/blog/tags/python/"/>
+      <category term="python" scheme="https://plpcm.github.io/blog/tags/python/"/>
     
-      <category term="yaml" scheme="http://aa.yongliangchen.cn/blog/tags/yaml/"/>
+      <category term="yaml" scheme="https://plpcm.github.io/blog/tags/yaml/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（十 二）磁盘使用率筛选</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_12/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_12/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_12/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_12/</id>
     <published>2016-10-22T02:55:16.000Z</published>
     <updated>2017-01-11T01:49:03.000Z</updated>
     
@@ -555,19 +555,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（十一）ansible普通用户su切换问题</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_11/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_11/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_11/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_11/</id>
     <published>2016-10-22T02:50:16.000Z</published>
     <updated>2017-01-11T01:49:01.000Z</updated>
     
@@ -594,19 +594,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（十）ansible api</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_10/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_10/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_10/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_10/</id>
     <published>2016-10-22T02:40:16.000Z</published>
     <updated>2017-01-11T01:48:55.000Z</updated>
     
@@ -642,19 +642,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（九）playbook进阶</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_09/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_09/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_09/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_09/</id>
     <published>2016-10-22T02:39:16.000Z</published>
     <updated>2017-01-11T01:48:48.000Z</updated>
     
@@ -789,19 +789,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（八）ansible-playbook简单使用</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_08/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_08/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_08/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_08/</id>
     <published>2016-10-22T02:38:16.000Z</published>
     <updated>2017-01-11T01:39:57.000Z</updated>
     
@@ -852,19 +852,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（七）常用模块</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_07/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_07/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_07/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_07/</id>
     <published>2016-10-22T02:37:16.000Z</published>
     <updated>2017-01-13T06:27:59.000Z</updated>
     
@@ -1055,19 +1055,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（六）Ad-hoc与commands模块</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_06/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_06/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_06/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_06/</id>
     <published>2016-10-22T02:35:16.000Z</published>
     <updated>2017-01-11T01:39:37.000Z</updated>
     
@@ -1129,19 +1129,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（五）Dynamic Inventory</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_05/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_05/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_05/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_05/</id>
     <published>2016-10-22T02:32:16.000Z</published>
     <updated>2017-01-11T10:57:47.000Z</updated>
     
@@ -1178,19 +1178,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（四）ansible.cfg与默认配置</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_04/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_04/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_04/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_04/</id>
     <published>2016-10-22T02:30:16.000Z</published>
     <updated>2017-01-10T10:30:31.000Z</updated>
     
@@ -1220,19 +1220,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（三）Inventory与Patterns</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_03/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_03/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_03/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_03/</id>
     <published>2016-10-22T02:20:16.000Z</published>
     <updated>2017-01-11T01:39:12.000Z</updated>
     
@@ -1295,19 +1295,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（二）ansible架构</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_02/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_02/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_02/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_02/</id>
     <published>2016-10-22T02:10:16.000Z</published>
     <updated>2017-01-11T01:38:59.000Z</updated>
     
@@ -1354,19 +1354,19 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
   <entry>
     <title>ansible小结（一）ansible的安装</title>
-    <link href="http://aa.yongliangchen.cn/blog/2016/10/22/ansible_01/"/>
-    <id>http://aa.yongliangchen.cn/blog/2016/10/22/ansible_01/</id>
+    <link href="https://plpcm.github.io/blog/2016/10/22/ansible_01/"/>
+    <id>https://plpcm.github.io/blog/2016/10/22/ansible_01/</id>
     <published>2016-10-22T01:10:16.000Z</published>
     <updated>2017-01-11T01:38:47.000Z</updated>
     
@@ -1417,12 +1417,12 @@
     
     </summary>
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/categories/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/categories/devops/"/>
     
     
-      <category term="devops" scheme="http://aa.yongliangchen.cn/blog/tags/devops/"/>
+      <category term="devops" scheme="https://plpcm.github.io/blog/tags/devops/"/>
     
-      <category term="ansible" scheme="http://aa.yongliangchen.cn/blog/tags/ansible/"/>
+      <category term="ansible" scheme="https://plpcm.github.io/blog/tags/ansible/"/>
     
   </entry>
   
