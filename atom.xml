@@ -105,9 +105,9 @@
       <category term="名词解释" scheme="https://xu-github.github.io/categories/%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A/"/>
     
     
-      <category term="IDE" scheme="https://xu-github.github.io/tags/IDE/"/>
-    
       <category term="SDK" scheme="https://xu-github.github.io/tags/SDK/"/>
+    
+      <category term="IDE" scheme="https://xu-github.github.io/tags/IDE/"/>
     
   </entry>
   
@@ -499,6 +499,30 @@
   </entry>
   
   <entry>
+    <title>【原创】JAVA中的时间大小比较</title>
+    <link href="https://xu-github.github.io/2017/12/06/java-time-compare1/"/>
+    <id>https://xu-github.github.io/2017/12/06/java-time-compare1/</id>
+    <published>2017-12-06T08:22:16.000Z</published>
+    <updated>2019-04-03T13:13:41.550Z</updated>
+    
+    <content type="html"><![CDATA[<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.text.DateFormat;  </div><div class="line"><span class="keyword">import</span> java.text.ParseException;  </div><div class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;  </div><div class="line"><span class="keyword">import</span> java.util.Date;  </div><div class="line">  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DateTest</span> </span>&#123;  </div><div class="line">  </div><div class="line">    <span class="comment">/** </span></div><div class="line">     * <span class="doctag">@param</span> args </div><div class="line">     */  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </div><div class="line">        <span class="comment">// TODO Auto-generated method stub  </span></div><div class="line">        DateFormat df = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"HH:mm:ss"</span>);<span class="comment">//创建日期转换对象HH:mm:ss为时分秒，年月日为yyyy-MM-dd  </span></div><div class="line">        <span class="keyword">try</span> &#123;  </div><div class="line">            Date dt1 = df.parse(<span class="string">"15:00:00"</span>);<span class="comment">//将字符串转换为date类型  </span></div><div class="line">            Date dt2 = df.parse(<span class="string">"17:00:00"</span>);  </div><div class="line">            <span class="keyword">if</span>(dt1.getTime()&gt;dt2.getTime())<span class="comment">//比较时间大小,如果dt1大于dt2  </span></div><div class="line">            &#123;  </div><div class="line">                System.out.println(<span class="string">"yes"</span>);  </div><div class="line">            &#125;  </div><div class="line">            <span class="keyword">else</span>  </div><div class="line">            &#123;  </div><div class="line">                System.out.println(<span class="string">"no"</span>);<span class="comment">//运行输出no  </span></div><div class="line">            &#125;  </div><div class="line">        &#125; <span class="keyword">catch</span> (ParseException e) &#123;  </div><div class="line">            <span class="comment">// TODO Auto-generated catch block  </span></div><div class="line">            e.printStackTrace();  </div><div class="line">        &#125;  </div><div class="line">  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">&#125;  </div><div class="line"></div><div class="line">======================================================</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.text.DateFormat;</div><div class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;</div><div class="line"><span class="keyword">import</span> java.util.Date;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line">*</div><div class="line">* <span class="doctag">@author</span> hp</div><div class="line">*/</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">test</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;</div><div class="line">       <span class="keyword">int</span> i= compare_date(<span class="string">"1995-11-12 15:21"</span>, <span class="string">"1999-12-11 09:59"</span>);</div><div class="line">       System.out.println(<span class="string">"i=="</span>+i);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">compare_date</span><span class="params">(String DATE1, String DATE2)</span> </span>&#123;</div><div class="line">        </div><div class="line">        </div><div class="line">        DateFormat df = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyy-MM-dd hh:mm"</span>);</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            Date dt1 = df.parse(DATE1);</div><div class="line">            Date dt2 = df.parse(DATE2);</div><div class="line">            <span class="keyword">if</span> (dt1.getTime() &gt; dt2.getTime()) &#123;</div><div class="line">                System.out.println(<span class="string">"dt1 在dt2前"</span>);</div><div class="line">                <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (dt1.getTime() &lt; dt2.getTime()) &#123;</div><div class="line">                System.out.println(<span class="string">"dt1在dt2后"</span>);</div><div class="line">                <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">catch</span> (Exception exception) &#123;</div><div class="line">            exception.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      JAVA中的时间大小比较
+    
+    </summary>
+    
+      <category term="java" scheme="https://xu-github.github.io/categories/java/"/>
+    
+    
+      <category term="java" scheme="https://xu-github.github.io/tags/java/"/>
+    
+      <category term="时间" scheme="https://xu-github.github.io/tags/%E6%97%B6%E9%97%B4/"/>
+    
+  </entry>
+  
+  <entry>
     <title>【转载】Java时间和时间戳的相互转换</title>
     <link href="https://xu-github.github.io/2017/12/06/java-time-compare2/"/>
     <id>https://xu-github.github.io/2017/12/06/java-time-compare2/</id>
@@ -525,17 +549,21 @@
   </entry>
   
   <entry>
-    <title>【原创】JAVA中的时间大小比较</title>
-    <link href="https://xu-github.github.io/2017/12/06/java-time-compare1/"/>
-    <id>https://xu-github.github.io/2017/12/06/java-time-compare1/</id>
-    <published>2017-12-06T08:22:16.000Z</published>
-    <updated>2019-04-03T13:13:41.550Z</updated>
+    <title>【原创】Java 将String转化为Int</title>
+    <link href="https://xu-github.github.io/2017/12/06/java-stringtoint/"/>
+    <id>https://xu-github.github.io/2017/12/06/java-stringtoint/</id>
+    <published>2017-12-06T07:22:16.000Z</published>
+    <updated>2019-04-03T13:18:33.515Z</updated>
     
-    <content type="html"><![CDATA[<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> java.text.DateFormat;  </div><div class="line"><span class="keyword">import</span> java.text.ParseException;  </div><div class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;  </div><div class="line"><span class="keyword">import</span> java.util.Date;  </div><div class="line">  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DateTest</span> </span>&#123;  </div><div class="line">  </div><div class="line">    <span class="comment">/** </span></div><div class="line">     * <span class="doctag">@param</span> args </div><div class="line">     */  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </div><div class="line">        <span class="comment">// TODO Auto-generated method stub  </span></div><div class="line">        DateFormat df = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"HH:mm:ss"</span>);<span class="comment">//创建日期转换对象HH:mm:ss为时分秒，年月日为yyyy-MM-dd  </span></div><div class="line">        <span class="keyword">try</span> &#123;  </div><div class="line">            Date dt1 = df.parse(<span class="string">"15:00:00"</span>);<span class="comment">//将字符串转换为date类型  </span></div><div class="line">            Date dt2 = df.parse(<span class="string">"17:00:00"</span>);  </div><div class="line">            <span class="keyword">if</span>(dt1.getTime()&gt;dt2.getTime())<span class="comment">//比较时间大小,如果dt1大于dt2  </span></div><div class="line">            &#123;  </div><div class="line">                System.out.println(<span class="string">"yes"</span>);  </div><div class="line">            &#125;  </div><div class="line">            <span class="keyword">else</span>  </div><div class="line">            &#123;  </div><div class="line">                System.out.println(<span class="string">"no"</span>);<span class="comment">//运行输出no  </span></div><div class="line">            &#125;  </div><div class="line">        &#125; <span class="keyword">catch</span> (ParseException e) &#123;  </div><div class="line">            <span class="comment">// TODO Auto-generated catch block  </span></div><div class="line">            e.printStackTrace();  </div><div class="line">        &#125;  </div><div class="line">  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">&#125;  </div><div class="line"></div><div class="line">======================================================</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.text.DateFormat;</div><div class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;</div><div class="line"><span class="keyword">import</span> java.util.Date;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line">*</div><div class="line">* <span class="doctag">@author</span> hp</div><div class="line">*/</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">test</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;</div><div class="line">       <span class="keyword">int</span> i= compare_date(<span class="string">"1995-11-12 15:21"</span>, <span class="string">"1999-12-11 09:59"</span>);</div><div class="line">       System.out.println(<span class="string">"i=="</span>+i);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">compare_date</span><span class="params">(String DATE1, String DATE2)</span> </span>&#123;</div><div class="line">        </div><div class="line">        </div><div class="line">        DateFormat df = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyy-MM-dd hh:mm"</span>);</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            Date dt1 = df.parse(DATE1);</div><div class="line">            Date dt2 = df.parse(DATE2);</div><div class="line">            <span class="keyword">if</span> (dt1.getTime() &gt; dt2.getTime()) &#123;</div><div class="line">                System.out.println(<span class="string">"dt1 在dt2前"</span>);</div><div class="line">                <span class="keyword">return</span> <span class="number">1</span>;</div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (dt1.getTime() &lt; dt2.getTime()) &#123;</div><div class="line">                System.out.println(<span class="string">"dt1在dt2后"</span>);</div><div class="line">                <span class="keyword">return</span> -<span class="number">1</span>;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">catch</span> (Exception exception) &#123;</div><div class="line">            exception.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>]]></content>
+    <content type="html"><![CDATA[<p>在 Java 中要将 String 类型转化为 int 类型时,需使用 Integer 类中的 parseInt() 方法或者 valueOf() 方法进行转换.</p>
+<p>例1:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">String str = <span class="string">"123"</span>;</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    <span class="keyword">int</span> a = Integer.parseInt(str);</div><div class="line">&#125; <span class="keyword">catch</span> (NumberFormatException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>例2:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">String str = <span class="string">"123"</span>;</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    <span class="keyword">int</span> b = Integer.valueOf(str).intValue()</div><div class="line">&#125; <span class="keyword">catch</span> (NumberFormatException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在转换过程中需注意,因为字符串中可能会出现非数字的情况,所以在转换的时候需要捕捉处理异常</p>
+]]></content>
     
     <summary type="html">
     
-      JAVA中的时间大小比较
+      Java 将String转化为Int
     
     </summary>
     
@@ -543,8 +571,6 @@
     
     
       <category term="java" scheme="https://xu-github.github.io/tags/java/"/>
-    
-      <category term="时间" scheme="https://xu-github.github.io/tags/%E6%97%B6%E9%97%B4/"/>
     
   </entry>
   
@@ -579,32 +605,6 @@
       <category term="db" scheme="https://xu-github.github.io/tags/db/"/>
     
       <category term="postgresql" scheme="https://xu-github.github.io/tags/postgresql/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>【原创】Java 将String转化为Int</title>
-    <link href="https://xu-github.github.io/2017/12/06/java-stringtoint/"/>
-    <id>https://xu-github.github.io/2017/12/06/java-stringtoint/</id>
-    <published>2017-12-06T07:22:16.000Z</published>
-    <updated>2019-04-03T13:18:33.515Z</updated>
-    
-    <content type="html"><![CDATA[<p>在 Java 中要将 String 类型转化为 int 类型时,需使用 Integer 类中的 parseInt() 方法或者 valueOf() 方法进行转换.</p>
-<p>例1:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">String str = <span class="string">"123"</span>;</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    <span class="keyword">int</span> a = Integer.parseInt(str);</div><div class="line">&#125; <span class="keyword">catch</span> (NumberFormatException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>例2:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">String str = <span class="string">"123"</span>;</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    <span class="keyword">int</span> b = Integer.valueOf(str).intValue()</div><div class="line">&#125; <span class="keyword">catch</span> (NumberFormatException e) &#123;</div><div class="line">    e.printStackTrace();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>在转换过程中需注意,因为字符串中可能会出现非数字的情况,所以在转换的时候需要捕捉处理异常</p>
-]]></content>
-    
-    <summary type="html">
-    
-      Java 将String转化为Int
-    
-    </summary>
-    
-      <category term="java" scheme="https://xu-github.github.io/categories/java/"/>
-    
-    
-      <category term="java" scheme="https://xu-github.github.io/tags/java/"/>
     
   </entry>
   
